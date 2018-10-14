@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/list_view_inner_bottom_padding"
+        android:paddingEnd="@dimen/list_view_inner_right_padding"
+        android:paddingStart="@dimen/list_view_inner_left_padding"
+        android:paddingTop="@dimen/list_view_inner_top_padding">
+
+        <!--
+        LEFT PREVIEW IMAGE:
+        -->
+
+        <ImageView
+            android:id="@+id/left_image_view"
+
+            android:layout_width="@dimen/list_view_left_image_diameter"
+            android:layout_height="@dimen/list_view_left_image_diameter"
+            android:src="@{ context.getResources().getDrawable(viewModel.drawableId), default = @drawable/bridge_v2 }" />
+
+        <!--
+        TITLE:
+        -->
+
+        <TextView
+            android:id="@+id/title_text_view"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="@dimen/list_view_inner_image_text_horizontal_margin"
+            android:text='@{ viewModel.name, default = "Hub Name"}'
+            android:textSize="@dimen/list_view_title_font_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/left_image_view" />
+
+        <TextView
+            android:id="@+id/hub_id_text_view"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text='@{ viewModel.ipAddress, default="001788xxxxxxxxxx" }'
+            android:textSize="@dimen/list_view_text_font_size"
+            app:layout_constraintTop_toBottomOf="@+id/title_text_view"
+            app:layout_constraintStart_toStartOf="@+id/title_text_view" />
+
+        <TextView
+            android:id="@+id/ip_address_text_view"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text='@{ viewModel.ipAddress, default="192.168.0.1" }'
+            android:textSize="@dimen/list_view_text_font_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/hub_id_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/title_text_view" />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

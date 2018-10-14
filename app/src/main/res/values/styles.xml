@@ -1,0 +1,46 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="ToggleButtonGroup">
+        <item name="cardCornerRadius">0dp</item>
+        <item name="elevation">0dp</item>
+    </style>
+    
+    <!--This style can be applied to individual RadioButton instances to make them appear as
+    toggle buttons. The entire set of radio buttons must also be wrapped in a CardView to achieve
+    the correct rounded corners desired.-->
+    <style name="ToggleButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_margin">0dp</item>
+
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@drawable/toggle_background</item>
+        <item name="android:button">@null</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:elevation" tools:targetApi="lollipop">0dp</item>
+        <item name="elevation">0dp</item>
+
+        <item name="android:textSize">0sp</item>
+    </style>
+
+    <style name="ListViewSliderImage">
+        <item name="android:layout_width">@dimen/list_view_slider_image_width</item>
+        <item name="android:layout_height">@dimen/list_view_slider_image_height</item>
+        <item name="android:paddingTop">@dimen/list_view_slider_image_y_padding</item>
+        <item name="android:paddingBottom">@dimen/list_view_slider_image_y_padding</item>
+    </style>
+
+</resources>

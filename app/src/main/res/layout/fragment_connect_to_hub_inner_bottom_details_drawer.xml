@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <import type="android.view.View"/>
+
+        <variable
+            name="viewModel"
+            type="com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.ConnectToHubFragmentViewModel"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/fragment_top_padding"
+        android:paddingBottom="@dimen/fragment_bottom_padding"
+        android:paddingEnd="@dimen/fragment_horizontal_padding"
+        android:paddingStart="@dimen/fragment_horizontal_padding">
+
+        <ProgressBar
+            android:id="@+id/small_loading_progress_bar"
+
+            android:visibility="@{ viewModel.isSearching() ? View.VISIBLE : View.GONE }"
+
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintTop_toTopOf="@+id/still_loading_text_view"
+            app:layout_constraintBottom_toBottomOf="@+id/still_loading_text_view"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/still_loading_text_view"
+
+            android:visibility="@{ viewModel.isSearching() ? View.VISIBLE : View.GONE }"
+
+            android:text="@string/hub_bottom_still_searching"
+
+            android:layout_marginLeft="@dimen/fragment_connect_to_hub_horizontal_still_searching_padding"
+            app:layout_constraintLeft_toRightOf="@+id/small_loading_progress_bar"
+            app:layout_constraintRight_toLeftOf="@+id/expand_contract_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+
+            android:id="@+id/expand_contract_button"
+
+            android:src="@{ viewModel.bottomDetailsDrawerIsExpanded ? @drawable/ic_expand_more_black_24dp : @drawable/ic_expand_less_black_24dp , default = @drawable/ic_expand_more_black_24dp}"
+            android:onClick="@{(view) -> viewModel.onBottomDetailsDrawerToggleExpandedClicked() }"
+
+            android:focusable="true"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+
+            android:layout_width="@dimen/list_view_expand_contract_image_size"
+            android:layout_height="@dimen/list_view_expand_contract_image_size"
+            android:padding="@dimen/list_view_expand_contract_image_padding"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/still_loading_text_view"
+            app:layout_constraintBottom_toBottomOf="@+id/still_loading_text_view"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

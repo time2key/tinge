@@ -1,0 +1,36 @@
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="view"
+            type="com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragment" />
+
+        <variable
+            name="viewModel"
+            type="com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragmentViewModel" />
+
+    </data>
+
+    <android.support.v7.widget.RecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context="com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragment"
+
+        android:id="@+id/light_list_linear_layout"
+
+        android:orientation="vertical"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        app:itemBinding="@{view.lightListRecyclerViewItemBinding}"
+        app:items="@{viewModel.individualLightViewModels}"
+        app:layoutManager="@{me.tatarka.bindingcollectionadapter2.LayoutManagers.linear()}">
+
+
+
+    </android.support.v7.widget.RecyclerView>
+</layout>

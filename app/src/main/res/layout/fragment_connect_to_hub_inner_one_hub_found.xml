@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <import type="android.view.View"/>
+
+        <variable
+            name="viewModel"
+            type="com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.ConnectToHubFragmentViewModel"/>
+        <variable
+            name="hubViewModel"
+            type="com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel"/>
+    </data>
+
+<android.support.constraint.ConstraintLayout
+
+    android:id="@+id/large_single_hub_constraint_layout"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/fragment_bottom_padding"
+    android:paddingEnd="@dimen/fragment_horizontal_padding"
+    android:paddingStart="@dimen/fragment_horizontal_padding"
+    android:paddingTop="@dimen/fragment_top_padding"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/single_hub_main_text_view"
+
+        android:layout_width="0dp"
+
+        android:layout_height="wrap_content"
+
+        android:text="@string/hub_one_found_hue_bridge"
+        android:textSize="@dimen/main_instruction_text_size"
+        app:layout_constraintBottom_toTopOf="@+id/single_hub_main_image_view"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <ImageView
+        android:id="@+id/single_hub_main_image_view"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:adjustViewBounds="true"
+        android:src="@drawable/pushlink_bridgev2"
+
+        android:layout_marginTop="@dimen/fragment_connect_to_hub_padding_above_large_image"
+        app:layout_constraintTop_toBottomOf="@+id/single_hub_main_text_view"
+        app:layout_constraintBottom_toTopOf="@+id/hub_name_text_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/hub_name_text_view"
+
+        android:layout_width="0dp"
+
+        android:layout_height="wrap_content"
+
+        android:text='@{ hubViewModel.name, default = "Hub Name"}'
+        android:textSize="@dimen/list_view_title_font_size"
+        app:layout_constraintBottom_toTopOf="@+id/hub_id_text_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/single_hub_main_image_view" />
+
+    <TextView
+        android:id="@+id/hub_id_text_view"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text='@{ hubViewModel.ipAddress, default="001788xxxxxxxxxx" }'
+        android:textSize="@dimen/list_view_text_font_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/hub_name_text_view"
+        app:layout_constraintTop_toBottomOf="@+id/hub_name_text_view" />
+
+    <TextView
+        android:id="@+id/ip_address_text_view"
+
+        android:text='@{ hubViewModel.ipAddress, default="192.168.0.1" }'
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/list_view_text_font_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/hub_id_text_view"
+        app:layout_constraintTop_toTopOf="@+id/hub_id_text_view" />
+
+
+
+</android.support.constraint.ConstraintLayout>
+</layout>

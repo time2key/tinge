@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Tinge</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="hub_searching">Scanning for Hubs/Bridges on your WiFi network…</string>
+
+    <string name="hub_bottom_still_searching">Scanning for additional Hubs/Bridges...</string>
+    <string name="hub_bottom_finished_searching">Finished scanning for Hubs/Bridges</string>
+    <string name="hub_bottom_finished_searching_errors">Finished scanning with issues</string>
+
+    <string name="hub_scan_ssdp">Scanning for Hue Bridges over SSDP</string>
+    <string name="hub_scan_ssdp_details">This scan multicasts a SSDP request over UDP and waits for responses.</string>
+
+    <string name="hub_scan_web">Contacting Hue server for Bridges</string>
+    <string name="hub_scan_web_details">Hue Bridges regularly check in with the Hue server, this scan contacts the Hue server for checked in devices on the local network.</string>
+
+    <string name="hub_scan_followup">Retrieving further details from found Hue Bridges</string>
+    <string name="hub_scan_followup_details">Connects to the IP addresses of found devices for more device info.</string>
+
+    <string name="hub_scan_ip">Scanning IP addresses for Bridges</string>
+    <string name="hub_scan_ip_details">Scans every IP address on the local network (unless the subnet mask is extremely large) - this scan is more CPU intensive so only runs if the previous two scans could not complete or produced inconsistent results.</string>
+    <string name="hub_scan_ip_cancelled_not_required">Scan was not run - this scan is more cpu intensive so only runs if the previous two scans could not complete or produced inconsistent results.</string>
+
+    <string name="hub_scan_not_started">Not started</string>
+    <string name="hub_scan_in_progress_suffix">In progress</string>
+    <string name="hub_scan_finished_suffix">Finished</string>
+
+    <string name="hub_multiple_found">The following Hubs/Bridges have been found on your WiFi network. Select a device to connect to it.</string>
+    <string name="hub_none_found">No compatible Hubs/Bridges could be found on your WiFi network. Please ensure you are connected to the correct WiFi network, that your Hub/Bridge is turned on, and that your Hub/Bridge is supported. Supported Hubs/Bridges are Philips Hue Bridges, Samsung SmartThings Hubs, and IKEA TRADFRI Gateways.</string>
+    <string name="hub_one_found_hue_bridge">A Philips Hue Bridge has been found on your WiFi network. To connect to this device, push the button on the Bridge.</string>
+    <string name="hub_found_selected_hue_bridge">To connect to this device, push the button on the Bridge.</string>
+</resources>

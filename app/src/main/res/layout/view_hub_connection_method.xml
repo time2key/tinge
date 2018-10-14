@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.hubConnectionMethodView.HubConnectionMethodViewModel"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/list_view_inner_bottom_padding"
+        android:paddingEnd="@dimen/list_view_inner_right_padding"
+        android:paddingStart="@dimen/list_view_inner_left_padding"
+        android:paddingTop="@dimen/list_view_inner_top_padding">
+
+        <TextView
+            android:id="@+id/title_text_view"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:text='@{ viewModel.name, default = "Connection method name"}'
+            android:textSize="@dimen/list_view_title_font_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="fragment_horizontal_padding">16dp</dimen>
+    <dimen name="fragment_top_padding">8dp</dimen>
+    <dimen name="fragment_bottom_padding">8dp</dimen>
+
+    <dimen name="list_view_left_image_diameter">48dp</dimen>
+    <dimen name="list_view_inner_left_padding">@dimen/fragment_horizontal_padding</dimen>
+    <dimen name="list_view_inner_right_padding">@dimen/fragment_horizontal_padding</dimen>
+    <dimen name="list_view_inner_top_padding">8dp</dimen>
+    <dimen name="list_view_inner_bottom_padding">8dp</dimen>
+    <dimen name="list_view_inner_image_text_horizontal_margin">8dp</dimen>
+    <dimen name="list_view_inner_inbetween_vertical_margin">8dp</dimen>
+    <dimen name="list_view_title_font_size">14sp</dimen>
+    <dimen name="list_view_text_font_size">14sp</dimen>
+    <dimen name="list_view_image_slider_horizontal_separation">8dp</dimen>
+
+    <dimen name="list_view_slider_image_width">22dp</dimen><!--24dp-->
+    <dimen name="list_view_slider_image_height">40dp</dimen>
+    <dimen name="list_view_slider_image_y_padding">8dp</dimen>
+
+    <dimen name="list_view_expand_contract_image_size">28dp</dimen>
+    <dimen name="list_view_expand_contract_image_padding">2dp</dimen>
+
+    <dimen name="fragment_connect_to_hub_horizontal_still_searching_padding">8dp</dimen>
+    <dimen name="fragment_connect_to_hub_padding_above_large_image">8dp</dimen>
+
+    <dimen name="main_instruction_text_size">16sp</dimen>
+
+    <dimen name="button_font_size">10sp</dimen>
+
+    <dimen name="slider_track_height">3dp</dimen>
+    <dimen name="slider_handle_diameter">14dp</dimen>
+    <dimen name="slider_handle_diameter_inner">14dp</dimen>
+    <dimen name="slider_height">36dp</dimen><!--18dp-->
+
+    <!--Used to offset the track of sliders horizontally from the edges to account for the fact
+    that the slider handle is round and therefore the track should not be drawn right to the edge
+    or it will be visible when the handle is right at one of the ends-->
+    <dimen name="half_slider_handle_diameter">7dp</dimen>
+</resources>

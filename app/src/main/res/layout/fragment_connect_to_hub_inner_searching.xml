@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+
+    android:id="@+id/large_searching_for_hubs_constraint_layout"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/fragment_bottom_padding"
+    android:paddingEnd="@dimen/fragment_horizontal_padding"
+    android:paddingStart="@dimen/fragment_horizontal_padding"
+    android:paddingTop="@dimen/fragment_top_padding"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/large_searching_for_hubs_main_text_view"
+
+        android:layout_width="0dp"
+
+        android:layout_height="wrap_content"
+
+        android:text="@string/hub_searching"
+        android:textSize="@dimen/main_instruction_text_size"
+        app:layout_constraintBottom_toTopOf="@+id/large_loading_progress_bar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <ProgressBar
+        android:id="@+id/large_loading_progress_bar"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/large_searching_for_hubs_main_text_view"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragment">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.ConnectToHubFragmentState" />
+
+        <variable
+            name="view"
+            type="com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.ConnectToHubFragment" />
+
+        <variable
+            name="viewModel"
+            type="com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.ConnectToHubFragmentViewModel" />
+
+        <variable
+            name="hubViewModel"
+            type="com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+
+            android:layout_height="match_parent"
+            android:visibility="@{ viewModel.state == ConnectToHubFragmentState.SEARCHING_FOR_HUBS ? View.VISIBLE : View.GONE }">
+
+            <include layout="@layout/fragment_connect_to_hub_inner_searching" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+
+            android:layout_height="match_parent"
+            android:visibility="@{ viewModel.state == ConnectToHubFragmentState.ONE_HUB_FOUND ? View.VISIBLE : View.GONE }">
+
+            <include
+                layout="@layout/fragment_connect_to_hub_inner_one_hub_found"
+                bind:viewModel="@{viewModel}" />
+
+        </FrameLayout>
+
+        <android.support.v7.widget.RecyclerView
+
+            android:layout_width="match_parent"
+
+            android:layout_height="match_parent"
+            android:visibility="@{ viewModel.state == ConnectToHubFragmentState.MANY_HUBS_FOUND ? View.VISIBLE : View.GONE }"
+
+            app:itemBinding="@{view.hubListRecyclerViewItemBinding}"
+            app:items="@{viewModel.hubsFound}"
+            app:layoutManager="@{me.tatarka.bindingcollectionadapter2.LayoutManagers.linear()}" />
+        <!--<LinearLayout
+
+            android:id="@+id/hub_list_linear_layout"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone" />-->
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            >
+
+
+            <include
+                layout="@layout/fragment_connect_to_hub_inner_bottom_details_drawer"
+                bind:viewModel="@{viewModel}" />
+        </FrameLayout>
+    </FrameLayout>
+</layout>
