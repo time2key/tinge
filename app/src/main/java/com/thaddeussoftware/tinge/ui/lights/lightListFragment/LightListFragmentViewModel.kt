@@ -8,6 +8,7 @@ import com.thaddeussoftware.tinge.database.DatabaseSingleton
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
 import com.thaddeussoftware.tinge.database.phillipsHue.lights.HueLightsDao
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
+import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.HueHubController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
@@ -79,12 +80,12 @@ class LightListFragmentViewModel(
         hubControllers.forEach { entry ->
             val hubController = entry.value
             hubController
-                    .refresh(HubController.DataInHubType.LIGHTS)
+                    .refresh(LightGroupController.DataInGroupType.LIGHTS)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
                         CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
                                 individualLightViewModels.filter { it.lightController.hubController == hubController },
-                                hubController.lights,
+                                hubController.lightsInGroupOrSubgroups,
                                 { lightViewModel, lightController ->
                                     lightViewModel.lightController == lightController
                                 },

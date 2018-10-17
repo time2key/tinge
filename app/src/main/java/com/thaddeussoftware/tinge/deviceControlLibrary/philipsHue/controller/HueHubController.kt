@@ -5,6 +5,7 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
+import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.retrofitInterfaces.LightsRetrofitInterface
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.json.JsonLight
 import io.reactivex.Completable
@@ -31,7 +32,6 @@ class HueHubController constructor(
                 .build(),
         private val lightsRetrofitInterface: LightsRetrofitInterface = retrofit.create(LightsRetrofitInterface::class.java)
 ): HubController() {
-    override var name: ControllerInternalStageableProperty<String?> = ControllerInternalStageableProperty(hubName)
 
     /*@Inject
     lateinit var lightsRetrofitInterface: LightsRetrofitInterface
@@ -67,7 +67,13 @@ class HueHubController constructor(
     private val lightsBackingMap = HashMap<String, LightController>()
 
 
+    override var name: ControllerInternalStageableProperty<String?> = ControllerInternalStageableProperty(hubName)
 
+    override val hubController: HubController
+        get() = this
+
+    override val parentLightGroupController: LightGroupController?
+        get() = null
 
     override val id: String
         get() = hubId
@@ -75,18 +81,23 @@ class HueHubController constructor(
     override val ipAddress: String
         get() = hubIpAddress
 
-    override val lights: List<LightController>
+    override val lightsInGroupOrSubgroups: List<LightController>
         get() = lightsBackingMap.values.toList()
 
+    override val lightsNotInSubgroup: List<LightController>
+        get() = ArrayList(0) // TODO add lights not in room
+
+    override val lightGroups: List<LightGroupController>
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
 
-    override fun applyChanges(vararg dataInHubTypes: HubController.DataInHubType): Completable {
+    override fun applyChanges(vararg dataInGroupTypes: DataInGroupType): Completable {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun refresh(vararg dataInHubTypes: HubController.DataInHubType): Completable {
+    override fun refresh(vararg dataInGroupTypes: DataInGroupType): Completable {
 
-        if (dataInHubTypes.contains(DataInHubType.LIGHTS)) {
+        if (dataInGroupTypes.contains(DataInGroupType.LIGHTS)) {
             return lightsRetrofitInterface.getAllLights(hubUsernameCredentials)
                     .subscribeOn(Schedulers.io())
                     .flatMapCompletable { resultMap ->
