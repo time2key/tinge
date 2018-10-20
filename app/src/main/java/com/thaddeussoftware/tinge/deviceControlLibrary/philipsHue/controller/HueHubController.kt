@@ -131,7 +131,9 @@ class HueHubController constructor(
             } else { // Update existing light:
                 lightsBackingMap[mapEntry.key]?.jsonLight = mapEntry.value
             }
-
+        }
+        roomsBackingList.forEach {
+            it.value.lightsMap = lightsBackingMap
         }
     }
 

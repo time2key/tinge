@@ -16,6 +16,7 @@ import me.tatarka.bindingcollectionadapter2.ItemBinding
 import android.support.annotation.LayoutRes
 import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
+import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightView
 import me.tatarka.bindingcollectionadapter2.BindingRecyclerViewAdapter
 
@@ -32,7 +33,9 @@ class LightListFragment : Fragment() {
     /**
      * Required to auto bind the light list RecyclerView to the viewModel
      * */
-    val lightListRecyclerViewItemBinding = ItemBinding.of<LightViewModel>(BR.viewModel, R.layout.holder_view_light)
+    //val lightListRecyclerViewItemBinding = ItemBinding.of<LightViewModel>(BR.viewModel, R.layout.holder_view_light)
+
+    val groupListRecyclerViewItemBinding = ItemBinding.of<GroupViewModel>(BR.viewModel, R.layout.holder_view_group)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

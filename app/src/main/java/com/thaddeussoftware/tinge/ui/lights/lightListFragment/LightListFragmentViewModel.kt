@@ -1,5 +1,6 @@
 package com.thaddeussoftware.tinge.ui.lights.lightListFragment
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableArrayList
 import com.google.gson.GsonBuilder
@@ -11,6 +12,7 @@ import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubCon
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.HueHubController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
+import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -29,6 +31,8 @@ class LightListFragmentViewModel(
      * View models of each of the lights that should be shown on screen
      * */
     var individualLightViewModels = ObservableArrayList<LightViewModel>()
+
+    var individualGroupViewModels = ObservableArrayList<GroupViewModel>()
 
     /*init {
         hueHubsDao.getAllSavedHueHubs()
@@ -50,9 +54,10 @@ class LightListFragmentViewModel(
         //refreshListOfHubsAndLights()
     }
 
-    /**
+    @SuppressLint("CheckResult")
+            /**
      * Refreshes [hubControllers] to match the current database of stored hubs, then calls
-     * [refreshListOfLights] upon completion.
+     * [refreshListOfGroups] upon completion.
      * */
     fun refreshListOfHubsAndLights() {
         hueHubsDao.getAllSavedHueHubs()
@@ -68,7 +73,7 @@ class LightListFragmentViewModel(
                             // TODO
                         }
                     }
-                    refreshListOfLights()
+                    refreshListOfGroups()
                 }
     }
 
@@ -76,10 +81,10 @@ class LightListFragmentViewModel(
      * Contacts each hub to get a list of all lights, then updates the database and updates
      * this view model to reflect the lights scanned.
      * */
-    fun refreshListOfLights() {
+    fun refreshListOfGroups() {
         hubControllers.forEach { entry ->
             val hubController = entry.value
-            hubController
+            /*hubController
                     .refresh(LightGroupController.DataInGroupType.LIGHTS)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
@@ -99,6 +104,29 @@ class LightListFragmentViewModel(
                                 },
                                 { lightViewModel, _ ->
                                     lightViewModel.refreshToMatchController()
+                                }
+                        )
+                    }*/
+            hubController
+                    .refresh(LightGroupController.DataInGroupType.LIGHTS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
+                                individualGroupViewModels.filter { it.lightGroupController.hubController == hubController },
+                                hubController.lightGroups,
+                                { groupViewModel, lightGroupController ->
+                                    groupViewModel.lightGroupController == lightGroupController
+                                },
+                                {
+                                    //if (it.lightController.hubController == hubController) {
+                                    individualGroupViewModels.remove(it)
+                                    //}
+                                },
+                                {
+                                    individualGroupViewModels.add(GroupViewModel(it))
+                                },
+                                { groupViewModel, _ ->
+                                    groupViewModel.refreshListOfLightsToMatchController()
                                 }
                         )
                     }

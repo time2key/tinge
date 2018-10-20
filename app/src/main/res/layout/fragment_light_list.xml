@@ -26,11 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
-        app:itemBinding="@{view.lightListRecyclerViewItemBinding}"
-        app:items="@{viewModel.individualLightViewModels}"
-        app:layoutManager="@{me.tatarka.bindingcollectionadapter2.LayoutManagers.linear()}">
-
-
-
-    </android.support.v7.widget.RecyclerView>
+        app:itemBinding="@{view.groupListRecyclerViewItemBinding}"
+        app:items="@{viewModel.individualGroupViewModels}"
+        app:layoutManager="@{me.tatarka.bindingcollectionadapter2.LayoutManagers.linear()}"/>
 </layout>
