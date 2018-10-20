@@ -17,6 +17,24 @@ class HueLightController(
         private val hubUsernameCredentials: String
 ) : LightController {
 
+    var jsonLight: JsonLight? = jsonLight
+    set(value) {
+        field = value
+
+        backingIsReachable = jsonLight?.state?.reachable ?: false
+        backingDoesSupportColorMode = true
+        backingLightId = jsonLight?.uniqueId ?: ""
+
+        displayName.setValueRetrievedFromHub(jsonLight?.name)
+        isInColorMode.setValueRetrievedFromHub(
+                jsonLight?.state?.colorMode == JsonLight.JsonState.JsonLightColorMode.HUE_AND_SATURATION)
+        isOn.setValueRetrievedFromHub(jsonLight?.state?.on)
+        brightness.setValueRetrievedFromHub(jsonLight?.state?.brightness?.div(254f))
+        hue.setValueRetrievedFromHub((jsonLight?.state?.hue ?: 0) / 65535f)
+        saturation.setValueRetrievedFromHub( (jsonLight?.state?.sat ?: 0) / 254f)
+        // TODO color temperature properties
+    }
+
     private var backingIsReachable: Boolean = false
     override val isReachable: Boolean
         get() = backingIsReachable
@@ -50,20 +68,8 @@ class HueLightController(
 
 
     init {
-        backingIsReachable = jsonLight?.state?.reachable ?: false
-        backingDoesSupportColorMode = true
-        backingLightId = jsonLight?.uniqueId ?: ""
-
-        displayName.setValueRetrievedFromHub(jsonLight?.name)
-        isInColorMode.setValueRetrievedFromHub(
-                jsonLight?.state?.colorMode == JsonLight.JsonState.JsonLightColorMode.HUE_AND_SATURATION)
-        isOn.setValueRetrievedFromHub(jsonLight?.state?.on)
-        brightness.setValueRetrievedFromHub(jsonLight?.state?.brightness?.div(254f))
-        hue.setValueRetrievedFromHub((jsonLight?.state?.hue ?: 0) / 65535f)
-        saturation.setValueRetrievedFromHub( (jsonLight?.state?.sat ?: 0) / 254f)
-        // TODO color temperature properties
+        this.jsonLight = jsonLight
     }
-
 
     override fun applyChanges(): Completable {
         val jsonLightState = JsonLight.JsonState()

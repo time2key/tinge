@@ -6,7 +6,9 @@ import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.Contro
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
+import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.json.JsonRoom
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.retrofitInterfaces.LightsRetrofitInterface
+import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.retrofitInterfaces.RoomsRetrofitInterface
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.json.JsonLight
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
@@ -30,7 +32,8 @@ class HueHubController constructor(
                 .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build(),
-        private val lightsRetrofitInterface: LightsRetrofitInterface = retrofit.create(LightsRetrofitInterface::class.java)
+        private val lightsRetrofitInterface: LightsRetrofitInterface = retrofit.create(LightsRetrofitInterface::class.java),
+        private val roomsRetrofitInterface: RoomsRetrofitInterface = retrofit.create(RoomsRetrofitInterface::class.java)
 ): HubController() {
 
     /*@Inject
@@ -64,7 +67,7 @@ class HueHubController constructor(
      *
      * Map Key is the light id, Map Value is the [LightController] instance.
      * */
-    private val lightsBackingMap = HashMap<String, LightController>()
+    private val lightsBackingMap = HashMap<Int, HueLightController>()
 
 
     override var name: ControllerInternalStageableProperty<String?> = ControllerInternalStageableProperty(hubName)
@@ -87,8 +90,14 @@ class HueHubController constructor(
     override val lightsNotInSubgroup: List<LightController>
         get() = ArrayList(0) // TODO add lights not in room
 
+    private val roomsBackingList = HashMap<Int, HueRoomGroupController>()
+
     override val lightGroups: List<LightGroupController>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() {
+            val list = ArrayList<LightGroupController>()
+            roomsBackingList.values.forEach { list.add(it) }
+            return list
+        }
 
 
     override fun applyChanges(vararg dataInGroupTypes: DataInGroupType): Completable {
@@ -98,28 +107,41 @@ class HueHubController constructor(
     override fun refresh(vararg dataInGroupTypes: DataInGroupType): Completable {
 
         if (dataInGroupTypes.contains(DataInGroupType.LIGHTS)) {
-            return lightsRetrofitInterface.getAllLights(hubUsernameCredentials)
+            val lightsCompletable = lightsRetrofitInterface.getAllLights(hubUsernameCredentials)
                     .subscribeOn(Schedulers.io())
                     .flatMapCompletable { resultMap ->
-
                         updateLightListToMatchLights(resultMap)
-
-                        Completable.complete()
+                        return@flatMapCompletable Completable.complete()
                     }
+            val roomsCompletable = roomsRetrofitInterface.getAllLights(hubUsernameCredentials)
+                    .subscribeOn(Schedulers.io())
+                    .flatMapCompletable { resultMap ->
+                        updateRoomListToMatchRooms(resultMap)
+                        return@flatMapCompletable Completable.complete()
+                    }
+            return Completable.mergeArrayDelayError(lightsCompletable, roomsCompletable)
         } else return Completable.complete()
 
     }
 
     private fun updateLightListToMatchLights(lights: Map<Int, JsonLight>) {
         lights.forEach { mapEntry ->
-            //if (jsonLight.uniqueId == null) return@forEach
-
-            if (lightsBackingMap[mapEntry.value.uniqueId!!] == null) { // Add new light:
-                lightsBackingMap[mapEntry.value.uniqueId!!] = HueLightController(this, mapEntry.key, mapEntry.value, lightsRetrofitInterface, hubUsernameCredentials)
+            if (lightsBackingMap[mapEntry.key] == null) { // Add new light:
+                lightsBackingMap[mapEntry.key] = HueLightController(this, mapEntry.key, mapEntry.value, lightsRetrofitInterface, hubUsernameCredentials)
             } else { // Update existing light:
-
+                lightsBackingMap[mapEntry.key]?.jsonLight = mapEntry.value
             }
 
+        }
+    }
+
+    private fun updateRoomListToMatchRooms(rooms: Map<Int, JsonRoom>) {
+        rooms.forEach { roomEntry ->
+            if (roomsBackingList[roomEntry.key] == null) { // Add new room:
+                roomsBackingList[roomEntry.key] = HueRoomGroupController(this, lightsBackingMap, roomEntry.key, roomEntry.value)
+            } else { // Update existing room:
+                roomsBackingList[roomEntry.key]?.jsonRoom = roomEntry.value
+            }
         }
     }
 
