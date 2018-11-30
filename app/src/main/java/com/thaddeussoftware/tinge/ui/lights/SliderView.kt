@@ -35,7 +35,7 @@ class SliderView @JvmOverloads constructor(
 
     var onSlideAmountChangedListener: SliderViewListener? = null
 
-    var slidAmount = 0f
+    var slidAmount: Float? = 0f
         set(value) {
             if (field != value) {
                 field = value
@@ -99,6 +99,7 @@ class SliderView @JvmOverloads constructor(
     private fun getCurrentAutoColor(): Int {
         if (handleAutoColors == null) return 0
         val handleAutoColors = handleAutoColors!!
+        val slidAmount: Float = slidAmount ?: 0f
 
         var mergeColor1 = Math.floor(slidAmount.toDouble() * (handleAutoColors.size.toDouble()-1.0)).toInt()
         var mergeColor2 = Math.ceil(slidAmount.toDouble() * (handleAutoColors.size.toDouble()-1.0)).toInt()
@@ -122,14 +123,14 @@ class SliderView @JvmOverloads constructor(
     }
 
     private fun updateUIToCurrentSlidAmount() {
-        if (slidAmount<0) {
+        if (slidAmount ?: -1f < 0) {
             binding.sliderHandleView.visibility = GONE
         } else {
             binding.sliderHandleView.visibility = VISIBLE
 
             val constraintSet = ConstraintSet()
             constraintSet.clone(binding.constraintLayout)
-            constraintSet.setHorizontalBias(binding.sliderHandleView.id, slidAmount)
+            constraintSet.setHorizontalBias(binding.sliderHandleView.id, slidAmount!!)
             constraintSet.applyTo(binding.constraintLayout)
 
             if (isHandleInAutoColorMode) {

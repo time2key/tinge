@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="android.view.View"/>
+
+        <import type="android.view.View" />
 
         <variable
             name="view"
@@ -10,36 +12,147 @@
 
         <variable
             name="viewModel"
-            type="com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel"/>
+            type="com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel" />
     </data>
 
     <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardBackgroundColor="#cccccc">
+        app:cardBackgroundColor="#cccccc"
+        app:cardCornerRadius="5dp">
 
-        <android.support.constraint.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <android.support.v7.widget.RecyclerView
-                xmlns:android="http://schemas.android.com/apk/res/android"
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/list_view_inner_left_padding"
+                android:paddingTop="@dimen/list_view_inner_top_padding"
+                android:paddingEnd="@dimen/list_view_inner_right_padding"
+                android:paddingBottom="@dimen/list_view_inner_bottom_padding">
+
+                <!--
+            LEFT PREVIEW IMAGE:
+            -->
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/left_image_view_holder"
+
+                    android:layout_width="@dimen/list_view_left_image_diameter"
+
+                    android:layout_height="@dimen/list_view_left_image_diameter"
+                    app:cardCornerRadius="@{ 0.3f*@dimen/list_view_left_image_diameter/2f }"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintVertical_bias="0">
+
+                    <ImageView
+                        android:id="@+id/left_image_view"
+
+                        android:layout_width="@dimen/list_view_left_image_diameter"
+                        android:layout_height="@dimen/list_view_left_image_diameter"
+                        android:src="@drawable/top_light_image"
+
+                        android:tint="@{ safeUnbox(viewModel.colorForPreviewImageView) }"
+                        android:tintMode="multiply" />
+
+                </android.support.v7.widget.CardView>
+
+
+                <!--
+                EXPAND/CONTRACT BUTTON:
+                -->
+                <ImageView
+
+                    android:id="@+id/expand_contract_button"
+
+                    android:layout_width="@dimen/list_view_expand_contract_image_size"
+                    android:layout_height="@dimen/list_view_expand_contract_image_size"
+
+                    android:clickable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+
+                    android:onClick="@{ viewModel::onExpandContractButtonClicked }"
+                    android:padding="@dimen/list_view_expand_contract_image_padding"
+                    android:src="@{ safeUnbox(viewModel.isExpanded()) ? @drawable/ic_expand_less_black_24dp : @drawable/ic_expand_more_black_24dp , default = @drawable/ic_expand_less_black_24dp}"
+                    app:layout_constraintBottom_toBottomOf="@+id/left_image_view_holder"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/left_image_view_holder"
+                    app:layout_constraintVertical_bias="0" />
+
+                <!--
+                TITLE:
+                -->
+
+                <TextView
+                    android:id="@+id/title_text_view"
+
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginStart="@dimen/list_view_inner_image_text_horizontal_margin"
+                    android:text="@{viewModel.displayName}"
+                    android:textColor="#000000"
+                    android:textSize="@dimen/list_view_title_font_size"
+                    app:layout_constraintEnd_toStartOf="@+id/expand_contract_button"
+                    app:layout_constraintStart_toEndOf="@+id/left_image_view_holder"
+
+                    tools:text="Light name" />
+
+                <!--
+                SLIDERS:
+                -->
+
+                <ImageView
+                    android:id="@+id/brightness_image_view"
+
+                    style="@style/ListViewSliderImage"
+                    android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
+
+                    android:src="@drawable/ic_brightness_5_black_24dp"
+                    app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
+                    app:layout_constraintTop_toBottomOf="@+id/title_text_view" />
+
+                <com.thaddeussoftware.tinge.ui.lights.SliderView
+                    android:id="@+id/brightness_seek_bar"
+
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
+                    app:layout_constraintBottom_toBottomOf="@+id/brightness_image_view"
+                    app:layout_constraintLeft_toRightOf="@+id/brightness_image_view"
+                    app:layout_constraintRight_toRightOf="@+id/title_text_view"
+                    app:layout_constraintTop_toTopOf="@+id/brightness_image_view"
+                    app:onSlideAmountChanged="@{ viewModel::onBrightnessSliderChanged }"
+                    app:slidAmount="@{ viewModel.uniformBrightnessOrNull }" />
+
+            </android.support.constraint.ConstraintLayout>
+
+
+            <!--
+            Light List:
+            -->
+
+
+            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
-                tools:context="com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragment"
-
                 android:id="@+id/light_list_linear_layout"
 
-                android:orientation="vertical"
-
                 android:layout_width="match_parent"
+
                 android:layout_height="match_parent"
 
+                android:orientation="vertical"
                 app:itemBinding="@{view.lightListRecyclerViewItemBinding}"
-                app:items="@{viewModel.individualLightViewModels}"
-                app:layoutManager="@{me.tatarka.bindingcollectionadapter2.LayoutManagers.linear()}"/>
 
-        </android.support.constraint.ConstraintLayout>
+                app:items="@{viewModel.individualLightViewModels}"
+                app:layoutManager="@{me.tatarka.bindingcollectionadapter2.LayoutManagers.linear()}"
+                tools:context="com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragment" />
+
+        </LinearLayout>
     </android.support.v7.widget.CardView>
 </layout>

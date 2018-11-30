@@ -1,6 +1,8 @@
 package com.thaddeussoftware.tinge.ui.lights.groupView
 
 import android.content.Context
+import android.graphics.Color
+import android.support.v4.graphics.ColorUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -17,6 +19,9 @@ class GroupView @JvmOverloads constructor(
         viewModel: GroupViewModel? = null,
         defStyle: Int = 0): FrameLayout(context, attrs, defStyle) {
 
+    private val HSV_SATURATION = 1f
+    private val HSV_VALUE = 1.0f//0.95f
+
     var viewModel: GroupViewModel? = viewModel
         set(value) {
             field = value
@@ -25,6 +30,7 @@ class GroupView @JvmOverloads constructor(
             binding.view = this
             binding.viewModel = viewModel
             binding.lightListLinearLayout.invalidate()
+            setupBrightnessSlider()
         }
 
     /**
@@ -38,4 +44,15 @@ class GroupView @JvmOverloads constructor(
         binding.view = this
         binding.viewModel = viewModel
     }
+
+    fun setupBrightnessSlider() {
+        val color2 = getColorFromHsv(viewModel?.meanHue?.get() ?: 0f, viewModel?.meanSaturation?.get() ?: 0f*HSV_SATURATION, HSV_VALUE)
+        val color1 = mergeColors(0xff444444.toInt(), color2, 0.1f)
+        binding.brightnessSeekBar.setTrackToColors(color1, color2)
+        binding.brightnessSeekBar.setHandleToAutoColors(color1, color2)
+    }
+
+    private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
+
+    private fun mergeColors(color1: Int, color2: Int, mergeAmount: Float) = ColorUtils.blendARGB(color1, color2, mergeAmount)
 }
