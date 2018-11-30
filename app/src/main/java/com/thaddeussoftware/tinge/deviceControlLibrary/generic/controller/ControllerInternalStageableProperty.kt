@@ -9,9 +9,17 @@ import android.databinding.ObservableField
  *
  * @param T
  * The type of value stored in this property.
+ *
+ * @param onValueStaged
+ * Lambda that will be notified when a value is staged on this instance.
+ *
+ * This can be useful to set up a ControllerInternalStageableProperty that applies to a whole
+ * group of other ControllerInternalStageableProperties, so that when a value is staged on the
+ * group property, it is automatically staged on all other properties.
  * */
 class ControllerInternalStageableProperty<T>(
-        initialValueReturnedFromHub: T? = null
+        initialValueReturnedFromHub: T? = null,
+        private val onValueStaged: ((newValue: T?) -> Unit)? = null
 ) {
 
     var lastValueRetrievedFromHub: T? = initialValueReturnedFromHub
@@ -33,11 +41,13 @@ class ControllerInternalStageableProperty<T>(
     fun stageValue(value: T) {
         stagedValue = value
         updateObservableValuesToMatchActualValues()
+        onValueStaged?.invoke(value)
     }
 
     fun discardStagedValue() {
         stagedValue = null
         updateObservableValuesToMatchActualValues()
+        onValueStaged?.invoke(null)
     }
 
 

@@ -52,6 +52,56 @@ abstract class LightGroupController {
      * */
     abstract val name: ControllerInternalStageableProperty<String?>
 
+
+    /**
+     * If all (reachable, on) [lightsNotInSubgroup] have the same brightness, property will be
+     * brightness, otherwise null.
+     * Setting this property sets all lights.
+     * */
+    val uniformBrightnessOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Float?> { stagedValue ->
+        lightsNotInSubgroup.forEach { lightController ->
+            lightController.brightness.stagedValueObservable.set(stagedValue)
+        }
+    }
+
+    /**
+     * If all (reachable, on) [lightsNotInSubgroup] have the same hue, property will be hue, otherwise
+     * null.
+     * Setting this properties sets all lights.
+     * */
+    val uniformHueOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Float?> { stagedValue ->
+        lightsNotInSubgroup.forEach { lightController ->
+            lightController.hue.stagedValueObservable.set(stagedValue)
+        }
+    }
+
+    /**
+     * If all (reachable, on) [lightsNotInSubgroup] have the same saturation, property will be sat,
+     * otherwise null.
+     * Setting this property sets all lights.
+     * */
+    val uniformSaturationOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Float?> { stagedValue ->
+        lightsNotInSubgroup.forEach { lightController ->
+            lightController.saturation.stagedValueObservable.set(stagedValue)
+        }
+    }
+
+    /**
+     * Average brightness of all (reachable, on) [lightsNotInSubgroup]
+     * */
+    val averageBrightnessOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
+
+    /**
+     * Average hue of all (reachable, on) [lightsNotInSubgroup]
+     * */
+    val averageHueOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
+
+    /**
+     * Average saturation of all (reachable, on) [lightsNotInSubgroup]
+     * */
+    val averageSaturationOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
+
+
     /**
      * Sends all shelved changes for the [DataInGroupType]s specified to the group.
      *

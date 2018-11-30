@@ -134,6 +134,7 @@ class HueHubController constructor(
         }
         roomsBackingList.forEach {
             it.value.lightsMap = lightsBackingMap
+            it.value.hueNetworkRefreshHasHappened()
         }
     }
 
@@ -146,5 +147,7 @@ class HueHubController constructor(
             }
         }
     }
+
+    //TODO add in support for uniform... and average... properties
 
 }
