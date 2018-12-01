@@ -1,5 +1,7 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller
 
+import android.graphics.Color
+import android.support.v4.graphics.ColorUtils
 import android.util.Log
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
@@ -68,6 +70,11 @@ class HueRoomGroupController(
            completables.add(it.applyChanges())
         }
         return Completable.mergeDelayError(completables)
+                .doOnComplete {
+                    uniformBrightnessOfAllLightsInGroupOrNull.discardStagedValue()
+                    uniformHueOfAllLightsInGroupOrNull.discardStagedValue()
+                    uniformSaturationOfAllLightsInGroupOrNull.discardStagedValue()
+                }
     }
 
     override fun refresh(vararg dataInGroupTypes: DataInGroupType): Completable {
@@ -92,9 +99,9 @@ class HueRoomGroupController(
      * */
     fun hueNetworkRefreshHasHappened() {
 
-        var meanBrightness = 0f
-        var meanHue = 0f
-        var meanSaturation = 0f
+        var meanRed = 0f
+        var meanGreen = 0f
+        var meanBlue = 0f
 
         var areAllLightsTheSameBrightness = true
         var areAllLightsTheSameHue = true
@@ -112,18 +119,26 @@ class HueRoomGroupController(
                     && it.saturation.lastValueRetrievedFromHub != null
         }
 
-        lightListBackingProperty.forEach {
-            meanBrightness += (it.brightness.lastValueRetrievedFromHub ?: 0f) / filteredLights.size
-            meanHue += (it.hue.lastValueRetrievedFromHub ?: 0f) / filteredLights.size
-            meanSaturation += (it.saturation.lastValueRetrievedFromHub ?: 0f) / filteredLights.size
+        filteredLights.forEach {
+            val color = getColorFromHsv(it.hue.lastValueRetrievedFromHub ?: 0f,
+                    it.saturation.lastValueRetrievedFromHub ?: 0f,
+                    it.brightness.lastValueRetrievedFromHub ?: 0f)
 
-            if (previousLightBrightness != it.brightness.lastValueRetrievedFromHub) {
+            meanRed += Color.red(color) / filteredLights.size
+            meanGreen += Color.green(color) / filteredLights.size
+            meanBlue += Color.blue(color) / filteredLights.size
+
+
+            if (previousLightBrightness != it.brightness.lastValueRetrievedFromHub
+                    && previousLightBrightness != null) {
                 areAllLightsTheSameBrightness = false
             }
-            if (previousLightHue != it.hue.lastValueRetrievedFromHub) {
+            if (previousLightHue != it.hue.lastValueRetrievedFromHub
+                    && previousLightHue != null) {
                 areAllLightsTheSameHue = false
             }
-            if (previousLightSaturation != it.hue.lastValueRetrievedFromHub) {
+            if (previousLightSaturation != it.saturation.lastValueRetrievedFromHub
+                    && previousLightSaturation != null) {
                 areAllLightsTheSameSaturation = false
             }
 
@@ -132,12 +147,17 @@ class HueRoomGroupController(
             previousLightSaturation = it.saturation.lastValueRetrievedFromHub
         }
 
-        uniformBrightnessOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameBrightness) meanBrightness else null)
-        uniformHueOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameHue) meanHue else null)
-        uniformSaturationOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameSaturation) meanSaturation else null)
+        uniformBrightnessOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameBrightness) previousLightBrightness else null)
+        uniformHueOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameHue) previousLightHue else null)
+        uniformSaturationOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameSaturation) previousLightSaturation else null)
 
-        averageBrightnessOfAllLightsInGroup.setValueRetrievedFromHub(meanBrightness)
-        averageHueOfAllLightsInGroup.setValueRetrievedFromHub(meanHue)
-        averageSaturationOfAllLightsInGroup.setValueRetrievedFromHub(meanSaturation)
+        val hsv = FloatArray(3) {0f}
+        Color.colorToHSV(Color.rgb(meanRed.toInt(), meanGreen.toInt(), meanBlue.toInt()), hsv)
+
+        averageHueOfAllLightsInGroup.setValueRetrievedFromHub(hsv[0]/360f)
+        averageSaturationOfAllLightsInGroup.setValueRetrievedFromHub(hsv[1])
+        averageBrightnessOfAllLightsInGroup.setValueRetrievedFromHub(hsv[2])
     }
+
+    private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
 }

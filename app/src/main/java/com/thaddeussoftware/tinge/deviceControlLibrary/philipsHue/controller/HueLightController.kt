@@ -86,6 +86,10 @@ class HueLightController(
         return lightsRetrofitInterface.updateLightState(hubUsernameCredentials, "$lightNumberInHub", jsonLightState)
                 .subscribeOn(Schedulers.io())
                 .map {
+                    hue.setStagedValueApplied()
+                    saturation.setStagedValueApplied()
+                    brightness.setStagedValueApplied()
+                    (hubController as HueHubController).hueLightRefreshHasHappened()
                     return@map it
                 }.toCompletable()
     }

@@ -31,6 +31,11 @@ class ControllerInternalStageableProperty<T>(
     val stagedValueOrLastValueFromHub: T?
         get() = stagedValue ?: lastValueRetrievedFromHub
 
+    fun setStagedValueApplied() {
+        lastValueRetrievedFromHub = stagedValueOrLastValueFromHub
+        stagedValue = null
+        updateObservableValuesToMatchActualValues()
+    }
 
     fun setValueRetrievedFromHub(value: T?, discardStagedValueIfPresent: Boolean = false) {
         lastValueRetrievedFromHub = value

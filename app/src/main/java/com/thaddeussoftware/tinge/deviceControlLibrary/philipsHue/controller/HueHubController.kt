@@ -148,6 +148,15 @@ class HueHubController constructor(
         }
     }
 
+    /**
+     * Called by an individual [LightController] when a light gets updated
+     * */
+    fun hueLightRefreshHasHappened() {
+        roomsBackingList.forEach {
+            it.value.hueNetworkRefreshHasHappened()
+        }
+    }
+
     //TODO add in support for uniform... and average... properties
 
 }
