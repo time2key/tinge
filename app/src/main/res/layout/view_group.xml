@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardBackgroundColor="#cccccc"
+        app:cardBackgroundColor="@{viewModel.colorForBackgroundView}"
         app:cardCornerRadius="5dp">
 
         <LinearLayout
@@ -55,9 +55,7 @@
                         android:layout_width="@dimen/list_view_left_image_diameter"
                         android:layout_height="@dimen/list_view_left_image_diameter"
                         android:src="@drawable/top_light_image"
-
-                        android:tint="@{ safeUnbox(viewModel.colorForPreviewImageView) }"
-                        android:tintMode="multiply" />
+                        />
 
                 </android.support.v7.widget.CardView>
 

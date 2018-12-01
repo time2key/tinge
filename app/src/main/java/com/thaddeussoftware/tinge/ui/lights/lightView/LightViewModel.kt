@@ -1,10 +1,12 @@
 package com.thaddeussoftware.tinge.ui.lights.lightView
 
 import android.arch.lifecycle.ViewModel
+import android.databinding.Observable
 import android.databinding.ObservableField
 import android.graphics.Color
 import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
+import com.thaddeussoftware.tinge.helpers.UiHelper
 
 /**
  * Created by thaddeusreason on 09/02/2018.
@@ -36,6 +38,22 @@ class LightViewModel(
 
     init {
         updateColorsFromHsv()
+
+        hue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                updateColorsFromHsv()
+            }
+        })
+        saturation.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                updateColorsFromHsv()
+            }
+        })
+        brightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                updateColorsFromHsv()
+            }
+        })
     }
 
     fun onExpandContractButtonClicked(view: View) {
@@ -52,19 +70,19 @@ class LightViewModel(
 
     fun onHueSliderChanged(newValue:Float) {
         hue.set(newValue)
-        updateColorsFromHsv()
+        //updateColorsFromHsv()
         whiteTemperature.set(-1f)
     }
 
     fun onSaturationSliderChanged(newValue:Float) {
         saturation.set(newValue)
-        updateColorsFromHsv()
+        //updateColorsFromHsv()
         whiteTemperature.set(-1f)
     }
 
     fun onBrightnessSliderChanged(newValue:Float) {
         brightness.set(newValue)
-        updateColorsFromHsv()
+        //updateColorsFromHsv()
     }
 
     fun onWhiteSliderChanged(newValue: Float) {
@@ -83,10 +101,8 @@ class LightViewModel(
         )
         color.set(getColorFromHsv(hue.get() ?: 0f, saturation.get() ?: 0f, brightness.get() ?: 0f))
         colorForPreviewImageView.set(getColorFromHsv(hue.get() ?: 0f, saturation.get() ?: 0f, 0.5f + 0.5f * (brightness.get() ?: 0f)))
-        colorForBackgroundView.set(getColorFromHsv(
-                hue.get() ?: 0f,
-                (saturation.get()?: 0f) * 0.1f * (0.3f + 0.7f*(brightness.get() ?: 0f)),
-                1.0f))
+        colorForBackgroundView.set(
+                UiHelper.getFadedBackgroundColourFromLightColour(hue.get(), saturation.get(), brightness.get()))
     }
 
     private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))

@@ -3,14 +3,14 @@ package com.thaddeussoftware.tinge.ui.lights.lightView
 import android.content.Context
 import android.databinding.Observable
 import android.graphics.*
-import android.graphics.drawable.Drawable
+import android.graphics.drawable.BitmapDrawable
 import android.support.v4.graphics.ColorUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.ViewLightBinding
-import android.graphics.drawable.BitmapDrawable
+import com.thaddeussoftware.tinge.helpers.UiHelper
 
 
 /**
@@ -59,7 +59,8 @@ class LightView @JvmOverloads constructor(
     private fun setupSliders() {
 
         var bitmap = BitmapFactory.decodeResource(resources, if (Math.random()<0.5f) R.drawable.top_light_image else R.drawable.left_selenite_lamp)
-        binding.leftImageView.setImageDrawable(getWhiteTintedDrawable(bitmap))
+        binding.leftImageView.setImageDrawable(
+                BitmapDrawable(resources, UiHelper.whiteTintBitmapPhotographOfLight(bitmap)))
 
         setupBrightnessSlider()
         setupHueSlider()
@@ -108,31 +109,4 @@ class LightView @JvmOverloads constructor(
     private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
 
     private fun mergeColors(color1: Int, color2: Int, mergeAmount: Float) = ColorUtils.blendARGB(color1, color2, mergeAmount)
-
-    private fun getWhiteTintedDrawable(bitmapImage: Bitmap):Drawable {
-        val canvas = Canvas()
-        //val buttonImage = BitmapFactory.decodeResource(resources, R.drawable.btn_image)
-        val returnValue = Bitmap.createBitmap(bitmapImage.width, bitmapImage.height, Bitmap.Config.ARGB_8888)
-        canvas.setBitmap(returnValue)
-
-        val paint = Paint()
-        paint.isFilterBitmap = false
-        //paint.color = 0x00ffffff.toInt()
-        canvas.drawBitmap(bitmapImage, 0f, 0f, paint)
-        canvas.drawColor(0x0affffff.toInt(), PorterDuff.Mode.SRC_ATOP)//0x08
-        /*
-        // Color
-        paint.setColorFilter(PorterDuffColorFilter(color, Mode.MULTIPLY))
-        canvas.drawBitmap(buttonImage, 0, 0, paint)
-        paint.setColorFilter(null)
-        // Shadows
-        paint.setXfermode(PorterDuffXfermode(Mode.MULTIPLY))
-        canvas.drawBitmap(buttonShadows, 0, 0, paint)
-        // HighLights
-        paint.setXfermode(PorterDuffXfermode(Mode.SCREEN))
-        canvas.drawBitmap(buttonHighLights, 0, 0, paint)
-
-        paint.setXfermode(null)*/
-        return BitmapDrawable(resources, returnValue)
-    }
 }

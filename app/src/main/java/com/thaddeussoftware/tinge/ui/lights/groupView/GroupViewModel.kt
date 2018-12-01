@@ -2,12 +2,15 @@ package com.thaddeussoftware.tinge.ui.lights.groupView
 
 import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModel
+import android.databinding.Observable
 import android.databinding.ObservableArrayList
 import android.databinding.ObservableField
+import android.graphics.Color
 import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
+import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -33,14 +36,37 @@ class GroupViewModel(
      * */
     var individualLightViewModels = ObservableArrayList<LightViewModel>()
 
-
-    val colorForPreviewImageView = ObservableField<Int>(0)
-
     val colorForBackgroundView = ObservableField<Int>(0)
 
     init {
         refreshListOfLightsToMatchController()
+
+
+        meanBrightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                setupColorForBackgroundView()
+            }
+        })
+        meanSaturation.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                setupColorForBackgroundView()
+            }
+        })
+        meanHue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                setupColorForBackgroundView()
+            }
+        })
+        setupColorForBackgroundView()
     }
+
+    private fun setupColorForBackgroundView() {
+        colorForBackgroundView.set(
+                UiHelper.getFadedBackgroundColourFromLightColour(
+                        meanHue.get(), meanSaturation.get(), meanBrightness.get()))
+    }
+
+    private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
 
     fun refreshListOfLightsToMatchController() {
         CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
