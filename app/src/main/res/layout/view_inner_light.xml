@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View"/>
+
+        <variable
+            name="viewModel"
+            type="com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+        android:background="@{viewModel.colorForBackgroundView}"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/list_view_inner_bottom_padding"
+        android:paddingEnd="@dimen/list_view_inner_right_padding"
+        android:paddingStart="@dimen/list_view_inner_left_padding"
+        android:paddingTop="@dimen/list_view_inner_top_padding">
+
+        <!--
+        LEFT PREVIEW IMAGE:
+        -->
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/left_image_view_holder"
+
+            app:cardCornerRadius="@{ 0.3f*@dimen/list_view_left_image_diameter/2f }"
+
+            android:layout_width="@dimen/list_view_left_image_diameter"
+            android:layout_height="@dimen/list_view_left_image_diameter"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintVertical_bias="0">
+
+            <ImageView
+                android:id="@+id/left_image_view"
+
+                android:tint="@{ safeUnbox(viewModel.colorForPreviewImageView) }"
+                android:tintMode="multiply"
+                android:src="@drawable/top_light_image"
+
+                android:layout_width="@dimen/list_view_left_image_diameter"
+                android:layout_height="@dimen/list_view_left_image_diameter"/>
+
+        </android.support.v7.widget.CardView>
+
+
+        <!--
+        EXPAND/CONTRACT BUTTON:
+        -->
+        <ImageView
+
+            android:id="@+id/expand_contract_button"
+
+            android:src="@{ safeUnbox(viewModel.isExpanded()) ? @drawable/ic_expand_less_black_24dp : @drawable/ic_expand_more_black_24dp , default = @drawable/ic_expand_less_black_24dp}"
+            android:onClick="@{ viewModel::onExpandContractButtonClicked }"
+
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+
+            android:layout_width="@dimen/list_view_expand_contract_image_size"
+            android:layout_height="@dimen/list_view_expand_contract_image_size"
+            android:padding="@dimen/list_view_expand_contract_image_padding"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/left_image_view_holder"
+            app:layout_constraintBottom_toBottomOf="@+id/left_image_view_holder"
+            app:layout_constraintVertical_bias="0"
+            />
+
+        <!--
+        TITLE:
+        -->
+
+        <TextView
+            android:id="@+id/title_text_view"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="@dimen/list_view_inner_image_text_horizontal_margin"
+            android:text="@{viewModel.displayName}"
+            android:textSize="@dimen/list_view_title_font_size"
+            android:textColor="#000000"
+            app:layout_constraintEnd_toStartOf="@+id/expand_contract_button"
+            app:layout_constraintStart_toEndOf="@+id/left_image_view_holder"
+
+            tools:text="Light name"/>
+
+        <!--
+        SLIDERS:
+        -->
+
+        <ImageView
+            android:id="@+id/brightness_image_view"
+
+            style="@style/ListViewSliderImage"
+            android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
+
+            android:src="@drawable/ic_brightness_5_black_24dp"
+            app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/title_text_view" />
+
+        <com.thaddeussoftware.tinge.ui.lights.SliderView
+            android:id="@+id/brightness_seek_bar"
+
+            app:onSlideAmountChanged="@{ viewModel::onBrightnessSliderChanged }"
+            app:slidAmount="@{ viewModel.brightness }"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
+            app:layout_constraintBottom_toBottomOf="@+id/brightness_image_view"
+            app:layout_constraintLeft_toRightOf="@+id/brightness_image_view"
+            app:layout_constraintRight_toRightOf="@+id/title_text_view"
+            app:layout_constraintTop_toTopOf="@+id/brightness_image_view" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/toggle_buttons_card_view"
+
+            android:visibility="@{ safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+
+            style="@style/ToggleButtonGroup"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
+            app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
+            app:layout_constraintRight_toRightOf="@+id/title_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/brightness_image_view">
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+
+                    android:onClick="@{ viewModel::onColorTabClicked }"
+
+                    style="@style/ToggleButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/ic_color_lens_black_24dp" />
+
+                <RadioButton
+
+                    android:onClick="@{ viewModel::onWhiteTabClicked }"
+
+                    style="@style/ToggleButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawableTop="@drawable/ic_wb_incandescent_black_24dp" />
+            </RadioGroup>
+        </android.support.v7.widget.CardView>
+
+        <ImageView
+            android:id="@+id/hue_image_view"
+
+            android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+
+            style="@style/ListViewSliderImage"
+            android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
+            android:src="@drawable/ic_color_lens_black_24dp"
+            app:layout_constraintLeft_toLeftOf="@+id/brightness_image_view"
+            app:layout_constraintRight_toRightOf="@+id/brightness_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/toggle_buttons_card_view" />
+
+        <com.thaddeussoftware.tinge.ui.lights.SliderView
+            android:id="@+id/hue_seek_bar"
+
+            android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+            app:onSlideAmountChanged="@{ viewModel::onHueSliderChanged }"
+            app:slidAmount="@{ viewModel.hue }"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/hue_image_view"
+            app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
+            app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
+            app:layout_constraintTop_toTopOf="@+id/hue_image_view" />
+
+        <ImageView
+            android:id="@+id/saturation_image_view"
+
+            android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+
+            style="@style/ListViewSliderImage"
+            android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
+            android:src="@drawable/ic_tonality_black_24dp"
+            app:layout_constraintLeft_toLeftOf="@+id/brightness_image_view"
+            app:layout_constraintRight_toRightOf="@+id/brightness_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/hue_image_view" />
+
+        <com.thaddeussoftware.tinge.ui.lights.SliderView
+            android:id="@+id/saturation_seek_bar"
+
+            android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+            app:onSlideAmountChanged="@{ viewModel::onSaturationSliderChanged }"
+            app:slidAmount="@{ viewModel.saturation }"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/saturation_image_view"
+            app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
+            app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
+            app:layout_constraintTop_toTopOf="@+id/saturation_image_view" />
+
+        <ImageView
+            android:id="@+id/white_image_view"
+
+            android:visibility="@{ !safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+
+            style="@style/ListViewSliderImage"
+            android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
+            android:src="@drawable/ic_wb_incandescent_black_24dp"
+            app:layout_constraintLeft_toLeftOf="@+id/brightness_image_view"
+            app:layout_constraintRight_toRightOf="@+id/brightness_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/hue_image_view" />
+
+        <com.thaddeussoftware.tinge.ui.lights.SliderView
+            android:id="@+id/white_seek_view"
+
+            android:visibility="@{ !safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+            app:onSlideAmountChanged="@{ viewModel::onWhiteSliderChanged }"
+            app:slidAmount="@{ viewModel.whiteTemperature }"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/white_image_view"
+            app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
+            app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
+            app:layout_constraintTop_toTopOf="@+id/white_image_view" />
+
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

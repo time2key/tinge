@@ -7,34 +7,33 @@ import android.graphics.Color
 import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.helpers.UiHelper
+import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 
 /**
  * Created by thaddeusreason on 09/02/2018.
  */
 class LightViewModel(
         val lightController: LightController
-): ViewModel() {
+): InnerLightViewModel() {
 
-    val isColorSupported:Boolean? = null
+    override val isColorSupported = ObservableField(true)
 
-    val isInColorMode = lightController.isInColorMode.stagedValueOrLastValueFromHubObservable
+    override val isInColorMode = lightController.isInColorMode.stagedValueOrLastValueFromHubObservable
 
-    val hue = lightController.hue.stagedValueOrLastValueFromHubObservable
-    val saturation = lightController.saturation.stagedValueOrLastValueFromHubObservable
-    val brightness = lightController.brightness.stagedValueOrLastValueFromHubObservable
+    override val hue = lightController.hue.stagedValueOrLastValueFromHubObservable
+    override val saturation = lightController.saturation.stagedValueOrLastValueFromHubObservable
+    override val brightness = lightController.brightness.stagedValueOrLastValueFromHubObservable
 
     /**The amount that the white slider should be at*/
-    val whiteTemperature = ObservableField<Float>()
+    override val whiteTemperature = ObservableField<Float?>()
 
-    val isExpanded = ObservableField<Boolean>(false)
+    override val isExpanded = ObservableField<Boolean>(false)
 
-    val color = ObservableField<Int>(0)
+    override val colorForPreviewImageView = ObservableField<Int>(0)
 
-    val colorForPreviewImageView = ObservableField<Int>(0)
+    override val colorForBackgroundView = ObservableField<Int>(0)
 
-    val colorForBackgroundView = ObservableField<Int>(0)
-
-    val displayName = lightController.displayName.stagedValueOrLastValueFromHubObservable
+    override val displayName = lightController.displayName.stagedValueOrLastValueFromHubObservable
 
     init {
         updateColorsFromHsv()
@@ -56,36 +55,33 @@ class LightViewModel(
         })
     }
 
-    fun onExpandContractButtonClicked(view: View) {
+    override fun onExpandContractButtonClicked(view: View) {
         isExpanded.set(! (isExpanded.get() ?: false))
     }
 
-    fun onColorTabClicked(view: View) {
+    override fun onColorTabClicked(view: View) {
         isInColorMode.set(true)
     }
 
-    fun onWhiteTabClicked(view: View) {
+    override fun onWhiteTabClicked(view: View) {
         isInColorMode.set(false)
     }
 
-    fun onHueSliderChanged(newValue:Float) {
+    override fun onHueSliderChanged(newValue:Float) {
         hue.set(newValue)
-        //updateColorsFromHsv()
         whiteTemperature.set(-1f)
     }
 
-    fun onSaturationSliderChanged(newValue:Float) {
+    override fun onSaturationSliderChanged(newValue:Float) {
         saturation.set(newValue)
-        //updateColorsFromHsv()
         whiteTemperature.set(-1f)
     }
 
-    fun onBrightnessSliderChanged(newValue:Float) {
+    override fun onBrightnessSliderChanged(newValue:Float) {
         brightness.set(newValue)
-        //updateColorsFromHsv()
     }
 
-    fun onWhiteSliderChanged(newValue: Float) {
+    override fun onWhiteSliderChanged(newValue: Float) {
         whiteTemperature.set(newValue)
         updateColorsFromTemperature()
     }
@@ -99,7 +95,6 @@ class LightViewModel(
                     val i = 0
                 }
         )
-        color.set(getColorFromHsv(hue.get() ?: 0f, saturation.get() ?: 0f, brightness.get() ?: 0f))
         colorForPreviewImageView.set(getColorFromHsv(hue.get() ?: 0f, saturation.get() ?: 0f, 0.5f + 0.5f * (brightness.get() ?: 0f)))
         colorForBackgroundView.set(
                 UiHelper.getFadedBackgroundColourFromLightColour(hue.get(), saturation.get(), brightness.get()))

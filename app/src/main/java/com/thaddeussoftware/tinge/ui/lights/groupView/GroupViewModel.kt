@@ -11,32 +11,44 @@ import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.Contro
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
+import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class GroupViewModel(
         val lightGroupController: LightGroupController
-): ViewModel() {
+): InnerLightViewModel() {
+    override val isColorSupported = ObservableField<Boolean>(true)
 
-    val displayName =lightGroupController.name.stagedValueOrLastValueFromHubObservable
+    override val isInColorMode = ObservableField<Boolean?>(true)
 
-    val uniformBrightnessOrNull = lightGroupController.uniformBrightnessOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
+    override val hue = lightGroupController.uniformHueOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
+    override val saturation = lightGroupController.uniformSaturationOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
+    override val brightness = lightGroupController.uniformBrightnessOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
+
+
+    override val whiteTemperature = ObservableField<Float?>(0f)
+
+    override val colorForPreviewImageView = ObservableField<Int>(0xffffffff.toInt())
+
+    override val displayName =lightGroupController.name.stagedValueOrLastValueFromHubObservable
+
     val meanBrightness = lightGroupController.averageBrightnessOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
 
-    val uniformHueOrNull = lightGroupController.uniformHueOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
     val meanHue = lightGroupController.averageHueOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
 
-    val uniformSaturationOrNull = lightGroupController.uniformSaturationOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
     val meanSaturation = lightGroupController.averageSaturationOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
 
-    val isExpanded = ObservableField<Boolean>(false)
+    override val isExpanded = ObservableField<Boolean>(false)
+
+    override val colorForBackgroundView = ObservableField<Int>(0)
+
+
 
     /**
      * View models of each of the lights that should be shown on screen
      * */
     var individualLightViewModels = ObservableArrayList<LightViewModel>()
-
-    val colorForBackgroundView = ObservableField<Int>(0)
 
     init {
         refreshListOfLightsToMatchController()
@@ -57,6 +69,23 @@ class GroupViewModel(
                 setupColorForBackgroundView()
             }
         })
+
+        hue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                applyChanges()
+            }
+        })
+        saturation.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                applyChanges()
+            }
+        })
+        brightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                applyChanges()
+            }
+        })
+
         setupColorForBackgroundView()
     }
 
@@ -99,15 +128,38 @@ class GroupViewModel(
                 }
     }
 
-    fun onExpandContractButtonClicked(view: View) {
+    override fun onExpandContractButtonClicked(view: View) {
         isExpanded.set(! (isExpanded.get() ?: false))
     }
 
-    fun onBrightnessSliderChanged(newValue:Float) {
-        uniformBrightnessOrNull.set(newValue)
+    override fun onBrightnessSliderChanged(newValue:Float) {
+        brightness.set(newValue)
         meanBrightness.set(newValue)
-        applyChanges()
+        //applyChanges()
     }
+
+    override fun onHueSliderChanged(newValue: Float) {
+        hue.set(newValue)
+        meanHue.set(newValue)
+    }
+
+    override fun onSaturationSliderChanged(newValue: Float) {
+        saturation.set(newValue)
+        meanSaturation.set(newValue)
+    }
+
+    override fun onWhiteSliderChanged(newValue: Float) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onColorTabClicked(view: View) {
+        isInColorMode.set(true)
+    }
+
+    override fun onWhiteTabClicked(view: View) {
+        isInColorMode.set(false)
+    }
+
 
     private fun applyChanges() {
         lightGroupController.applyChanges().subscribe(
