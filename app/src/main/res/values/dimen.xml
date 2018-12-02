@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <dimen name="dimen_1dp">1dp</dimen>
+    <dimen name="dimen_1sp">1sp</dimen>
+
     <dimen name="fragment_horizontal_padding">16dp</dimen>
     <dimen name="fragment_top_padding">8dp</dimen>
     <dimen name="fragment_bottom_padding">8dp</dimen>
@@ -22,6 +25,12 @@
 
     <dimen name="list_view_expand_contract_image_size">28dp</dimen>
     <dimen name="list_view_expand_contract_image_padding">2dp</dimen>
+
+
+
+
+    <dimen name="view_light_left_image_width">38dp</dimen>
+    <dimen name="view_group_left_image_width">56dp</dimen>
 
     <dimen name="fragment_connect_to_hub_horizontal_still_searching_padding">8dp</dimen>
     <dimen name="fragment_connect_to_hub_padding_above_large_image">8dp</dimen>

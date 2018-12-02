@@ -30,6 +30,7 @@
             <include
                 android:id="@+id/inner_light_view"
                 app:viewModel = "@{viewModel}"
+                app:isGroup = "@{true}"
                 layout="@layout/view_inner_light"/>
 
 

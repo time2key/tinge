@@ -18,6 +18,7 @@
         <include
             android:id="@+id/inner_light_view"
             app:viewModel = "@{viewModel}"
+            app:isGroup = "@{false}"
             layout="@layout/view_inner_light"/>
     </FrameLayout>
 </layout>
