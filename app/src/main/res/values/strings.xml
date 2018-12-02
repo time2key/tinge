@@ -1,8 +1,6 @@
 <resources>
     <string name="app_name">Tinge</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="hub_searching">Scanning for Hubs/Bridges on your WiFi network…</string>
 
@@ -31,4 +29,12 @@
     <string name="hub_none_found">No compatible Hubs/Bridges could be found on your WiFi network. Please ensure you are connected to the correct WiFi network, that your Hub/Bridge is turned on, and that your Hub/Bridge is supported. Supported Hubs/Bridges are Philips Hue Bridges, Samsung SmartThings Hubs, and IKEA TRADFRI Gateways.</string>
     <string name="hub_one_found_hue_bridge">A Philips Hue Bridge has been found on your WiFi network. To connect to this device, push the button on the Bridge.</string>
     <string name="hub_found_selected_hue_bridge">To connect to this device, push the button on the Bridge.</string>
+
+
+    <string name="group_info_light_count">%s$1 lights</string>
+    <string name="group_info_reachability">%s$1 unreachable</string>
+    <string name="group_info_all_off">All lights off</string>
+    <string name="group_info_all_on">All lights on</string>
+    <string name="group_info_one_on">%s$1 light on</string>
+    <string name="group_info_some_on">%s$1 lights on</string>
 </resources>

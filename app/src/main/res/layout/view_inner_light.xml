@@ -93,6 +93,24 @@
 
             tools:text="Light name"/>
 
+        <TextView
+            android:id="@+id/description_text_view"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+
+            android:visibility="@{isGroup ? View.VISIBLE : View.GONE}"
+
+            android:layout_marginTop="4dp"
+            android:text="@{viewModel.secondaryInformation}"
+            android:textSize="@dimen/list_view_title_font_size"
+            android:textColor="#000000"
+            app:layout_constraintStart_toStartOf="@+id/title_text_view"
+            app:layout_constraintEnd_toEndOf="@+id/title_text_view"
+            app:layout_constraintTop_toBottomOf="@+id/title_text_view"
+
+            tools:text="Light name"/>
+
         <!--
         SLIDERS:
         -->
@@ -105,7 +123,7 @@
 
             android:src="@drawable/ic_brightness_5_black_24dp"
             app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
-            app:layout_constraintTop_toBottomOf="@+id/title_text_view" />
+            app:layout_constraintTop_toBottomOf="@+id/description_text_view" />
 
         <com.thaddeussoftware.tinge.ui.lights.SliderView
             android:id="@+id/brightness_seek_bar"

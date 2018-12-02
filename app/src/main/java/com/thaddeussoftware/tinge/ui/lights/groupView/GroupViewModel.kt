@@ -1,13 +1,10 @@
 package com.thaddeussoftware.tinge.ui.lights.groupView
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.ViewModel
 import android.databinding.Observable
 import android.databinding.ObservableArrayList
 import android.databinding.ObservableField
-import android.graphics.Color
 import android.view.View
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
@@ -31,7 +28,9 @@ class GroupViewModel(
 
     override val colorForPreviewImageView = ObservableField<Int>(0xffffffff.toInt())
 
-    override val displayName =lightGroupController.name.stagedValueOrLastValueFromHubObservable
+    override val displayName = lightGroupController.name.stagedValueOrLastValueFromHubObservable
+
+    override val secondaryInformation = ObservableField<String?>("")
 
     val meanBrightness = lightGroupController.averageBrightnessOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
 
@@ -95,7 +94,28 @@ class GroupViewModel(
                         meanHue.get(), meanSaturation.get(), meanBrightness.get()))
     }
 
-    private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
+    private fun refreshSecondaryText() {
+        //TODO use strings file
+
+        val totalLights = lightGroupController.lightsNotInSubgroup.size
+        var lightsReachable = 0
+        var lightsOn = 0
+
+        lightGroupController.lightsNotInSubgroup.forEach {
+            lightsReachable += if (it.isReachable) 1 else 0
+            lightsOn += if (it.isOn.stagedValueOrLastValueFromHub == true) 1 else 0
+        }
+
+        var secondaryInformationString = "$totalLights lights - "
+
+        if (lightsReachable < totalLights) {
+            secondaryInformationString += "${totalLights - lightsReachable} unreachable - "
+        }
+
+        secondaryInformationString += if (lightsOn == 0) "all off" else if (lightsOn == totalLights) "all on" else "$lightsOn on"
+
+        secondaryInformation.set(secondaryInformationString)
+    }
 
     fun refreshListOfLightsToMatchController() {
         CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
@@ -116,6 +136,7 @@ class GroupViewModel(
                     lightViewModel.refreshToMatchController()
                 }
         )
+        refreshSecondaryText()
     }
 
     @SuppressLint("CheckResult")
@@ -135,7 +156,6 @@ class GroupViewModel(
     override fun onBrightnessSliderChanged(newValue:Float) {
         brightness.set(newValue)
         meanBrightness.set(newValue)
-        //applyChanges()
     }
 
     override fun onHueSliderChanged(newValue: Float) {

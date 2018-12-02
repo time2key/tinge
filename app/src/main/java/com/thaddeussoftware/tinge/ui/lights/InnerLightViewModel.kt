@@ -61,6 +61,8 @@ abstract class InnerLightViewModel: ViewModel() {
      * */
     abstract val displayName: ObservableField<String?>
 
+    abstract val secondaryInformation: ObservableField<String?>
+
 
     abstract fun onExpandContractButtonClicked(view: View)
 

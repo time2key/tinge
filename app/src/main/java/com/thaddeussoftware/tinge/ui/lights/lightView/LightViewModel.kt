@@ -35,6 +35,8 @@ class LightViewModel(
 
     override val displayName = lightController.displayName.stagedValueOrLastValueFromHubObservable
 
+    override val secondaryInformation = ObservableField<String?>("")
+
     init {
         updateColorsFromHsv()
 
