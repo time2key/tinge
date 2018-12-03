@@ -14,6 +14,8 @@ import android.databinding.BindingMethods
 import android.support.constraint.ConstraintSet
 import android.support.v4.graphics.ColorUtils
 import android.view.MotionEvent
+import com.thaddeussoftware.tinge.helpers.UiHelper
+import kotlin.math.absoluteValue
 
 
 /**
@@ -56,6 +58,9 @@ class SliderView @JvmOverloads constructor(
 
     init {
         trackOpacity = DEFAULT_TRACK_OPACITY
+
+        isClickable = true
+        isFocusable = true
     }
 
     /**Sets the track to a given multi-stop gradient*/
@@ -78,20 +83,62 @@ class SliderView @JvmOverloads constructor(
         innerSetHandleToColor(color)
     }
 
+    /**
+     * We keep track of the x position when the user touched down, for use in working out whether
+     * to disable parent scrolling - see [onTouchEvent]
+     * */
+    private var touchDownX: Float? = null
+
+    /**
+     * How much the slider view needs to be moved to disable parent scrolling - see [onTouchEvent]
+     * */
+    private val AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP = 8f;
+
+    /**
+     * Called by android when a touch happens.
+     *
+     * This SliderView will often be in a parent scrollview, and by default, if the touch
+     * goes outside this view, the parent ScrollView will take the touch for scrolling instead.
+     *
+     * This is disabled here by calling requestDisallowInterceptTouchEvent if the user drags
+     * the slider more than 20 pixels.
+     *
+     * When the touch goes up or is cancelled, requestDisallowInterceptTouchEvent is set back.
+     * */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         super.onTouchEvent(event)
 
-        if (event?.actionMasked == MotionEvent.ACTION_CANCEL) return true
-
-        val previousSlidAmount = slidAmount
-        var xPercent = ((event?.x ?: 0f) - binding.sliderTrackView.x.toInt()) / binding.sliderTrackView.width.toFloat()
-        xPercent = maxOf(minOf(xPercent, 1f), 0f)
-
-        slidAmount = xPercent
-        if (slidAmount != previousSlidAmount) {
-            onSlideAmountChangedListener?.slideAmountChanged(xPercent)
+        if (event?.actionMasked == MotionEvent.ACTION_CANCEL) {
+            requestDisallowInterceptTouchEvent(false)
+            return true
         }
+        if (event?.actionMasked == MotionEvent.ACTION_UP) {
+            requestDisallowInterceptTouchEvent(false)
+        }
+        if (event?.actionMasked == MotionEvent.ACTION_DOWN) {
+            touchDownX = event.x
+        }
+        if (event?.actionMasked == MotionEvent.ACTION_DOWN ||
+                event?.actionMasked == MotionEvent.ACTION_MOVE) {
 
+            // If has been moved enough in the x direction, disallow parent scrolling:
+
+            if (touchDownX?.minus(event.x)?.absoluteValue ?: 0f
+                    > UiHelper.getPxFromDp(context, AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP)) {
+                requestDisallowInterceptTouchEvent(true)
+            }
+
+
+            val previousSlidAmount = slidAmount
+            var xPercent = ((event?.x
+                    ?: 0f) - binding.sliderTrackView.x.toInt()) / binding.sliderTrackView.width.toFloat()
+            xPercent = maxOf(minOf(xPercent, 1f), 0f)
+
+            slidAmount = xPercent
+            if (slidAmount != previousSlidAmount) {
+                onSlideAmountChangedListener?.slideAmountChanged(xPercent)
+            }
+        }
         return true
     }
 

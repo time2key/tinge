@@ -1,5 +1,6 @@
 package com.thaddeussoftware.tinge.helpers
 
+import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 
@@ -35,6 +36,8 @@ class UiHelper private constructor() {
         }
 
         private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
+
+        fun getPxFromDp(context: Context, dp: Float): Float = dp * context.resources.displayMetrics.density
 
     }
 }
