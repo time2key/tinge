@@ -11,15 +11,28 @@ import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.jso
 import io.reactivex.Completable
 
 class HueRoomGroupController(
+
         override val hubController: HubController,
+
         /**
-         * Map of lights in the format (Light number in hub -> HueLightController)
+         * See [HueRoomGroupController.lightsMap]
          * */
         lightsMap: Map<Int, HueLightController>,
+
         val groupNoInHub: Int,
+
+        /**
+         * See [HueRoomGroupController.jsonRoom]
+         * */
         jsonRoom: JsonRoom
 ) : LightGroupController() {
 
+    /**
+     * Json data for this room - can be set to a new value and this instance will use the new value
+     * to work out the new [lightsInGroupOrSubgroups] and [lightsNotInSubgroup].
+     *
+     * Note that [lightsMap] must be kept up to date when updating this value too.
+     * */
     var jsonRoom = jsonRoom
     set(value) {
         field = value
@@ -27,12 +40,21 @@ class HueRoomGroupController(
         updateLightListForCurrentJsonRoomAndLightsMap()
     }
 
+    /**
+     * Map of lights in the format (Light number in hub -> HueLightController)
+     *
+     * [HueHubController] is responsible for updating this property every time the lights in it
+     * change.
+     * */
     var lightsMap = lightsMap
     set(value) {
         field = value
         updateLightListForCurrentJsonRoomAndLightsMap()
     }
 
+    /**
+     * Uses [jsonRoom] and [lightsMap] to calculate [lightListBackingProperty]
+     * */
     private fun updateLightListForCurrentJsonRoomAndLightsMap() {
         lightListBackingProperty.clear()
         jsonRoom.lightNumbersInBridge?.forEach {  lightNumberInBridge ->
@@ -44,6 +66,10 @@ class HueRoomGroupController(
         }
     }
 
+    /**
+     * List of LightControllers calculated to be in this Hue Room - used for [lightsNotInSubgroup]
+     * and [lightsInGroupOrSubgroups]
+     * */
     val lightListBackingProperty = ArrayList<LightController>()
 
 
@@ -94,8 +120,6 @@ class HueRoomGroupController(
      *
      * Updates all uniform...OfAllLightsInGroupOrNull and all average...OfAllLightsInGroupOrNull
      * properties
-     *
-     * TODO ensure this updates if an individual light is updated
      * */
     fun hueNetworkRefreshHasHappened() {
 
