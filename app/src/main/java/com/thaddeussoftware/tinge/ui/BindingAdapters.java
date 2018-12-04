@@ -20,4 +20,31 @@ public class BindingAdapters {
         view.setLayoutParams(layoutParams);
     }
 
+    @BindingAdapter("android:layout_marginLeft")
+    public static void setLayoutMarginLeftFloat(View view, float marginLeft) {
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        layoutParams.leftMargin = (int) marginLeft;
+        view.setLayoutParams(layoutParams);
+    }
+
+    @BindingAdapter("android:layout_marginTop")
+    public static void setLayoutMarginTopFloat(View view, float marginTop) {
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        layoutParams.topMargin = (int) marginTop;
+        view.setLayoutParams(layoutParams);
+    }
+
+    @BindingAdapter("android:layout_marginRight")
+    public static void setLayoutMarginRightFloat(View view, float marginRight) {
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        layoutParams.rightMargin = (int) marginRight;
+        view.setLayoutParams(layoutParams);
+    }
+
+    @BindingAdapter("android:layout_marginBottom")
+    public static void setLayoutMarginBottomFloat(View view, float marginBottom) {
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        layoutParams.bottomMargin = (int) marginBottom;
+        view.setLayoutParams(layoutParams);
+    }
 }

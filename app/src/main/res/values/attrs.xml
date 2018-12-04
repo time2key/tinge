@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SliderView">
+        <attr name="supportsOffValue" format="boolean"/>
+        <attr name="startValueText" format="string"/>
+        <attr name="endValueText" format="string"/>
+        <attr name="offValueText" format="string"/>
+    </declare-styleable>
+
+</resources>

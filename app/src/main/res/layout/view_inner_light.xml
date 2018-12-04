@@ -36,6 +36,8 @@
 
             android:layout_width="@{ isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
             android:layout_height="@{ isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
+            tools:layout_width="50dp"
+            tools:layout_height="50dp"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintVertical_bias="0">
 
@@ -109,7 +111,7 @@
             app:layout_constraintEnd_toEndOf="@+id/title_text_view"
             app:layout_constraintTop_toBottomOf="@+id/title_text_view"
 
-            tools:text="Light name"/>
+            tools:text="X lights - Y unreachable - Z on"/>
 
         <!--
         SLIDERS:
@@ -119,7 +121,7 @@
             android:id="@+id/brightness_image_view"
 
             style="@style/ListViewSliderImage"
-            android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
+            android:layout_marginTop="0dp"
 
             android:src="@drawable/ic_brightness_5_black_24dp"
             app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
@@ -131,9 +133,16 @@
             app:onSlideAmountChanged="@{ viewModel::onBrightnessSliderChanged }"
             app:slidAmount="@{ viewModel.brightness }"
 
+            app:offValueText="Off"
+            app:supportsOffValue="true"
+            app:startValueText="Min"
+            app:endValueText="Max"
+
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+
             android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
+            app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="@+id/brightness_image_view"
             app:layout_constraintLeft_toRightOf="@+id/brightness_image_view"
             app:layout_constraintRight_toRightOf="@+id/title_text_view"
@@ -151,7 +160,7 @@
             android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
             app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
             app:layout_constraintRight_toRightOf="@+id/title_text_view"
-            app:layout_constraintTop_toBottomOf="@+id/brightness_image_view">
+            app:layout_constraintTop_toBottomOf="@+id/brightness_seek_bar">
 
             <RadioGroup
                 android:layout_width="match_parent"
@@ -164,7 +173,6 @@
 
                     style="@style/ToggleButton"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:drawableTop="@drawable/ic_color_lens_black_24dp" />
 
@@ -174,7 +182,6 @@
 
                     style="@style/ToggleButton"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:drawableTop="@drawable/ic_wb_incandescent_black_24dp" />
             </RadioGroup>
@@ -201,6 +208,7 @@
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
             app:layout_constraintBottom_toBottomOf="@+id/hue_image_view"
             app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
             app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
@@ -229,6 +237,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
+            android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
             app:layout_constraintBottom_toBottomOf="@+id/saturation_image_view"
             app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
             app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
@@ -257,6 +266,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
+            android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
             app:layout_constraintBottom_toBottomOf="@+id/white_image_view"
             app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
             app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"

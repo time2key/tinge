@@ -1,39 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
 
-    android:id="@+id/constraint_layout"
+    <data>
+        <import type="android.view.View"/>
 
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/slider_height">
+        <variable
+            name="supportsOffValue"
+            type="java.lang.Boolean"/>
+    </data>
 
-    <View
-        android:id="@+id/slider_track_view"
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+        android:id="@+id/constraint_layout"
+
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/slider_track_height"
+        android:layout_height="wrap_content">
 
-        android:background="#ff0000"
-        android:elevation="0.5dp"
+        <View
+            android:id="@+id/slider_track_view_start"
+            android:layout_width="30dp"
+            android:layout_height="@dimen/slider_track_height"
 
-        android:layout_marginRight="@dimen/half_slider_handle_diameter"
-        android:layout_marginLeft="@dimen/half_slider_handle_diameter"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            android:visibility="@{ supportsOffValue ? View.VISIBLE : View.GONE}"
 
-    <View
-        android:id="@+id/slider_handle_view"
+            android:layout_marginLeft="@dimen/half_slider_handle_diameter"
+            android:background="#ff00ff"
 
-        android:layout_width="@dimen/slider_handle_diameter"
-        android:layout_height="@dimen/slider_handle_diameter"
+            android:elevation="0.5dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/slider_track_view"
+            app:layout_constraintBottom_toBottomOf="@+id/slider_track_view"/>
 
-        android:background="@color/slider_handle"
-        android:elevation="1dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        <View
+            android:id="@+id/slider_track_view"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/slider_track_height"
 
-</android.support.constraint.ConstraintLayout>
+            android:layout_marginLeft="@{ supportsOffValue ? 0f : @dimen/half_slider_handle_diameter}"
+            android:layout_marginRight="@dimen/half_slider_handle_diameter"
+            android:background="#ff0000"
+
+            android:elevation="0.5dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintLeft_toRightOf="@id/slider_track_view_start"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/slider_handle_view"
+
+            android:layout_width="@dimen/slider_handle_diameter"
+            android:layout_height="@dimen/slider_handle_diameter"
+            android:layout_marginTop="11dp"
+            android:layout_marginBottom="11dp"
+
+            android:background="@color/slider_handle"
+            android:elevation="1dp"
+            app:layout_constraintBottom_toBottomOf="@+id/slider_track_view"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/slider_track_view" />
+
+        <TextView
+            android:id="@+id/off_text_view"
+
+            android:text="Off"
+            android:textAlignment="textStart"
+            android:textSize="12sp"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/slider_track_view_start" />
+
+        <TextView
+            android:id="@+id/on_left_text_view"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@{ supportsOffValue ? 30f * @dimen/dimen_1dp : 0f }"
+
+            android:layout_marginTop="8dp"
+
+            android:text="0%"
+            android:textAlignment="textStart"
+            android:textSize="12sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/slider_track_view" />
+
+        <TextView
+            android:id="@+id/on_right_text_view"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+
+            android:text="100%"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/slider_track_view" />
+
+        <View
+            android:id="@+id/empty_view_to_ensure_correct_bottom_margin"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/slider_track_view"/>
+
+    </android.support.constraint.ConstraintLayout>
 </layout>
