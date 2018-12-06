@@ -8,6 +8,7 @@ import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
+import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 
 /**
  * Created by thaddeusreason on 09/02/2018.
@@ -22,7 +23,7 @@ class LightViewModel(
 
     override val hue = lightController.hue.stagedValueOrLastValueFromHubObservable
     override val saturation = lightController.saturation.stagedValueOrLastValueFromHubObservable
-    override val brightness = lightController.brightness.stagedValueOrLastValueFromHubObservable
+    override val brightness = ObservableField<Float?>()
 
     /**The amount that the white slider should be at*/
     override val whiteTemperature = ObservableField<Float?>()
@@ -50,10 +51,14 @@ class LightViewModel(
                 updateColorsFromHsv()
             }
         })
+
+        LightsUiHelper.bindObservableBrightnessViewModelPropertyToController(
+                brightness, lightController.isOn, lightController.brightness)
         brightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 updateColorsFromHsv()
             }
+
         })
     }
 

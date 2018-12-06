@@ -73,6 +73,8 @@ class HueLightController(
 
     override fun applyChanges(): Completable {
         val jsonLightState = JsonLight.JsonState()
+
+        jsonLightState.on = isOn.stagedValue
         jsonLightState.brightness = brightness.stagedValue?.times(254)?.toInt()
 
         if (isInColorMode.stagedValueOrLastValueFromHub == true) {
@@ -86,6 +88,7 @@ class HueLightController(
         return lightsRetrofitInterface.updateLightState(hubUsernameCredentials, "$lightNumberInHub", jsonLightState)
                 .subscribeOn(Schedulers.io())
                 .map {
+                    isOn.setStagedValueApplied()
                     hue.setStagedValueApplied()
                     saturation.setStagedValueApplied()
                     brightness.setStagedValueApplied()
