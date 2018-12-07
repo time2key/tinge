@@ -56,16 +56,19 @@ class GroupViewModel(
         meanBrightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 setupColorForBackgroundView()
+                refreshSecondaryText()
             }
         })
         meanSaturation.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 setupColorForBackgroundView()
+                refreshSecondaryText()
             }
         })
         meanHue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 setupColorForBackgroundView()
+                refreshSecondaryText()
             }
         })
 
