@@ -39,7 +39,6 @@ class LightViewModel(
     override val secondaryInformation = ObservableField<String?>("")
 
     init {
-        updateColorsFromHsv()
 
         hue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -60,6 +59,9 @@ class LightViewModel(
             }
 
         })
+
+
+        updateColorsFromHsv()
     }
 
     override fun onExpandContractButtonClicked(view: View) {
@@ -102,7 +104,11 @@ class LightViewModel(
                     val i = 0
                 }
         )
-        colorForPreviewImageView.set(getColorFromHsv(hue.get() ?: 0f, saturation.get() ?: 0f, 0.5f + 0.5f * (brightness.get() ?: 0f)))
+        colorForPreviewImageView.set(
+                if (brightness.get() ?: -1f >= 0f)
+                    getColorFromHsv(hue.get() ?: 0f, saturation.get() ?: 0f,
+                            0.5f + 0.5f * (brightness.get() ?: 0f))
+                else getColorFromHsv(0f, 0f, 0.2f))
         colorForBackgroundView.set(
                 UiHelper.getFadedBackgroundColourFromLightColour(hue.get(), saturation.get(), brightness.get()))
     }
