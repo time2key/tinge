@@ -135,6 +135,17 @@ class HueRoomGroupController(
         var previousLightHue: Float? = null
         var previousLightSaturation: Float? = null
 
+        var reachableLights = lightListBackingProperty.filter { it.isReachable }
+        var onLights = lightListBackingProperty.filter { it.isReachable && it.isOn.lastValueRetrievedFromHub == true }
+
+        if (onLights.size == reachableLights.size) {
+            uniformIsOnOfAllLightsInGroupOrNull.setValueRetrievedFromHub(true)
+        } else if (onLights.size == 0) {
+            uniformIsOnOfAllLightsInGroupOrNull.setValueRetrievedFromHub(false)
+        } else {
+            uniformIsOnOfAllLightsInGroupOrNull.setValueRetrievedFromHub(null)
+        }
+
         val filteredLights = lightListBackingProperty.filter {
             it.isReachable
                     && it.isOn.lastValueRetrievedFromHub == true

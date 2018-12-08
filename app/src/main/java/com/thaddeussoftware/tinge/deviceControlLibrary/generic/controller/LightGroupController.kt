@@ -53,6 +53,12 @@ abstract class LightGroupController {
     abstract val name: ControllerInternalStageableProperty<String?>
 
 
+    var uniformIsOnOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Boolean?> { stagedValue ->
+        lightsNotInSubgroup.forEach { lightController ->
+            lightController.isOn.stagedValueObservable.set(stagedValue)
+        }
+    }
+
     /**
      * If all (reachable, on) [lightsNotInSubgroup] have the same brightness, property will be
      * brightness, otherwise null.

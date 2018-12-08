@@ -75,12 +75,12 @@ interface LightController {
     /**
      * Whether this device is currently turned on or not.
      * */
-    val isOn: ControllerInternalStageableProperty<Boolean>
+    val isOn: ControllerInternalStageableProperty<Boolean?>
 
     /**
      * Brightness from 0 (least bright but still on) to 1 (most bright).
      * */
-    val brightness: ControllerInternalStageableProperty<Float>
+    val brightness: ControllerInternalStageableProperty<Float?>
 
 
     /**

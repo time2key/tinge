@@ -54,9 +54,9 @@ class HueLightController(
 
     override val isInColorMode: ControllerInternalStageableProperty<Boolean> = ControllerInternalStageableProperty()
 
-    override val isOn: ControllerInternalStageableProperty<Boolean> = ControllerInternalStageableProperty()
+    override val isOn: ControllerInternalStageableProperty<Boolean?> = ControllerInternalStageableProperty()
 
-    override val brightness: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty()
+    override val brightness: ControllerInternalStageableProperty<Float?> = ControllerInternalStageableProperty()
 
     override val hue: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty()
 

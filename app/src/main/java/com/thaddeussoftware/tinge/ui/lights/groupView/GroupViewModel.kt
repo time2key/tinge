@@ -9,6 +9,7 @@ import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightG
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
+import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -21,7 +22,7 @@ class GroupViewModel(
 
     override val hue = lightGroupController.uniformHueOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
     override val saturation = lightGroupController.uniformSaturationOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
-    override val brightness = lightGroupController.uniformBrightnessOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
+    override val brightness = ObservableField<Float?>()
 
 
     override val whiteTemperature = ObservableField<Float?>(0f)
@@ -82,10 +83,15 @@ class GroupViewModel(
                 applyChanges()
             }
         })
+
+
+        LightsUiHelper.bindObservableBrightnessViewModelPropertyToController(
+                brightness, lightGroupController.uniformIsOnOfAllLightsInGroupOrNull, lightGroupController.uniformBrightnessOfAllLightsInGroupOrNull)
         brightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 applyChanges()
             }
+
         })
 
         setupColorForBackgroundView()
