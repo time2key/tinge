@@ -31,7 +31,7 @@ class UiHelper private constructor() {
         fun getFadedBackgroundColourFromLightColour(hue: Float?, saturation: Float?, brightness: Float?): Int {
             return getColorFromHsv(
                     hue ?: 0f,
-                    (saturation?: 0f) * 0.1f * (0.3f + 0.7f*(brightness ?: 0f)),
+                    (saturation?: 0f) * 0.15f * (0.3f + 0.7f*(brightness ?: 0f)),//0.1f  0.4
                     1.0f)
         }
 
