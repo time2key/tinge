@@ -1,6 +1,7 @@
 package com.thaddeussoftware.tinge.ui.lights.lightListFragment
 
 import android.content.Context
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -10,16 +11,14 @@ import com.thaddeussoftware.tinge.BR
 import com.thaddeussoftware.tinge.R
 
 import com.thaddeussoftware.tinge.databinding.FragmentLightListBinding
-import com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel
-import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding
-import android.support.annotation.LayoutRes
-import android.databinding.ViewDataBinding
-import android.support.v7.widget.RecyclerView
+import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
-import com.thaddeussoftware.tinge.ui.lights.lightView.LightView
-import me.tatarka.bindingcollectionadapter2.BindingRecyclerViewAdapter
-
+import com.thaddeussoftware.tinge.ui.mainActivity.MultiColouredToolbarActivity
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import java.util.concurrent.TimeUnit
 
 
 class LightListFragment : Fragment() {
@@ -53,11 +52,67 @@ class LightListFragment : Fragment() {
 
         binding?.view = this
         binding?.viewModel = viewModel
+        binding?.lightListLinearLayout?.setPadding(
+                0,
+                (activity as? MultiColouredToolbarActivity)?.topFragmentPadding ?: 0,
+                0,
+                (activity as? MultiColouredToolbarActivity)?.bottomFragmentPadding ?: 0)
+        binding?.lightListLinearLayout?.clipToPadding = false
 
         viewModel.refreshListOfHubsAndLights()
         //binding?.lightListLinearLayout?.addView(lightView)
 
         return binding?.root
+    }
+
+    var runEverySecondDisposable: Disposable? = null
+
+    override fun onResume() {
+        super.onResume()
+        if (runEverySecondDisposable == null) {
+            runEverySecondDisposable = Observable.interval(1, 1, TimeUnit.SECONDS)
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        val colourList = ArrayList<Int>()
+
+                        var previousColor:Int? = null
+
+                        viewModel.individualGroupViewModels.forEach { groupViewModel ->
+                            groupViewModel.individualLightViewModels.forEach {  lightViewModel ->
+                                if (lightViewModel.lightController.isReachable) {
+                                    val color = lightViewModel.colorForPreviewImageView.get() ?: 0
+                                    val newColor =
+                                            ColorHelper.colorFromHsv(
+                                                    ColorHelper.hueFromColor(color),
+                                                    if (lightViewModel.brightness.get()?: -1f >= 0) 0.35f + 0.35f*ColorHelper.saturationFromColor(color) else 0f,
+                                                    if (lightViewModel.brightness.get()?: -1f >= 0) 1f else 0.65f)
+
+                                    if (colourList.size > 0 && previousColor != null) {
+                                        val halfWayColor = ColorHelper.mergeColorsPreservingSaturationAndValue(previousColor!!, newColor, 0.5f)
+                                        for (j in 0..2) {
+                                            colourList.add(ColorHelper.changeOpacityOfColor(halfWayColor, 0.6f))
+                                        }
+                                    }
+                                    for (j in 0..if (lightViewModel.brightness.get()?: -1f >= 0) 12 else 4) {
+                                        colourList.add(ColorHelper.changeOpacityOfColor(newColor, 0.8f))
+                                    }
+                                    previousColor = newColor
+                                }
+                            }
+
+                        }
+
+                        (activity as? MultiColouredToolbarActivity)?.setStatusBarAndToolbarToDrawable(GradientDrawable(GradientDrawable.Orientation.BL_TR, colourList.toIntArray()))
+                        (activity as? MultiColouredToolbarActivity)?.setToolbarText("1 hub - 2 groups")
+                    }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        runEverySecondDisposable?.dispose()
+        runEverySecondDisposable = null
     }
 
     override fun onAttach(context: Context?) {
