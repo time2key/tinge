@@ -4,11 +4,11 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         applicationId "com.thaddeussoftware.tinge"
         minSdkVersion 21
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -111,10 +111,10 @@ dependencies {
     // JUnit and Espresso (Standard for every android project):
     testImplementation 'junit:junit:4.12'
     testImplementation "com.android.support:support-annotations:$rootProject.ext.androidSupportVersion"
-    testImplementation "com.android.support.test:rules:1.0.1"
-    testImplementation "com.android.support.test:runner:1.0.1"
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    testImplementation "com.android.support.test:rules:1.0.2"
+    testImplementation "com.android.support.test:runner:1.0.2"
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     // Mockito test mocking:
     testImplementation 'org.mockito:mockito-core:2.18.3'
