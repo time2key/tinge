@@ -38,6 +38,11 @@ class SliderView @JvmOverloads constructor(
     private val DEFAULT_TRACK_OPACITY = 0.65f
 
     /**
+     * How much the slider view needs to be moved to disable parent scrolling - see [onTouchEvent]
+     * */
+    private val AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP = 8f;
+
+    /**
      * If set to true, this view will have an off value to the left of it, in addition to the
      * standard slider range. If the user sets the slider to the 'Off' position, [slidAmount]
      * will be set to -1.
@@ -116,6 +121,27 @@ class SliderView @JvmOverloads constructor(
     private var binding: ViewSliderBinding = ViewSliderBinding.inflate(LayoutInflater.from(context), this, true)
 
     /**
+     * We keep track of the x position when the user touched down, for use in working out
+     * [hasBeenMovedEnoughInXDirectionToBeValidSide] - see [onTouchEvent]
+     * */
+    private var touchDownX: Float? = null
+
+    /**
+     * When this view is initially touched in [onTouchEvent], this value will be false. When the
+     * touch has been moved [AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP], this value
+     * will be set to true, and parent scrolling will be disabled.
+     *
+     * Before this value has been set to true, this view will not respond to touches. This ensures
+     * that if the user grabs a slider view and then scrolls up or down in the parent ScrollView,
+     * the slider view value will not change as a result of this touch event.
+     *
+     * The exception to this is clicks - if the user presses down and then presses back up, without
+     * a touch cancel event indicating the parent scrollview has consumed the touch, this view will
+     * respond to the touch.
+     * */
+    private var hasBeenMovedEnoughInXDirectionToBeValidSide = false
+
+    /**
      * Array of colours set using [setHandleToAutoColors] that the handle should change between
      * depending on [slidAmount]
      * */
@@ -182,19 +208,6 @@ class SliderView @JvmOverloads constructor(
         innerSetHandleToColor(getCurrentAutoColor())
     }
 
-
-
-    /**
-     * We keep track of the x position when the user touched down, for use in working out whether
-     * to disable parent scrolling - see [onTouchEvent]
-     * */
-    private var touchDownX: Float? = null
-
-    /**
-     * How much the slider view needs to be moved to disable parent scrolling - see [onTouchEvent]
-     * */
-    private val AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP = 8f;
-
     /**
      * Called by android when a touch happens.
      *
@@ -211,10 +224,14 @@ class SliderView @JvmOverloads constructor(
 
         if (event?.actionMasked == MotionEvent.ACTION_CANCEL) {
             requestDisallowInterceptTouchEvent(false)
+            hasBeenMovedEnoughInXDirectionToBeValidSide = false
             return true
         }
         if (event?.actionMasked == MotionEvent.ACTION_UP) {
             requestDisallowInterceptTouchEvent(false)
+            hasBeenMovedEnoughInXDirectionToBeValidSide = false
+
+            moveSliderPositionToTouchEvent(event)
         }
         if (event?.actionMasked == MotionEvent.ACTION_DOWN) {
             touchDownX = event.x
@@ -227,26 +244,40 @@ class SliderView @JvmOverloads constructor(
             if (touchDownX?.minus(event.x)?.absoluteValue ?: 0f
                     > UiHelper.getPxFromDp(context, AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP)) {
                 requestDisallowInterceptTouchEvent(true)
+                hasBeenMovedEnoughInXDirectionToBeValidSide = true
             }
 
 
-            val previousSlidAmount = slidAmount
-            var xPercent = 0f
-
-            if (event.x < binding.sliderTrackViewStart.width*0.7f && supportsOffValue == true) {
-                xPercent = -1f
+            if (hasBeenMovedEnoughInXDirectionToBeValidSide) {
+                moveSliderPositionToTouchEvent(event)
             } else {
-                xPercent = ((event.x
-                        ?: 0f) - binding.sliderTrackView.x.toInt()) / binding.sliderTrackView.width.toFloat()
-                xPercent = maxOf(minOf(xPercent, 1f), 0f)
-            }
-
-            slidAmount = xPercent
-            if (slidAmount != previousSlidAmount) {
-                onSlideAmountChangedListener?.slideAmountChanged(xPercent)
+                return true
             }
         }
         return true
+    }
+
+    /**
+     * Sets the slider current slid position to the touch event and updates the UI accordingly.
+     *
+     * Called by [onTouchEvent] if it determines that the slider should be moved to the touch event.
+     * */
+    private fun moveSliderPositionToTouchEvent(event: MotionEvent) {
+        val previousSlidAmount = slidAmount
+        var xPercent = 0f
+
+        if (event.x < binding.sliderTrackViewStart.width*0.7f && supportsOffValue == true) {
+            xPercent = -1f
+        } else {
+            xPercent = ((event.x
+                    ?: 0f) - binding.sliderTrackView.x.toInt()) / binding.sliderTrackView.width.toFloat()
+            xPercent = maxOf(minOf(xPercent, 1f), 0f)
+        }
+
+        slidAmount = xPercent
+        if (slidAmount != previousSlidAmount) {
+            onSlideAmountChangedListener?.slideAmountChanged(xPercent)
+        }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
