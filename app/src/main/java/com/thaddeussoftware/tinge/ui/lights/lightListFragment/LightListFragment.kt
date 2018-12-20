@@ -85,7 +85,7 @@ class LightListFragment : Fragment() {
                                     val newColor =
                                             ColorHelper.colorFromHsv(
                                                     ColorHelper.hueFromColor(color),
-                                                    if (lightViewModel.brightness.get()?: -1f >= 0) 0.35f + 0.35f*ColorHelper.saturationFromColor(color) else 0f,
+                                                    if (lightViewModel.brightness.get()?: -1f >= 0) 0.32f + 0.32f*ColorHelper.saturationFromColor(color) else 0f,
                                                     if (lightViewModel.brightness.get()?: -1f >= 0) 1f else 0.65f)
 
                                     if (colourList.size > 0 && previousColor != null) {
@@ -95,7 +95,7 @@ class LightListFragment : Fragment() {
                                         }
                                     }
                                     for (j in 0..if (lightViewModel.brightness.get()?: -1f >= 0) 12 else 4) {
-                                        colourList.add(ColorHelper.changeOpacityOfColor(newColor, 0.8f))
+                                        colourList.add(ColorHelper.changeOpacityOfColor(newColor, 0.85f))
                                     }
                                     previousColor = newColor
                                 }
