@@ -137,6 +137,8 @@
             app:supportsOffValue="true"
             app:startValueText="Min"
             app:endValueText="Max"
+            app:onMoveTextMaximumAmount="100.0"
+            app:onMoveTextStringFormat="%.0f%%"
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -203,6 +205,9 @@
         <com.thaddeussoftware.tinge.ui.lights.SliderView
             android:id="@+id/hue_seek_bar"
 
+            app:onMoveTextMaximumAmount="360.0"
+            app:onMoveTextStringFormat="%.0f°"
+
             android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
             app:onSlideAmountChanged="@{ viewModel::onHueSliderChanged }"
             app:slidAmount="@{ viewModel.hue }"
@@ -229,6 +234,9 @@
 
         <com.thaddeussoftware.tinge.ui.lights.SliderView
             android:id="@+id/saturation_seek_bar"
+
+            app:onMoveTextMaximumAmount="100.0"
+            app:onMoveTextStringFormat="%.0f%%"
 
             android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
             app:onSlideAmountChanged="@{ viewModel::onSaturationSliderChanged }"

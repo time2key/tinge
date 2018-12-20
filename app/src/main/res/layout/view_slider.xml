@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <import type="android.view.View"/>
@@ -64,6 +65,20 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@+id/slider_track_view" />
+
+        <TextView
+            android:id="@+id/handle_below_label"
+            tools:text="0%"
+            android:text="0%"
+            android:textSize="12sp"
+            android:alpha="0"
+
+            app:layout_constraintLeft_toLeftOf="@+id/slider_handle_view"
+            app:layout_constraintRight_toRightOf="@+id/slider_handle_view"
+            app:layout_constraintTop_toBottomOf="@+id/slider_track_view"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/off_text_view"

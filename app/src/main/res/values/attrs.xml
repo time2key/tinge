@@ -5,6 +5,9 @@
         <attr name="startValueText" format="string"/>
         <attr name="endValueText" format="string"/>
         <attr name="offValueText" format="string"/>
+
+        <attr name="onMoveTextMaximumAmount" format="float"/>
+        <attr name="onMoveTextStringFormat" format="string"/>
     </declare-styleable>
 
 </resources>
