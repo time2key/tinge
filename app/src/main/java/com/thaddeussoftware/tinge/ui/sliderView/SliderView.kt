@@ -131,6 +131,12 @@ class SliderView @JvmOverloads constructor(
         }
 
     /**
+     * Determines if handles should wrap around from the start value to the end value if multiple
+     * handles are moved at once
+     * */
+    var wrapsAroundIfMultipleHandlesMoved: Boolean = false
+
+    /**
      * Opacity of the background track
      * */
     var trackOpacity = 1f
@@ -251,6 +257,7 @@ class SliderView @JvmOverloads constructor(
 
         onMoveTextMaximumAmount = attributes.getFloat(R.styleable.SliderView_onMoveTextMaximumAmount, 1f)
         onMoveTextStringFormat = attributes.getString(R.styleable.SliderView_onMoveTextStringFormat) ?: ""
+        wrapsAroundIfMultipleHandlesMoved = attributes.getBoolean(R.styleable.SliderView_wrapsAroundIfMultipleHandlesMoved, false)
 
         setTrackToColors(0xffaaaaaa.toInt(), 0xffaaaaaa.toInt())
     }
@@ -290,6 +297,8 @@ class SliderView @JvmOverloads constructor(
         binding.sliderTrackView.background = gd;
     }
 
+    var previousEventX: Float? = null
+
     /**
      * Called by android when a touch happens.
      *
@@ -308,6 +317,8 @@ class SliderView @JvmOverloads constructor(
             requestDisallowInterceptTouchEvent(false)
             hasBeenMovedEnoughInXDirectionToBeValidSide = false
             isTouchCurrentlyDown = false
+            currentlyHeldSliderViewHandleDetails = null
+            previousEventX = null
             return true
         }
         if (event?.actionMasked == MotionEvent.ACTION_UP) {
@@ -315,13 +326,15 @@ class SliderView @JvmOverloads constructor(
             if (currentlyHeldSliderViewHandleDetails != null) {
                 moveSingleHandleToTouchEvent(currentlyHeldSliderViewHandleDetails!!, event)
             } else {
-                moveAllSlidersAroundTouchEvent(event)
+                moveAllSlidersAroundTouchEvent(event.x, previousEventX)
+                previousEventX = event.x
             }
 
             requestDisallowInterceptTouchEvent(false)
             hasBeenMovedEnoughInXDirectionToBeValidSide = false
             isTouchCurrentlyDown = false
             currentlyHeldSliderViewHandleDetails = null
+            previousEventX = null
 
             var isAnyHandleInTouchDownState = false
             handleDetailsMap.values.forEach {
@@ -374,7 +387,8 @@ class SliderView @JvmOverloads constructor(
                 if (currentlyHeldSliderViewHandleDetails != null) {
                     moveSingleHandleToTouchEvent(currentlyHeldSliderViewHandleDetails!!, event)
                 } else {
-                    moveAllSlidersAroundTouchEvent(event)
+                    moveAllSlidersAroundTouchEvent(event.x, previousEventX)
+                    previousEventX = event.x
                 }
             } else {
                 return true
@@ -538,16 +552,21 @@ class SliderView @JvmOverloads constructor(
      *
      * Called by [onTouchEvent]
      * */
-    private fun moveAllSlidersAroundTouchEvent(event: MotionEvent) {
+    private fun moveAllSlidersAroundTouchEvent(eventX: Float, previousEventX: Float?) {
         //val previousSlidAmount = slidAmount
-        val newSlidAmount = getSlidAmountFromTouchEventXPosition(event.x)
+        val newSlidAmount = getSlidAmountFromTouchEventXPosition(eventX)
+        var moveDifference = 0f
 
-        var oldAverageSlidAmount = 0f
-        handleDetailsMap.forEach { entry ->
-            oldAverageSlidAmount += (entry.key.value.get() ?: 0f) / handleDetailsMap.size
+        if (previousEventX == null) {
+            var oldAverageSlidAmount = 0f
+            handleDetailsMap.forEach { entry ->
+                oldAverageSlidAmount += (entry.key.value.get() ?: 0f) / handleDetailsMap.size
+            }
+            moveDifference = newSlidAmount - oldAverageSlidAmount
+        } else {
+            val oldSlidAmount = getSlidAmountFromTouchEventXPosition(previousEventX)
+            moveDifference = newSlidAmount - oldSlidAmount
         }
-
-        var moveDifference = newSlidAmount - oldAverageSlidAmount
 
         Log.v("tinge", "----------------")
         Log.v("tinge", "SliderView average handle moved to position: "+newSlidAmount+ " ("+handleDetailsMap.size+" handles total)")
@@ -557,7 +576,15 @@ class SliderView @JvmOverloads constructor(
                 entry.key.value.set(-1f)
             } else {
                 var newValue = (entry.key.value.get() ?: 0f) + moveDifference
-                newValue = maxOf(minOf(newValue, 1f), 0f)
+                if (wrapsAroundIfMultipleHandlesMoved) {
+                    if (newValue < 0) {
+                        newValue += 1
+                    } else if (newValue > 1) {
+                        newValue -= 1
+                    }
+                } else {
+                    newValue = maxOf(minOf(newValue, 1f), 0f)
+                }
                 entry.key.value.set(newValue)
                 updateUiOfHandleToMatchCurrentPosition(entry.key, entry.value)
             }

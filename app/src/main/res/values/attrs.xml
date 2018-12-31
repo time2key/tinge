@@ -8,6 +8,8 @@
 
         <attr name="onMoveTextMaximumAmount" format="float"/>
         <attr name="onMoveTextStringFormat" format="string"/>
+
+        <attr name="wrapsAroundIfMultipleHandlesMoved" format="boolean"/>
     </declare-styleable>
 
 </resources>
