@@ -1,14 +1,17 @@
 package com.thaddeussoftware.tinge.ui.lights.lightView
 
-import android.arch.lifecycle.ViewModel
 import android.databinding.Observable
+import android.databinding.ObservableArrayList
 import android.databinding.ObservableField
 import android.graphics.Color
+import android.support.v4.graphics.ColorUtils
 import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
+import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
+import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
 
 /**
  * Created by thaddeusreason on 09/02/2018.
@@ -21,12 +24,17 @@ class LightViewModel(
 
     override val isInColorMode = lightController.isInColorMode.stagedValueOrLastValueFromHubObservable
 
-    override val hue = lightController.hue.stagedValueOrLastValueFromHubObservable
+    /*override val hue = lightController.hue.stagedValueOrLastValueFromHubObservable
     override val saturation = lightController.saturation.stagedValueOrLastValueFromHubObservable
     override val brightness = ObservableField<Float?>()
 
     /**The amount that the white slider should be at*/
-    override val whiteTemperature = ObservableField<Float?>()
+    override val whiteTemperature = ObservableField<Float?>()*/
+
+    override val hueHandles = ObservableArrayList<SliderViewHandle>()
+    override val saturationHandles = ObservableArrayList<SliderViewHandle>()
+    override val brightnessHandles = ObservableArrayList<SliderViewHandle>()
+    override val whiteTemperatureHandles = ObservableArrayList<SliderViewHandle>()
 
     override val isExpanded = ObservableField<Boolean>(false)
 
@@ -38,30 +46,92 @@ class LightViewModel(
 
     override val secondaryInformation = ObservableField<String?>("")
 
+
+    private val hueObservable = lightController.hue.stagedValueOrLastValueFromHubObservable
+    private val saturationObservable = lightController.saturation.stagedValueOrLastValueFromHubObservable
+    private val brightnessAndIsOnObservable = ObservableField<Float?>()
+
     init {
 
-        hue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        hueHandles.add(object: SliderViewHandle {
+            override val displayName
+                    = lightController.displayName.lastValueRetrievedFromHub ?: ""
+            override val value = hueObservable
+            override val color = ObservableField<Int>(0)
+        })
+        saturationHandles.add(object: SliderViewHandle {
+            override val displayName
+                    = lightController.displayName.lastValueRetrievedFromHub ?: ""
+            override val value = saturationObservable
+            override val color = ObservableField<Int>(0)
+        })
+        brightnessHandles.add(object: SliderViewHandle {
+            override val displayName
+                    = lightController.displayName.lastValueRetrievedFromHub ?: ""
+            override val value = brightnessAndIsOnObservable
+            override val color  = ObservableField<Int>(0)
+        })
+
+        hueObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 updateColorsFromHsv()
+                updateHueSliderColor()
+                updateSaturationSliderColor()
+                updateBrightnessSliderColor()
             }
         })
-        saturation.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        saturationObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 updateColorsFromHsv()
+                updateHueSliderColor()
+                updateSaturationSliderColor()
+                updateBrightnessSliderColor()
             }
         })
 
         LightsUiHelper.bindObservableBrightnessViewModelPropertyToController(
-                brightness, lightController.isOn, lightController.brightness)
-        brightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                brightnessAndIsOnObservable, lightController.isOn, lightController.brightness)
+
+        brightnessAndIsOnObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 updateColorsFromHsv()
+                updateHueSliderColor()
+                updateSaturationSliderColor()
+                updateBrightnessSliderColor()
             }
 
         })
 
 
         updateColorsFromHsv()
+        updateHueSliderColor()
+        updateSaturationSliderColor()
+        updateBrightnessSliderColor()
+    }
+
+    private fun updateHueSliderColor() {
+        hueHandles[0].color.set(ColorHelper.colorFromHsv(hueObservable.get() ?: 1f,1f, 1f))
+    }
+
+    private fun updateSaturationSliderColor() {
+        val color2 = getColorFromHsv(hueObservable.get()?: 0f, 1f, 1f)
+
+        saturationHandles[0].color.set(ColorUtils.blendARGB(0xffeeeeee.toInt(), color2,
+                saturationObservable.get()?:1f))
+    }
+
+    private fun updateBrightnessSliderColor() {
+        val color2 = getColorFromHsv(
+                hueObservable.get() ?: 0f,
+                saturationObservable.get() ?: 1f,
+                1f)
+
+        if (brightnessAndIsOnObservable.get() ?: 0f < 0) {
+            brightnessHandles[0].color.set(0xff444444.toInt())
+        } else {
+            brightnessHandles[0].color.set(ColorUtils.blendARGB(0xff444444.toInt(), color2,
+                    0.3f + (brightnessAndIsOnObservable.get() ?: 1f) * 0.7f))
+        }
     }
 
     override fun onExpandContractButtonClicked(view: View) {
@@ -76,25 +146,6 @@ class LightViewModel(
         isInColorMode.set(false)
     }
 
-    override fun onHueSliderChanged(newValue:Float) {
-        hue.set(newValue)
-        whiteTemperature.set(-1f)
-    }
-
-    override fun onSaturationSliderChanged(newValue:Float) {
-        saturation.set(newValue)
-        whiteTemperature.set(-1f)
-    }
-
-    override fun onBrightnessSliderChanged(newValue:Float) {
-        brightness.set(newValue)
-    }
-
-    override fun onWhiteSliderChanged(newValue: Float) {
-        whiteTemperature.set(newValue)
-        updateColorsFromTemperature()
-    }
-
     private fun updateColorsFromHsv() {
         lightController.applyChanges().subscribe(
                 {
@@ -105,25 +156,15 @@ class LightViewModel(
                 }
         )
         colorForPreviewImageView.set(
-                if (brightness.get() ?: -1f >= 0f)
-                    getColorFromHsv(hue.get() ?: 0f, saturation.get() ?: 0f,
-                            0.5f + 0.5f * (brightness.get() ?: 0f))
+                if (brightnessAndIsOnObservable.get() ?: -1f >= 0f)
+                    getColorFromHsv(hueObservable.get() ?: 0f, saturationObservable.get() ?: 0f,
+                            0.5f + 0.5f * (brightnessAndIsOnObservable.get() ?: 0f))
                 else getColorFromHsv(0f, 0f, 0.2f))
         colorForBackgroundView.set(
-                UiHelper.getFadedBackgroundColourFromLightColour(hue.get(), saturation.get(), brightness.get()))
+                UiHelper.getFadedBackgroundColourFromLightColour(hueObservable.get(), saturationObservable.get(), brightnessAndIsOnObservable.get()))
     }
 
     private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
-
-
-    private fun updateColorsFromTemperature() {
-        val color = getColorFromWhiteAmount((whiteTemperature.get() ?: 0f).toDouble())
-        val hsv = FloatArray(3)
-        Color.colorToHSV(color, hsv)
-        hue.set(hsv[0]/360f)
-        saturation.set(hsv[1])
-        updateColorsFromHsv()
-    }
 
     fun getColorFromWhiteAmount(whiteAmount: Double): Int {
         val temperature = (2000.0+6500.0*whiteAmount)/100.0
@@ -164,8 +205,5 @@ class LightViewModel(
     fun refreshToMatchController() {
         displayName.set(lightController.displayName.stagedValueOrLastValueFromHub)
         isInColorMode.set(lightController.isInColorMode.stagedValueOrLastValueFromHub)
-        hue.set(lightController.hue.stagedValueOrLastValueFromHub)
-
-
     }
 }

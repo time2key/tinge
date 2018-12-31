@@ -81,7 +81,6 @@ class GroupView @JvmOverloads constructor(
         val color2 = getColorFromHsv(viewModel?.meanHue?.get() ?: 0f, viewModel?.meanSaturation?.get() ?: 0f*HSV_SATURATION, HSV_VALUE)
         val color1 = mergeColors(0xff444444.toInt(), color2, 0.1f)
         binding.innerLightView.brightnessSeekBar.setTrackToColors(color1, color2)
-        binding.innerLightView.brightnessSeekBar.setHandleToAutoColors(color1, color2)
     }
 
     fun setupHueSlider() {
@@ -90,13 +89,11 @@ class GroupView @JvmOverloads constructor(
             colors[i] = getColorFromHsv(i/19f, HSV_SATURATION, HSV_VALUE)
         }
         binding.innerLightView.hueSeekBar.setTrackToColors(*colors)
-        binding.innerLightView.hueSeekBar.setHandleToAutoColors(*colors)
     }
 
     fun setupSaturationTrack() {
         val color2 = getColorFromHsv(viewModel?.meanHue?.get() ?: 0f, HSV_SATURATION, HSV_VALUE)
         binding.innerLightView.saturationSeekBar.setTrackToColors(0xffeeeeee.toInt(), color2)
-        binding.innerLightView.saturationSeekBar.setHandleToAutoColors(0xffeeeeee.toInt(), color2)
     }
 
     private fun setupGroupImage() {

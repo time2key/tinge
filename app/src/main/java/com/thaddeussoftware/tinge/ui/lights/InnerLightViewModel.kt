@@ -2,7 +2,9 @@ package com.thaddeussoftware.tinge.ui.lights
 
 import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableField
+import android.databinding.ObservableList
 import android.view.View
+import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
 
 abstract class InnerLightViewModel: ViewModel() {
 
@@ -22,23 +24,23 @@ abstract class InnerLightViewModel: ViewModel() {
      * Hue of the light from 0 - 1
      * Null if unknown or this is a group with different values
      * */
-    abstract val hue: ObservableField<Float?>
+    abstract val hueHandles: ObservableList<SliderViewHandle>
     /**
      * Saturation of the light from 0 - 1
      * Null if unknown or this is a group with different values
      * */
-    abstract val saturation: ObservableField<Float?>
+    abstract val saturationHandles: ObservableList<SliderViewHandle>
     /**
      * Brightness of the light from 0 - 1
      * Null if unknown or this is a group with different values
      * */
-    abstract val brightness: ObservableField<Float?>
+    abstract val brightnessHandles: ObservableList<SliderViewHandle>
 
     /**
      * White temperature of the light from 0 - 1
      * Null if unknown or this is a group with different values
      * */
-    abstract val whiteTemperature: ObservableField<Float?>
+    abstract val whiteTemperatureHandles: ObservableList<SliderViewHandle>
 
     /**
      * Whether the expander button on the top right of the view currently indicates that the
@@ -70,11 +72,4 @@ abstract class InnerLightViewModel: ViewModel() {
 
     abstract fun onWhiteTabClicked(view: View)
 
-    abstract fun onHueSliderChanged(newValue:Float)
-
-    abstract fun onSaturationSliderChanged(newValue:Float)
-
-    abstract fun onBrightnessSliderChanged(newValue:Float)
-
-    abstract fun onWhiteSliderChanged(newValue: Float)
 }

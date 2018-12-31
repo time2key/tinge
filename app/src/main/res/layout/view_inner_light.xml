@@ -127,11 +127,10 @@
             app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
             app:layout_constraintTop_toBottomOf="@+id/description_text_view" />
 
-        <com.thaddeussoftware.tinge.ui.lights.SliderView
+        <com.thaddeussoftware.tinge.ui.sliderView.SliderView
             android:id="@+id/brightness_seek_bar"
 
-            app:onSlideAmountChanged="@{ viewModel::onBrightnessSliderChanged }"
-            app:slidAmount="@{ viewModel.brightness }"
+            app:handles="@{viewModel.brightnessHandles}"
 
             app:offValueText="Off"
             app:supportsOffValue="true"
@@ -142,7 +141,6 @@
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-
             android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
             app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="@+id/brightness_image_view"
@@ -202,15 +200,14 @@
             app:layout_constraintRight_toRightOf="@+id/brightness_image_view"
             app:layout_constraintTop_toBottomOf="@+id/toggle_buttons_card_view" />
 
-        <com.thaddeussoftware.tinge.ui.lights.SliderView
+        <com.thaddeussoftware.tinge.ui.sliderView.SliderView
             android:id="@+id/hue_seek_bar"
 
             app:onMoveTextMaximumAmount="360.0"
             app:onMoveTextStringFormat="%.0f°"
 
+            app:handles="@{viewModel.hueHandles}"
             android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
-            app:onSlideAmountChanged="@{ viewModel::onHueSliderChanged }"
-            app:slidAmount="@{ viewModel.hue }"
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -232,15 +229,14 @@
             app:layout_constraintRight_toRightOf="@+id/brightness_image_view"
             app:layout_constraintTop_toBottomOf="@+id/hue_image_view" />
 
-        <com.thaddeussoftware.tinge.ui.lights.SliderView
+        <com.thaddeussoftware.tinge.ui.sliderView.SliderView
             android:id="@+id/saturation_seek_bar"
 
             app:onMoveTextMaximumAmount="100.0"
             app:onMoveTextStringFormat="%.0f%%"
 
+            app:handles="@{viewModel.saturationHandles}"
             android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
-            app:onSlideAmountChanged="@{ viewModel::onSaturationSliderChanged }"
-            app:slidAmount="@{ viewModel.saturation }"
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -264,12 +260,10 @@
             app:layout_constraintRight_toRightOf="@+id/brightness_image_view"
             app:layout_constraintTop_toBottomOf="@+id/hue_image_view" />
 
-        <com.thaddeussoftware.tinge.ui.lights.SliderView
+        <com.thaddeussoftware.tinge.ui.sliderView.SliderView
             android:id="@+id/white_seek_view"
 
             android:visibility="@{ !safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
-            app:onSlideAmountChanged="@{ viewModel::onWhiteSliderChanged }"
-            app:slidAmount="@{ viewModel.whiteTemperature }"
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"

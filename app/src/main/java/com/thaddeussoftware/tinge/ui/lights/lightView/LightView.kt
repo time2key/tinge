@@ -42,14 +42,14 @@ class LightView @JvmOverloads constructor(
     private fun setupViewModel() {
         binding.viewModel = viewModel
 
-        viewModel?.hue?.addOnPropertyChangedCallback( object: Observable.OnPropertyChangedCallback() {
+        viewModel?.lightController?.hue?.stagedValueOrLastValueFromHubObservable?.addOnPropertyChangedCallback( object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(p0: Observable?, p1: Int) {
                 setupBrightnessSlider()
                 setupSaturationTrack()
             }
         })
 
-        viewModel?.saturation?.addOnPropertyChangedCallback( object: Observable.OnPropertyChangedCallback() {
+        viewModel?.lightController?.saturation?.stagedValueOrLastValueFromHubObservable?.addOnPropertyChangedCallback( object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(p0: Observable?, p1: Int) {
                 setupBrightnessSlider()
             }
@@ -66,19 +66,15 @@ class LightView @JvmOverloads constructor(
         setupHueSlider()
         setupSaturationTrack()
         setupWhiteTrack()
-
-        binding.innerLightView.brightnessSeekBar.slidAmount = viewModel?.brightness?.get() ?: 0f
-
-        binding.innerLightView.hueSeekBar.slidAmount = viewModel?.hue?.get() ?: 0f
-
-        binding.innerLightView.saturationSeekBar.slidAmount = viewModel?.saturation?.get() ?: 0f
     }
 
     fun setupBrightnessSlider() {
-        val color2 = getColorFromHsv(viewModel?.hue?.get() ?: 0f, viewModel?.saturation?.get() ?: 0f*HSV_SATURATION, HSV_VALUE)
-        val color1 = mergeColors(0xff444444.toInt(), color2, 0.1f)
+        val color2 = getColorFromHsv(
+                viewModel?.lightController?.hue?.stagedValueOrLastValueFromHub ?: 0f,
+                viewModel?.lightController?.saturation?.stagedValueOrLastValueFromHub ?: 0f*HSV_SATURATION,
+                HSV_VALUE)
+        val color1 = mergeColors(0xff444444.toInt(), color2, 0.3f)
         binding.innerLightView.brightnessSeekBar.setTrackToColors(color1, color2)
-        binding.innerLightView.brightnessSeekBar.setHandleToAutoColors(color1, color2)
     }
 
     fun setupHueSlider() {
@@ -87,13 +83,11 @@ class LightView @JvmOverloads constructor(
             colors[i] = getColorFromHsv(i/19f, HSV_SATURATION, HSV_VALUE)
         }
         binding.innerLightView.hueSeekBar.setTrackToColors(*colors)
-        binding.innerLightView.hueSeekBar.setHandleToAutoColors(*colors)
     }
 
     fun setupSaturationTrack() {
-        val color2 = getColorFromHsv(viewModel?.hue?.get() ?: 0f, HSV_SATURATION, HSV_VALUE)
+        val color2 = getColorFromHsv(viewModel?.lightController?.hue?.stagedValueOrLastValueFromHub ?: 0f, HSV_SATURATION, HSV_VALUE)
         binding.innerLightView.saturationSeekBar.setTrackToColors(0xffeeeeee.toInt(), color2)
-        binding.innerLightView.saturationSeekBar.setHandleToAutoColors(0xffeeeeee.toInt(), color2)
     }
 
     fun setupWhiteTrack() {
@@ -102,7 +96,6 @@ class LightView @JvmOverloads constructor(
             colors[i] = viewModel?.getColorFromWhiteAmount(i/20.0) ?: 0
         }
         binding.innerLightView.whiteSeekView.setTrackToColors(*colors)
-        binding.innerLightView.whiteSeekView.setHandleToAutoColors(*colors)
     }
 
 

@@ -11,6 +11,7 @@ import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
+import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class GroupViewModel(
@@ -20,12 +21,10 @@ class GroupViewModel(
 
     override val isInColorMode = ObservableField<Boolean?>(true)
 
-    override val hue = lightGroupController.uniformHueOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
-    override val saturation = lightGroupController.uniformSaturationOfAllLightsInGroupOrNull.stagedValueOrLastValueFromHubObservable
-    override val brightness = ObservableField<Float?>()
-
-
-    override val whiteTemperature = ObservableField<Float?>(0f)
+    override val hueHandles = ObservableArrayList<SliderViewHandle>()
+    override val saturationHandles = ObservableArrayList<SliderViewHandle>()
+    override val brightnessHandles = ObservableArrayList<SliderViewHandle>()
+    override val whiteTemperatureHandles = ObservableArrayList<SliderViewHandle>()
 
     override val colorForPreviewImageView = ObservableField<Int>(0xffffffff.toInt())
 
@@ -73,7 +72,13 @@ class GroupViewModel(
             }
         })
 
-        hue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        individualLightViewModels.forEach {
+            hueHandles.addAll(it.hueHandles)
+            saturationHandles.addAll(it.saturationHandles)
+            brightnessHandles.addAll(it.brightnessHandles)
+        }
+
+        /*hue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 applyChanges()
             }
@@ -92,7 +97,7 @@ class GroupViewModel(
                 applyChanges()
             }
 
-        })
+        })*/
 
         setupColorForBackgroundView()
     }
@@ -160,25 +165,6 @@ class GroupViewModel(
 
     override fun onExpandContractButtonClicked(view: View) {
         isExpanded.set(! (isExpanded.get() ?: false))
-    }
-
-    override fun onBrightnessSliderChanged(newValue:Float) {
-        brightness.set(newValue)
-        meanBrightness.set(newValue)
-    }
-
-    override fun onHueSliderChanged(newValue: Float) {
-        hue.set(newValue)
-        meanHue.set(newValue)
-    }
-
-    override fun onSaturationSliderChanged(newValue: Float) {
-        saturation.set(newValue)
-        meanSaturation.set(newValue)
-    }
-
-    override fun onWhiteSliderChanged(newValue: Float) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onColorTabClicked(view: View) {
