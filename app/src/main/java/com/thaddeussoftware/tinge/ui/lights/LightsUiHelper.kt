@@ -2,8 +2,10 @@ package com.thaddeussoftware.tinge.ui.lights
 
 import android.databinding.Observable
 import android.databinding.ObservableField
+import android.support.v4.graphics.ColorUtils
 import android.util.Log
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
+import com.thaddeussoftware.tinge.helpers.ColorHelper
 
 object LightsUiHelper {
 
@@ -75,4 +77,13 @@ object LightsUiHelper {
         brightnessViewModelProperty.set( if (isOnStageableProperty.stagedValueOrLastValueFromHub == false) -1f else if (isOnStageableProperty.stagedValueOrLastValueFromHub == true) brightnessStageableProperty.stagedValueOrLastValueFromHub else null)
     }
 
+    /**
+     * Get the color that the brightness slider (handle & track) should be, given a hue, saturation
+     * and value.
+     * */
+    fun getColorForBrightnessSlider(hue: Float, saturation: Float, brightness: Float): Int
+            = ColorUtils.blendARGB(
+            0xff888888.toInt()
+            , ColorHelper.colorFromHsv(hue, saturation, 1f)
+            , 0.2f + 0.8f * brightness)
 }

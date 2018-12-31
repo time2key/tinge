@@ -11,6 +11,7 @@ import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.ViewLightBinding
 import com.thaddeussoftware.tinge.helpers.UiHelper
+import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 
 
 /**
@@ -69,12 +70,12 @@ class LightView @JvmOverloads constructor(
     }
 
     fun setupBrightnessSlider() {
-        val color2 = getColorFromHsv(
-                viewModel?.lightController?.hue?.stagedValueOrLastValueFromHub ?: 0f,
-                viewModel?.lightController?.saturation?.stagedValueOrLastValueFromHub ?: 0f*HSV_SATURATION,
-                HSV_VALUE)
-        val color1 = mergeColors(0xff444444.toInt(), color2, 0.3f)
-        binding.innerLightView.brightnessSeekBar.setTrackToColors(color1, color2)
+        val hue = viewModel?.lightController?.hue?.stagedValueOrLastValueFromHub ?: 0f
+        val saturation = viewModel?.lightController?.saturation?.stagedValueOrLastValueFromHub ?: 0f
+
+        binding.innerLightView.brightnessSeekBar.setTrackToColors(
+                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 0f),
+                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 1f))
     }
 
     fun setupHueSlider() {

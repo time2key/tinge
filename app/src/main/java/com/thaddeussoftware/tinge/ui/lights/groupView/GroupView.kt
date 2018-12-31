@@ -13,6 +13,7 @@ import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.ViewGroupBinding
 import com.thaddeussoftware.tinge.databinding.ViewLightBinding
 import com.thaddeussoftware.tinge.helpers.UiHelper
+import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 
@@ -78,9 +79,12 @@ class GroupView @JvmOverloads constructor(
     }
 
     private fun setupBrightnessSlider() {
-        val color2 = getColorFromHsv(viewModel?.meanHue?.get() ?: 0f, viewModel?.meanSaturation?.get() ?: 0f*HSV_SATURATION, HSV_VALUE)
-        val color1 = mergeColors(0xff444444.toInt(), color2, 0.1f)
-        binding.innerLightView.brightnessSeekBar.setTrackToColors(color1, color2)
+        val hue = viewModel?.meanHue?.get() ?: 0f
+        val saturation = viewModel?.meanSaturation?.get() ?: 0f
+
+        binding.innerLightView.brightnessSeekBar.setTrackToColors(
+                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 0f),
+                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 1f))
     }
 
     fun setupHueSlider() {

@@ -121,16 +121,14 @@ class LightViewModel(
     }
 
     private fun updateBrightnessSliderColor() {
-        val color2 = getColorFromHsv(
-                hueObservable.get() ?: 0f,
-                saturationObservable.get() ?: 1f,
-                1f)
-
         if (brightnessAndIsOnObservable.get() ?: 0f < 0) {
             brightnessHandles[0].color.set(0xff444444.toInt())
         } else {
-            brightnessHandles[0].color.set(ColorUtils.blendARGB(0xff444444.toInt(), color2,
-                    0.3f + (brightnessAndIsOnObservable.get() ?: 1f) * 0.7f))
+            brightnessHandles[0].color.set(
+                    LightsUiHelper.getColorForBrightnessSlider(
+                            hueObservable.get() ?: 0f,
+                            saturationObservable.get() ?: 1f,
+                            brightnessAndIsOnObservable.get() ?: 0f))
         }
     }
 
