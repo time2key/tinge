@@ -38,16 +38,19 @@ abstract class SliderViewSingleOrGroupHandleDetails {
     abstract val rootView: View
 
 
-    abstract fun getCurrentHandleValue(): Float?
-
-    abstract fun setCurrentHandleValue(value: Float)
-
-
     abstract val scaleIfTouchHeldDown: Float
 
     abstract val scaleIfHoveredOverForMerge: Float
 
     abstract val scaleIfHoveringOverForMerge: Float
+
+
+    abstract fun getCurrentHandleValue(): Float?
+
+    abstract fun setCurrentHandleValue(value: Float)
+
+
+    abstract fun updateHandleDrawableForCurrentColor()
 
 
     enum class AnimatableState {

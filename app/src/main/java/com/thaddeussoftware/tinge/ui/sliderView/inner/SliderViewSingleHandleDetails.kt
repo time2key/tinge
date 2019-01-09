@@ -1,16 +1,19 @@
 package com.thaddeussoftware.tinge.ui.sliderView.inner
 
 import android.content.Context
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.OvalShape
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.ViewSliderHandleBinding
 import com.thaddeussoftware.tinge.ui.sliderView.SliderView
 import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
 
 class SliderViewSingleHandleDetails(
         var sliderViewHandle: SliderViewHandle,
-        context: Context,
+        private val context: Context,
         parentView: ViewGroup): SliderViewSingleOrGroupHandleDetails() {
 
     var sliderHandleView = ViewSliderHandleBinding.inflate(LayoutInflater.from(context), parentView, true)
@@ -42,6 +45,15 @@ class SliderViewSingleHandleDetails(
 
     override fun setCurrentHandleValue(value: Float) {
         sliderViewHandle.value.set(value)
+    }
+
+    override fun updateHandleDrawableForCurrentColor() {
+        val size = context.resources.getDimension(R.dimen.slider_handle_diameter).toInt()
+        val circleDrawable = ShapeDrawable(OvalShape())
+        circleDrawable.intrinsicHeight = size
+        circleDrawable.intrinsicWidth = size
+        circleDrawable.paint.color = sliderViewHandle.color.get() ?: 0
+        sliderHandleView.handleView.setBackgroundDrawable(circleDrawable)
     }
 
 }

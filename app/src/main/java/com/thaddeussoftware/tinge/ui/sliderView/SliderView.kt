@@ -2,15 +2,10 @@ package com.thaddeussoftware.tinge.ui.sliderView
 
 import android.content.Context
 import android.databinding.*
-import android.graphics.Outline
-import android.graphics.Paint
-import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.databinding.ViewSliderBinding
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.shapes.OvalShape
-import android.graphics.drawable.ShapeDrawable
 import android.os.Looper
 import android.util.Log
 import android.view.*
@@ -309,16 +304,6 @@ class SliderView @JvmOverloads constructor(
      * [SliderViewGroupHandleDetails].
      * */
     private val groupHandles = ArrayList<SliderViewGroupHandleDetails>()
-
-    /**
-     * ViewOutlineProvider (for material design elevation shadows) that treats the outline
-     * as a circle. Used for all handles - can be reused for multiple views.
-     * */
-    private val circleOutlineProvider = object : ViewOutlineProvider() {
-        override fun getOutline(view: View, outline: Outline) {
-            outline.setOval(0, 0, view.width, view.height)
-        }
-    }
 
     init {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.SliderView)
@@ -834,37 +819,6 @@ class SliderView @JvmOverloads constructor(
         groupHandleDetails.view.onMoveLabelTextView.text = if (value < 0) "" else String.format(onMoveTextStringFormat, value.times(onMoveTextMaximumAmount))
     }
 
-    private fun updateUiColorOfGroupToMatchCurrentHandleColors(groupHandleDetails: SliderViewGroupHandleDetails) {
-        val paint = Paint()
-        paint.isAntiAlias = true
-        val width = groupHandleDetails.canvas.width.toFloat()
-        val height = groupHandleDetails.canvas.height.toFloat()
-
-        groupHandleDetails.handlesInsideGroup.forEachIndexed { i, handleInnerDetails ->
-            val startAngle = 360f * i.toFloat() / groupHandleDetails.handlesInsideGroup.size
-            val endAngle = 360f * (i.toFloat() + 1f) / groupHandleDetails.handlesInsideGroup.size
-            val midAngle = startAngle * 0.5 + endAngle * 0.5
-
-            paint.color = handleInnerDetails.sliderViewHandle.color.get() ?: 0xff000000.toInt()
-
-
-            groupHandleDetails.canvas.drawArc(0f, 0f, width, height,
-                    startAngle, endAngle-startAngle, true, paint)
-
-        }
-
-        paint.color = 0xdd_ffffff.toInt()
-        groupHandleDetails.canvas.drawCircle(width/2f, height/2f, width*0.7f/2f, paint)
-
-        paint.color = 0xff_333333.toInt()
-        paint.textSize = UiHelper.getPxFromDp(context, 11f)
-        paint.textAlign = Paint.Align.CENTER
-        groupHandleDetails.canvas.drawText("x${groupHandleDetails.handlesInsideGroup.size}", width*0.5f, height*0.67f, paint)
-
-        groupHandleDetails.view.handleView.setBackgroundDrawable(BitmapDrawable(groupHandleDetails.bitmap))
-        groupHandleDetails.view.handleView.outlineProvider = circleOutlineProvider
-    }
-
     private fun updateUiOfHandleToMatchCurrentPosition(singleHandleDetails: SliderViewSingleHandleDetails) {
 
         if (singleHandleDetails.groupHandleDetails != null) {
@@ -885,15 +839,10 @@ class SliderView @JvmOverloads constructor(
 
     private fun updateHandleColor(singleHandleDetails: SliderViewSingleHandleDetails) {
         if (singleHandleDetails.groupHandleDetails != null) {
-            updateUiColorOfGroupToMatchCurrentHandleColors(singleHandleDetails.groupHandleDetails!!)
-            return
+            singleHandleDetails.groupHandleDetails?.updateHandleDrawableForCurrentColor()
+        } else {
+            singleHandleDetails.updateHandleDrawableForCurrentColor()
         }
-        val size = resources.getDimension(R.dimen.slider_handle_diameter).toInt()
-        val circleDrawable = ShapeDrawable(OvalShape())
-        circleDrawable.intrinsicHeight = size
-        circleDrawable.intrinsicWidth = size
-        circleDrawable.paint.color = singleHandleDetails.sliderViewHandle.color.get() ?: 0
-        singleHandleDetails.sliderHandleView.handleView.setBackgroundDrawable(circleDrawable)
     }
 
     /**
