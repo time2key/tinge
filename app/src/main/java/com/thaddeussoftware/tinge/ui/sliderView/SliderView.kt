@@ -363,6 +363,10 @@ class SliderView @JvmOverloads constructor(
         super.onTouchEvent(event)
 
         if (event?.actionMasked == MotionEvent.ACTION_CANCEL) {
+            // ACTION_CANCEL happens if the user scrolls a parent ScrollView upwards, taking the
+            // touch focus away from this view - just cancel all state but don't do anything:
+
+            // Reset the state:
             requestDisallowInterceptTouchEvent(false)
             hasBeenMovedEnoughInXDirectionToBeValidSide = false
             isTouchCurrentlyDown = false
@@ -373,6 +377,9 @@ class SliderView @JvmOverloads constructor(
         }
         if (event?.actionMasked == MotionEvent.ACTION_UP) {
 
+            // Move handles according to touch event, same as would happen in an ACTION_MOVE.
+            // Note that here, we do not check if hasBeenMovedEnoughInXDirectionToBeValidSlide is
+            // true, we always do it on a touch up:
             if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
                 moveSingleOrGroupHandleToTouchEvent(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, event)
             } else {
@@ -380,6 +387,7 @@ class SliderView @JvmOverloads constructor(
                 previousTouchX = event.x
             }
 
+            // If the user was hovering the current handle over another handle, merge them:
             if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null
                     && currentlyHoveredOverSingleOrGroupHandle != null) {
                 currentlyHeldSliderViewSingleOrGroupHandleDetails?.setCurrentHandleValue(
@@ -388,24 +396,10 @@ class SliderView @JvmOverloads constructor(
                 currentlyHoveredOverSingleOrGroupHandle = null
             }
 
-            requestDisallowInterceptTouchEvent(false)
-            hasBeenMovedEnoughInXDirectionToBeValidSide = false
-            isTouchCurrentlyDown = false
-            currentlyHeldSliderViewSingleOrGroupHandleDetails = null
-            previousTouchX = null
-
-            var isAnyHandleInTouchDownState = false
-            handleDetailsMap.values.forEach {
-                if (it.groupHandleDetails != null) return@forEach
-                if (it.currentViewStateAnimatedInto != SliderViewSingleOrGroupHandleDetails.AnimatableState.NORMAL) isAnyHandleInTouchDownState = true
-            }
-            groupHandles.forEach {
-                if (it.currentViewStateAnimatedInto != SliderViewSingleOrGroupHandleDetails.AnimatableState.NORMAL) isAnyHandleInTouchDownState = true
-            }
-            if (!isAnyHandleInTouchDownState) {
-                // no handles are in a touch down state - this indicates that this ACTION_UP event
-                // is as a result of a quick click down and then up again, without moving the
-                // slider around in between the down and up:
+            // If the user did not drag the sliders enough in the x direction, perform a single
+            // click animation on slider views (as no animation will have been played on them):
+            val shouldPerformSingleClickAnimationOnHandles = !hasBeenMovedEnoughInXDirectionToBeValidSide
+            if (shouldPerformSingleClickAnimationOnHandles) {
                 if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
                     animateInThenOutForSingleClick(currentlyHeldSliderViewSingleOrGroupHandleDetails!!)
                 } else {
@@ -417,6 +411,19 @@ class SliderView @JvmOverloads constructor(
                         animateInThenOutForSingleClick(it)
                     }
                 }
+            }
+
+            // Reset the state:
+            requestDisallowInterceptTouchEvent(false)
+            hasBeenMovedEnoughInXDirectionToBeValidSide = false
+            isTouchCurrentlyDown = false
+            currentlyHeldSliderViewSingleOrGroupHandleDetails = null
+            currentlyHoveredOverSingleOrGroupHandle = null
+            previousTouchX = null
+
+            // If single click animation was performed, return now so that
+            // updateAnimationsForWhetherTouchIsCurrentlyDown do not override animations started:
+            if (shouldPerformSingleClickAnimationOnHandles) {
                 return true
             }
         }
@@ -445,8 +452,7 @@ class SliderView @JvmOverloads constructor(
 
             isTouchCurrentlyDown = true
 
-            // If has been moved enough in the x direction, disallow parent scrolling:
-
+            // If touch has been moved enough in the x direction, disallow parent scrolling:
             if (initialTouchDownX?.minus(event.x)?.absoluteValue ?: 0f
                     > UiHelper.getPxFromDp(context, AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP)) {
                 requestDisallowInterceptTouchEvent(true)
