@@ -40,12 +40,20 @@
     <dimen name="button_font_size">10sp</dimen>
 
     <dimen name="slider_track_height">3dp</dimen>
+
     <dimen name="slider_handle_diameter">14dp</dimen>
+    <dimen name="slider_handle_margin_vertical">11dp</dimen>
+    <dimen name="slider_handle_parent_width">40dp</dimen>
+
+    <dimen name="slider_handle_group_diameter">22dp</dimen>
+    <dimen name="slider_handle_group_margin_vertical">7dp</dimen>
+    <dimen name="slider_handle_group_parent_width">40dp</dimen>
+
     <dimen name="slider_handle_diameter_inner">14dp</dimen>
     <dimen name="slider_height">36dp</dimen><!--18dp-->
 
     <!--Used to offset the track of sliders horizontally from the edges to account for the fact
     that the slider handle is round and therefore the track should not be drawn right to the edge
     or it will be visible when the handle is right at one of the ends-->
-    <dimen name="half_slider_handle_diameter">7dp</dimen>
+    <dimen name="half_slider_handle_diameter">14dp</dimen>
 </resources>

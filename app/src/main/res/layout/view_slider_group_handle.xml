@@ -4,17 +4,16 @@
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/frame_layout_parent"
-        android:layout_width="40dp"
-        android:translationZ="1dp"
+        android:layout_width="@dimen/slider_handle_group_parent_width"
         android:layout_height="wrap_content">
 
         <View
             android:id="@+id/handle_view"
 
-            android:layout_width="@dimen/slider_handle_diameter"
-            android:layout_height="@dimen/slider_handle_diameter"
-            android:layout_marginTop="@dimen/slider_handle_margin_vertical"
-            android:layout_marginBottom="@dimen/slider_handle_margin_vertical"
+            android:layout_width="@dimen/slider_handle_group_diameter"
+            android:layout_height="@dimen/slider_handle_group_diameter"
+            android:layout_marginTop="@dimen/slider_handle_group_margin_vertical"
+            android:layout_marginBottom="@dimen/slider_handle_group_margin_vertical"
             android:layout_gravity="center_horizontal"
 
             android:background="@color/slider_handle"

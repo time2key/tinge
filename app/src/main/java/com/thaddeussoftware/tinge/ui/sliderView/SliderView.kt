@@ -1,10 +1,11 @@
 package com.thaddeussoftware.tinge.ui.sliderView
 
-import android.animation.Animator
 import android.content.Context
 import android.databinding.*
+import android.graphics.Outline
+import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.databinding.ViewSliderBinding
 import android.graphics.drawable.GradientDrawable
@@ -12,12 +13,13 @@ import android.graphics.drawable.shapes.OvalShape
 import android.graphics.drawable.ShapeDrawable
 import android.os.Looper
 import android.util.Log
+import android.view.*
 import com.thaddeussoftware.tinge.R
-import android.view.MotionEvent
-import android.view.View
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SimplifiedSetOnObservableListChangedCallback
-import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewHandleInnerDetails
+import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewGroupHandleDetails
+import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewSingleHandleDetails
+import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewSingleOrGroupHandleDetails
 import kotlin.math.absoluteValue
 
 
@@ -36,30 +38,61 @@ class SliderView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyle: Int = 0): FrameLayout(context, attrs, defStyle) {
 
-    private val ANIMATION_DURATION_MIN_MAX_LABELS_IN_MS = 400L
-    private val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_MS = 200L
-    private val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS = 50L
+    companion object {
+        const val ANIMATION_DURATION_MIN_MAX_LABELS_IN_MS = 400L
+        const val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_MS = 200L
+        const val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS = 50L
 
-    private val ANIMATION_DURATION_TOUCH_DOWN_MS = 100L
-    private val ANIMATION_DURATION_TOUCH_UP_MS = 400L
-    private val ANIMATION_HANDLE_SCALE_X_Y_TOUCH_DOWN = 1.3f
+        const val AMOUNT_SLID_TO_HIDE_MAX_LABEL = 0.8f
+        const val AMOUNT_SLID_TO_RESHOW_MAX_LABEL = 0.75f
+        const val AMOUNT_SLID_TO_HIDE_MIN_LABEL = 0.2f
+        const val AMOUNT_SLID_TO_RESHOW_MIN_LABEL = 0.25f
 
-    private val ANIMATION_DURATION_TOUCH_DOWN_SINGLE_CLICK_MS = 100L
-    private val ANIMATION_DURATION_TOUCH_UP_SINGLE_CLICK_MS = 400L
-    private val ANIMATION_HANDLE_SCALE_X_Y_TOUCH_DOWN_SINGLE_CLICK = 1.3f
+        const val DEFAULT_TRACK_OPACITY = 0.65f
 
+        /**
+         * How much the slider view needs to be moved to disable parent scrolling - see [onTouchEvent]
+         * */
+        private val AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP = 8f
 
-    private val AMOUNT_SLID_TO_HIDE_MAX_LABEL = 0.8f
-    private val AMOUNT_SLID_TO_RESHOW_MAX_LABEL = 0.75f
-    private val AMOUNT_SLID_TO_HIDE_MIN_LABEL = 0.2f
-    private val AMOUNT_SLID_TO_RESHOW_MIN_LABEL = 0.25f
+        /**
+         * How close the user needs to click to a specific handle to select it.
+         * */
+        private val DP_TOLERANCE_TO_SELECT_HANDLE = 16f
 
-    private val DEFAULT_TRACK_OPACITY = 0.65f
+        /**
+         * How close the user needs to move a handle to another handle for the SliderView to
+         * set the other handle to [currentlyHoveredOverSingleOrGroupHandle], allowing the user
+         * to merge them.
+         *
+         * Only applies if the handle was moved by this SliderView - if the handle was auto moved
+         * by another SliderView, [X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP] is used instead.
+         * */
+        private val X_DISTANCE_TO_SUGGEST_MERGING_HANDLES_DP = 4f
 
-    /**
-     * How much the slider view needs to be moved to disable parent scrolling - see [onTouchEvent]
-     * */
-    private val AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP = 8f;
+        /**
+         * How far away the user needs to move the currently held handle away from
+         * [currentlyHoveredOverSingleOrGroupHandle] in order to cancel the process of merging
+         * the handles together and set [currentlyHoveredOverSingleOrGroupHandle] back to null.
+         *
+         * Only applies if the handle was moved by this SliderView - if the handle was auto moved
+         * by another SliderView, [X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP] is used instead.
+         * */
+        private val X_DISTANCE_TO_CANCEL_MERGING_HANDLES_DP = 6f
+
+        /**
+         * If handle values are changed, but not by this SliderView, how close two handles need
+         * to be moved together to display them as a merged handle in this SliderView.
+         * */
+        private val X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP = 4f
+
+        /**
+         * If handle values are changed, but not by this SliderView, how close two handles need
+         * to be moved apart to display them as a individual handles rather than a merged handle
+         * in this SliderView.
+         * */
+        private val X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP = 6f
+    }
 
     /**
      * If set to true, this view will have an off value to the left of it, in addition to the
@@ -110,9 +143,9 @@ class SliderView @JvmOverloads constructor(
     /**
      * The 'on move' text shows a label up below the handle when the slider handle is moved.
      *
-     * This value determines the maximum value that will be shown in this text, e.g. 100 if the
-     * on move text should show a percent symbol. This value will be formatted by
-     * [onMoveTextStringFormat].
+     * This value determines the maximum value that will be shown in this text when the handle is
+     * at position 1, e.g. this would be 100 if the on move text should show a percent symbol.
+     * This value will be formatted by [onMoveTextStringFormat].
      * */
     var onMoveTextMaximumAmount: Float = 1f
         set(value) {
@@ -146,6 +179,12 @@ class SliderView @JvmOverloads constructor(
             binding.sliderTrackViewStart.alpha = value
         }
 
+    /**
+     * All individual handles to be shown in this SliderView.
+     *
+     * The same handle can be added to multiple SliderViews, e.g. to have a group SliderView
+     * that controls the handles of multiple other SliderViews.
+     * */
     var handles: ObservableList<SliderViewHandle>? = null
         set(value) {
             field = value
@@ -162,19 +201,22 @@ class SliderView @JvmOverloads constructor(
         }
 
     private fun addSliderViewHandle(sliderViewHandle: SliderViewHandle) {
-        handleDetailsMap[sliderViewHandle] = SliderViewHandleInnerDetails(sliderViewHandle, context, binding.frameLayout)
-        updateUiOfHandleToMatchCurrentPosition(sliderViewHandle, handleDetailsMap[sliderViewHandle]!!)
-        updateHandleColor(sliderViewHandle, handleDetailsMap[sliderViewHandle]!!)
+        handleDetailsMap[sliderViewHandle] = SliderViewSingleHandleDetails(sliderViewHandle, context, binding.frameLayout)
+        updateUiOfHandleToMatchCurrentPosition(handleDetailsMap[sliderViewHandle]!!)
+        updateWhetherHandlesShouldBeMergedOrUnmerged()
+        updateHandleColor(handleDetailsMap[sliderViewHandle]!!)
 
         sliderViewHandle.value.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (Thread.currentThread() == Looper.getMainLooper().thread) {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total)")
-                    updateUiOfHandleToMatchCurrentPosition(sliderViewHandle, handleDetailsMap[sliderViewHandle]!!)
+                    updateWhetherHandlesShouldBeMergedOrUnmerged()
+                    updateUiOfHandleToMatchCurrentPosition(handleDetailsMap[sliderViewHandle]!!)
                 } else {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total (not from ui thread))")
                     post {
-                        updateUiOfHandleToMatchCurrentPosition(sliderViewHandle, handleDetailsMap[sliderViewHandle]!!)
+                        updateWhetherHandlesShouldBeMergedOrUnmerged()
+                        updateUiOfHandleToMatchCurrentPosition(handleDetailsMap[sliderViewHandle]!!)
                     }
                 }
             }
@@ -182,26 +224,38 @@ class SliderView @JvmOverloads constructor(
         sliderViewHandle.color.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (Thread.currentThread() == Looper.getMainLooper().thread) {
-                    updateHandleColor(sliderViewHandle, handleDetailsMap[sliderViewHandle]!!)
+                    updateHandleColor(handleDetailsMap[sliderViewHandle]!!)
                 } else {
                     Log.v("tinge", "SliderView color updated - not from ui thread")
                     post {
-                        updateHandleColor(sliderViewHandle, handleDetailsMap[sliderViewHandle]!!)
+                        updateHandleColor(handleDetailsMap[sliderViewHandle]!!)
                     }
                 }
             }
         })
     }
 
-    private val handleDetailsMap = HashMap<SliderViewHandle, SliderViewHandleInnerDetails>()
+    private val handleDetailsMap = HashMap<SliderViewHandle, SliderViewSingleHandleDetails>()
 
     private var binding: ViewSliderBinding = ViewSliderBinding.inflate(LayoutInflater.from(context), this, true)
+
+    /**
+     * Set to true when the max label has been made visible, set to false when the max label has
+     * been made invisible to accomodate the on-move text.
+     * */
+    private var isMaxValueLabelAnimatedVisible = true
+    /**
+     * Set to true when the min label has been made visible, set to false when the min label has
+     * been made invisible to accomodate the on-move text.
+     * */
+    private var isMinValueLabelAnimatedVisible = false
+
 
     /**
      * We keep track of the x position when the user touched down, for use in working out
      * [hasBeenMovedEnoughInXDirectionToBeValidSide] - see [onTouchEvent]
      * */
-    private var touchDownX: Float? = null
+    private var initialTouchDownX: Float? = null
 
     /**
      * When this view is initially touched in [onTouchEvent], this value will be false. When the
@@ -226,25 +280,48 @@ class SliderView @JvmOverloads constructor(
     private var isTouchCurrentlyDown: Boolean = false
 
     /**
-     * Set to true when the max label has been made visible, set to false when the max label has
-     * been made invisible to accomodate the on-move text.
+     * If the user has selected a single handle to drag, this variable keeps track of this
+     * currently held handle.
+     *
+     * If the user starts dragging without selecting a handle, this property will be null, and
+     * all handles will move.
      * */
-    private var isMaxValueLabelAnimatedVisible = true
+    private var currentlyHeldSliderViewSingleOrGroupHandleDetails: SliderViewSingleOrGroupHandleDetails? = null
+
     /**
-     * Set to true when the min label has been made visible, set to false when the min label has
-     * been made invisible to accomodate the on-move text.
+     * If the user drags the currently held slider handle over another slider handle, then the
+     * hovered-over handle gets bigger to indicate that the user can let go to group both
+     * handles together.
+     *
+     * This variable keeps track of the currently hovered-over handle.
      * */
-    private var isMinValueLabelAnimatedVisible = false
+    private var currentlyHoveredOverSingleOrGroupHandle: SliderViewSingleOrGroupHandleDetails? = null
 
-    private val DP_TOLERANCE_TO_MERGE_HANDLES = 4f
+    /**
+     * The x position of the last touch event that occurred ([MotionEvent.getX]). When the touch
+     * is released, this is set to null.
+     * */
+    var previousTouchX: Float? = null
 
-    private val DP_TOLERANCE_TO_SELECT_HANDLE = 16f
 
-    private var currentlyHeldSliderViewHandleDetails: SliderViewHandleInnerDetails? = null
+    /**
+     * Handles that are grouped together into a single multi-handle - see
+     * [SliderViewGroupHandleDetails].
+     * */
+    private val groupHandles = ArrayList<SliderViewGroupHandleDetails>()
+
+    /**
+     * ViewOutlineProvider (for material design elevation shadows) that treats the outline
+     * as a circle. Used for all handles - can be reused for multiple views.
+     * */
+    private val circleOutlineProvider = object : ViewOutlineProvider() {
+        override fun getOutline(view: View, outline: Outline) {
+            outline.setOval(0, 0, view.width, view.height)
+        }
+    }
 
     init {
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.SliderView)
-
 
         trackOpacity = DEFAULT_TRACK_OPACITY
 
@@ -273,20 +350,9 @@ class SliderView @JvmOverloads constructor(
         val transparentColour = 0x33000000.toInt() or (colors[0] and 0xffffff).toInt()
 
         val startColors = ArrayList<Int>()
-        //startColors.add(0x00000000.toInt())
-        for (i in 0..10) {
-            startColors.add(offColour)
-            startColors.add(offColour)
-        }
-        for (i in 0..10) {
-            startColors.add(transparentColour)
-            startColors.add(transparentColour)
-            startColors.add(transparentColour)
-        }
-        for (i in 0..10) {
-            startColors.add(colors[0])
-            startColors.add(colors[0])
-        }
+        for (i in 0..20) { startColors.add(offColour) }
+        for (i in 0..30) { startColors.add(transparentColour) }
+        for (i in 0..20) { startColors.add(colors[0]) }
 
         val startGradient = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, startColors.toIntArray())
         startGradient.cornerRadius = 0f
@@ -297,8 +363,6 @@ class SliderView @JvmOverloads constructor(
         binding.sliderTrackView.background = gd;
     }
 
-    var previousEventX: Float? = null
-
     /**
      * Called by android when a touch happens.
      *
@@ -306,7 +370,7 @@ class SliderView @JvmOverloads constructor(
      * goes outside this view, the parent ScrollView will take the touch for scrolling instead.
      *
      * This is disabled here by calling requestDisallowInterceptTouchEvent if the user drags
-     * the slider more than 20 pixels.
+     * the slider more than [AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP]
      *
      * When the touch goes up or is cancelled, requestDisallowInterceptTouchEvent is set back.
      * */
@@ -317,37 +381,54 @@ class SliderView @JvmOverloads constructor(
             requestDisallowInterceptTouchEvent(false)
             hasBeenMovedEnoughInXDirectionToBeValidSide = false
             isTouchCurrentlyDown = false
-            currentlyHeldSliderViewHandleDetails = null
-            previousEventX = null
+            currentlyHeldSliderViewSingleOrGroupHandleDetails = null
+            currentlyHoveredOverSingleOrGroupHandle = null
+            previousTouchX = null
             return true
         }
         if (event?.actionMasked == MotionEvent.ACTION_UP) {
 
-            if (currentlyHeldSliderViewHandleDetails != null) {
-                moveSingleHandleToTouchEvent(currentlyHeldSliderViewHandleDetails!!, event)
+            if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
+                moveSingleOrGroupHandleToTouchEvent(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, event)
             } else {
-                moveAllSlidersAroundTouchEvent(event.x, previousEventX)
-                previousEventX = event.x
+                moveAllSlidersAroundTouchEvent(event.x, previousTouchX)
+                previousTouchX = event.x
+            }
+
+            if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null
+                    && currentlyHoveredOverSingleOrGroupHandle != null) {
+                currentlyHeldSliderViewSingleOrGroupHandleDetails?.setCurrentHandleValue(
+                        currentlyHoveredOverSingleOrGroupHandle?.getCurrentHandleValue() ?: 0f)
+                mergeTwoHandles(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, currentlyHoveredOverSingleOrGroupHandle!!)
+                currentlyHoveredOverSingleOrGroupHandle = null
             }
 
             requestDisallowInterceptTouchEvent(false)
             hasBeenMovedEnoughInXDirectionToBeValidSide = false
             isTouchCurrentlyDown = false
-            currentlyHeldSliderViewHandleDetails = null
-            previousEventX = null
+            currentlyHeldSliderViewSingleOrGroupHandleDetails = null
+            previousTouchX = null
 
             var isAnyHandleInTouchDownState = false
             handleDetailsMap.values.forEach {
-                if (it.isUiInTouchDownState) isAnyHandleInTouchDownState = true
+                if (it.groupHandleDetails != null) return@forEach
+                if (it.currentViewStateAnimatedInto != SliderViewSingleOrGroupHandleDetails.AnimatableState.NORMAL) isAnyHandleInTouchDownState = true
+            }
+            groupHandles.forEach {
+                if (it.currentViewStateAnimatedInto != SliderViewSingleOrGroupHandleDetails.AnimatableState.NORMAL) isAnyHandleInTouchDownState = true
             }
             if (!isAnyHandleInTouchDownState) {
                 // no handles are in a touch down state - this indicates that this ACTION_UP event
                 // is as a result of a quick click down and then up again, without moving the
                 // slider around in between the down and up:
-                if (currentlyHeldSliderViewHandleDetails != null) {
-                    animateInThenOutForSingleClick(currentlyHeldSliderViewHandleDetails!!)
+                if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
+                    animateInThenOutForSingleClick(currentlyHeldSliderViewSingleOrGroupHandleDetails!!)
                 } else {
                     handleDetailsMap.values.forEach {
+                        if (it.groupHandleDetails != null) return@forEach
+                        animateInThenOutForSingleClick(it)
+                    }
+                    groupHandles.forEach {
                         animateInThenOutForSingleClick(it)
                     }
                 }
@@ -356,17 +437,21 @@ class SliderView @JvmOverloads constructor(
         }
         if (event?.actionMasked == MotionEvent.ACTION_DOWN) {
             isTouchCurrentlyDown = true
-            touchDownX = event.x
+            initialTouchDownX = event.x
 
-            val slidAmoutnOfTouchXMinusTolerance = getSlidAmountFromTouchEventXPosition(event.x - UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
-            val slidAmoutnOfTouchXPlusTolerance = getSlidAmountFromTouchEventXPosition(event.x + UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
+            val slidAmountOfTouchXMinusTolerance = getSlidAmountFromTouchEventXPosition(event.x - UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
+            val slidAmountOfTouchXPlusTolerance = getSlidAmountFromTouchEventXPosition(event.x + UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
 
             handleDetailsMap.values.forEach {
                 val handleValue = it.sliderViewHandle.value.get() ?: 0f
 
-                if (slidAmoutnOfTouchXMinusTolerance < handleValue
-                        && slidAmoutnOfTouchXPlusTolerance > handleValue) {
-                    currentlyHeldSliderViewHandleDetails = it
+                if (slidAmountOfTouchXMinusTolerance <= handleValue
+                        && slidAmountOfTouchXPlusTolerance >= handleValue) {
+                    if (it.groupHandleDetails == null) {
+                        currentlyHeldSliderViewSingleOrGroupHandleDetails = it
+                    } else {
+                        currentlyHeldSliderViewSingleOrGroupHandleDetails = it.groupHandleDetails
+                    }
                 }
             }
         }
@@ -377,18 +462,18 @@ class SliderView @JvmOverloads constructor(
 
             // If has been moved enough in the x direction, disallow parent scrolling:
 
-            if (touchDownX?.minus(event.x)?.absoluteValue ?: 0f
+            if (initialTouchDownX?.minus(event.x)?.absoluteValue ?: 0f
                     > UiHelper.getPxFromDp(context, AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP)) {
                 requestDisallowInterceptTouchEvent(true)
                 hasBeenMovedEnoughInXDirectionToBeValidSide = true
             }
 
             if (hasBeenMovedEnoughInXDirectionToBeValidSide) {
-                if (currentlyHeldSliderViewHandleDetails != null) {
-                    moveSingleHandleToTouchEvent(currentlyHeldSliderViewHandleDetails!!, event)
+                if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
+                    moveSingleOrGroupHandleToTouchEvent(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, event)
                 } else {
-                    moveAllSlidersAroundTouchEvent(event.x, previousEventX)
-                    previousEventX = event.x
+                    moveAllSlidersAroundTouchEvent(event.x, previousTouchX)
+                    previousTouchX = event.x
                 }
             } else {
                 return true
@@ -402,59 +487,21 @@ class SliderView @JvmOverloads constructor(
 
     }
 
-    /**
-     * Starts animations to either turn the view into the touch-down state (with the bigger handle
-     * etc) or the touch-up state (with the regular handle etc).
-     *
-     * Updates [isUiInTouchDownState].
-     * */
-    private fun updateAnimationsForWhetherTouchIsCurrentlyDown() {
-
-        handleDetailsMap.forEach { entry ->
-
-            if (!entry.value.isUiInTouchDownState
-                    && isTouchCurrentlyDown
-                    && hasBeenMovedEnoughInXDirectionToBeValidSide
-                    && (currentlyHeldSliderViewHandleDetails == null
-                            || currentlyHeldSliderViewHandleDetails == entry.value)) {
-                // Animate to touch down state:
-                entry.value.isUiInTouchDownState = true
-
-                entry.value.sliderHandleView.handleView.clearAnimation()
-                entry.value.sliderHandleView.handleView
-                        .animate()
-                        .scaleX(ANIMATION_HANDLE_SCALE_X_Y_TOUCH_DOWN)
-                        .scaleY(ANIMATION_HANDLE_SCALE_X_Y_TOUCH_DOWN)
-                        .setDuration(ANIMATION_DURATION_TOUCH_DOWN_MS)
-                        .setListener(null)
-
-                entry.value.sliderHandleView.onMoveLabelTextView.clearAnimation()
-                entry.value.sliderHandleView.onMoveLabelTextView
-                        .animate()
-                        .alpha(1f)
-                        .setDuration(ANIMATION_DURATION_TOUCH_DOWN_MS)
-                        .setListener(null)
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (changed) {
+            handleDetailsMap.forEach {  entry ->
+                updateUiOfHandleToMatchCurrentPosition(entry.value)
             }
-            else if (entry.value.isUiInTouchDownState && !isTouchCurrentlyDown) {
-                // Animate to touch up state:
-                entry.value.isUiInTouchDownState = false
-
-                entry.value.sliderHandleView.handleView
-                        .animate()
-                        .scaleX(1f)
-                        .scaleY(1f)
-                        .setDuration(ANIMATION_DURATION_TOUCH_UP_MS)
-                        .setListener(null)
-
-                entry.value.sliderHandleView.onMoveLabelTextView
-                        .animate()
-                        .alpha(0f)
-                        .setDuration(ANIMATION_DURATION_TOUCH_UP_MS)
-                        .setListener(null)
+            groupHandles.forEach {
+                updateUiPositionOfGroupToMatchCurrentPosition(it)
             }
         }
-
     }
+
+
+
+
 
     /**
      * Called by [onTouchEvent] when the user single-clicks (touches down and then up without
@@ -462,71 +509,214 @@ class SliderView @JvmOverloads constructor(
      *
      * Performs an animation that animates the touch handle big and then small again.
      * */
-    private fun animateInThenOutForSingleClick(hueDetails: SliderViewHandleInnerDetails) {
-        val firstAnimationDoneStartSecondAnimationListener = object : Animator.AnimatorListener {
-            override fun onAnimationRepeat(p0: Animator?) {}
+    private fun animateInThenOutForSingleClick(singleOrGroupHandleDetails: SliderViewSingleOrGroupHandleDetails) {
 
-            override fun onAnimationCancel(p0: Animator?) {}
-
-            override fun onAnimationStart(p0: Animator?) {}
-
-            override fun onAnimationEnd(p0: Animator?) {
-
-                hueDetails.sliderHandleView.handleView
-                        .animate()
-                        .scaleX(1f)
-                        .scaleY(1f)
-                        .setDuration(ANIMATION_DURATION_TOUCH_UP_SINGLE_CLICK_MS)
-                        .setListener(null)
-
-                hueDetails.sliderHandleView.onMoveLabelTextView
-                        .animate()
-                        .alpha(0f)
-                        .setDuration(ANIMATION_DURATION_TOUCH_UP_SINGLE_CLICK_MS)
-                        .setListener(null)
-
-                updateUiOfMaxAndMinLabelVisibility()
-
-            }
+        singleOrGroupHandleDetails.animateInThenOutForSingleClick {
+            updateUiOfMaxAndMinLabelVisibility()
         }
 
-        hueDetails.sliderHandleView.handleView.clearAnimation()
-        hueDetails.sliderHandleView.handleView
-                .animate()
-                .scaleX(ANIMATION_HANDLE_SCALE_X_Y_TOUCH_DOWN_SINGLE_CLICK)
-                .scaleY(ANIMATION_HANDLE_SCALE_X_Y_TOUCH_DOWN_SINGLE_CLICK)
-                .setDuration(ANIMATION_DURATION_TOUCH_DOWN_SINGLE_CLICK_MS)
-                .setListener(firstAnimationDoneStartSecondAnimationListener)
-
-        hueDetails.sliderHandleView.onMoveLabelTextView.clearAnimation()
-        hueDetails.sliderHandleView.onMoveLabelTextView
-                .animate()
-                .alpha(1f)
-                .setDuration(ANIMATION_DURATION_TOUCH_DOWN_SINGLE_CLICK_MS)
-                .setListener(null)
-
-        if (hueDetails.sliderViewHandle.value.get() ?: 0f > AMOUNT_SLID_TO_HIDE_MAX_LABEL) {
+        if (singleOrGroupHandleDetails.getCurrentHandleValue() ?: 0f > AMOUNT_SLID_TO_HIDE_MAX_LABEL) {
             isMaxValueLabelAnimatedVisible = false
             binding.onRightTextView
                     .animate()
                     .alpha(0f)
-                    .setDuration(ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS)
+                    .setDuration(SliderView.ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS)
                     .setListener(null)
         }
-        if (hueDetails.sliderViewHandle.value.get() ?: 1f < AMOUNT_SLID_TO_HIDE_MIN_LABEL) {
+        if (singleOrGroupHandleDetails.getCurrentHandleValue() ?: 1f < AMOUNT_SLID_TO_HIDE_MIN_LABEL) {
             isMinValueLabelAnimatedVisible = false
             binding.onLeftTextView
                     .animate()
                     .alpha(0f)
-                    .setDuration(ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS)
+                    .setDuration(SliderView.ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS)
                     .setListener(null)
         }
     }
 
+    private fun mergeTwoHandles(handle1: SliderViewSingleOrGroupHandleDetails, handle2: SliderViewSingleOrGroupHandleDetails) {
+
+        val singleHandle1 = if (handle1 is SliderViewSingleHandleDetails) handle1
+                else (handle1 as SliderViewGroupHandleDetails).handlesInsideGroup.first()
+
+        val singleHandle2 = if (handle2 is SliderViewSingleHandleDetails) handle2
+                else (handle2 as SliderViewGroupHandleDetails).handlesInsideGroup.first()
+
+        if (singleHandle1.groupHandleDetails == null && singleHandle2.groupHandleDetails == null) {
+            // Neither handle is in a group:
+
+            val groupHandle = SliderViewGroupHandleDetails(context, binding.frameLayout)
+
+            groupHandle.handlesInsideGroup.add(singleHandle1)
+            groupHandle.handlesInsideGroup.add(singleHandle2)
+
+            singleHandle1.groupHandleDetails = groupHandle
+            singleHandle2.groupHandleDetails = groupHandle
+
+            groupHandles.add(groupHandle)
+
+            singleHandle1.animateOutThenHide()
+            singleHandle2.animateOutThenHide()
+            groupHandle.animateInAfterDelay()
+        } else if (singleHandle1.groupHandleDetails == null) {
+            // only singleHandle2 is in a group:
+
+            val groupHandle = singleHandle2.groupHandleDetails!!
+
+            groupHandle.handlesInsideGroup.add(singleHandle1)
+            singleHandle1.groupHandleDetails = groupHandle
+
+            singleHandle1.animateOutThenHide()
+            groupHandle.animateOutThenBackIn()
+        } else if (singleHandle2.groupHandleDetails == null) {
+            // only singleHandle1 is in a group:
+
+            val groupHandle = singleHandle1.groupHandleDetails!!
+
+            groupHandle.handlesInsideGroup.add(singleHandle2)
+            singleHandle2.groupHandleDetails = groupHandle
+
+            singleHandle2.animateOutThenHide()
+            groupHandle.animateOutThenBackIn()
+        } else if (singleHandle1.groupHandleDetails != singleHandle2.groupHandleDetails) {
+            // Both handles are in different groups:
+
+            val groupHandle1 = singleHandle1.groupHandleDetails!!
+            val groupHandle2 = singleHandle2.groupHandleDetails!!
+
+            // Remove first handle and merge contents into second handle:
+
+            groupHandle1.handlesInsideGroup.forEach {
+                groupHandle2.handlesInsideGroup.add(it)
+                it.groupHandleDetails = groupHandle2
+            }
+
+            groupHandle1.handlesInsideGroup.clear()
+            groupHandles.remove(groupHandle1)
+            //(groupHandle1.view.root.parent as ViewGroup).removeView(groupHandle1.view.root)
+
+            groupHandle1.animateOutThenRemoveFromLayout()
+            groupHandle2.animateInAfterDelay()
+        }
+
+        updateUiOfHandleToMatchCurrentPosition(singleHandle1)
+        updateUiOfHandleToMatchCurrentPosition(singleHandle2)
+        updateHandleColor(singleHandle1)
+        updateHandleColor(singleHandle2)
+    }
+
+    private fun unmergeEntireGroup(groupHandleDetails: SliderViewGroupHandleDetails) {
+        groupHandleDetails.handlesInsideGroup.forEach {
+            it.groupHandleDetails = null
+        }
+
+        groupHandles.remove(groupHandleDetails)
+        groupHandleDetails.animateOutThenRemoveFromLayout()
+
+        groupHandleDetails.handlesInsideGroup.forEach {
+            it.animateIn()
+            updateUiOfHandleToMatchCurrentPosition(it)
+            updateHandleColor(it)
+        }
+
+        groupHandleDetails.handlesInsideGroup.clear()
+    }
+
+    private fun moveSingleOrGroupHandleToTouchEvent(handleDetails: SliderViewSingleOrGroupHandleDetails, event: MotionEvent) {
+        var newSlidAmount = getSlidAmountFromTouchEventXPosition(event.x)
+
+        if (currentlyHoveredOverSingleOrGroupHandle != null) {
+            val differenceBetweenHandles = handleDetails.getCurrentHandleValue()
+                    ?.minus(currentlyHoveredOverSingleOrGroupHandle?.getCurrentHandleValue() ?: 0f)?.absoluteValue ?: 0f
+            if (differenceBetweenHandles > getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_CANCEL_MERGING_HANDLES_DP)) {
+                currentlyHoveredOverSingleOrGroupHandle = null
+            }
+        }
+
+        if (currentlyHoveredOverSingleOrGroupHandle == null) {
+            var handleToMergeCurrentHandleWith: SliderViewSingleOrGroupHandleDetails? = null
+            handleDetailsMap.values.forEach {
+                if (handleDetails == it
+                        || (handleDetails is SliderViewGroupHandleDetails
+                                && handleDetails.handlesInsideGroup.contains(it))) {
+                    return@forEach
+                }
+
+                val differenceBetweenHandles = handleDetails.getCurrentHandleValue()
+                        ?.minus(it.getCurrentHandleValue() ?: 0f)?.absoluteValue ?: 0f
+                if (differenceBetweenHandles < getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_SUGGEST_MERGING_HANDLES_DP)) {
+                    if (it.groupHandleDetails == null) {
+                        handleToMergeCurrentHandleWith = it
+                    } else {
+                        handleToMergeCurrentHandleWith = it.groupHandleDetails!!
+                    }
+                }
+            }
+            handleToMergeCurrentHandleWith?.let {
+                currentlyHoveredOverSingleOrGroupHandle = it
+            }
+        }
+
+        handleDetails.setCurrentHandleValue(newSlidAmount)
+    }
+
+    /**
+     * Moves all the handles so they are around the given touch event.
+     *
+     * Called by [onTouchEvent]
+     * */
+    private fun moveAllSlidersAroundTouchEvent(eventX: Float, previousEventX: Float?) {
+        val newSlidAmount = getSlidAmountFromTouchEventXPosition(eventX)
+
+        if (newSlidAmount < 0) {
+            // Set all handles to off:
+            handleDetailsMap.values.forEach { it.setCurrentHandleValue(-1f) }
+        } else {
+            val numberOfHandlesThatAreOn = handleDetailsMap.values.count { it.getCurrentHandleValue()?:-1f >= 0f }
+            if (numberOfHandlesThatAreOn == 0) {
+                // Set all handles to given value:
+                handleDetailsMap.values.forEach { it.setCurrentHandleValue(newSlidAmount) }
+            } else {
+                // Move all handles that are on to a given value:
+                var moveDifference = 0f
+
+                if (previousEventX == null) {
+                    val averageCurrentSlidAmount = handleDetailsMap.values.sumByDouble {
+                        Math.max(0.0, (it.getCurrentHandleValue()?:0f).toDouble())
+                    }.toFloat() / numberOfHandlesThatAreOn
+                    moveDifference = newSlidAmount - averageCurrentSlidAmount
+                } else {
+                    val oldSlidAmount = getSlidAmountFromTouchEventXPosition(previousEventX)
+                    moveDifference = newSlidAmount - oldSlidAmount
+                }
+
+                handleDetailsMap.values.forEach {
+                    // Only modify handles that are on:
+                    if (it.getCurrentHandleValue()?:-1f < 0f) return@forEach
+
+                    var newValue = (it.getCurrentHandleValue()?:0f) + moveDifference
+                    if (wrapsAroundIfMultipleHandlesMoved) {
+                        if (newValue < 0) {
+                            newValue += 1
+                        } else if (newValue > 1) {
+                            newValue -= 1
+                        }
+                    } else {
+                        newValue = maxOf(minOf(newValue, 1f), 0f)
+                    }
+                    it.setCurrentHandleValue(newValue)
+                }
+            }
+        }
+        updateWhetherHandlesShouldBeMergedOrUnmerged(true)
+    }
+
+
+
+
     private fun getSlidAmountFromTouchEventXPosition(eventX: Float): Float {
         var newSlidAmount = 0f
 
-        if (eventX < binding.sliderTrackViewStart.width*0.7f && supportsOffValue == true) {
+        if (eventX < binding.sliderTrackViewStart.x + binding.sliderTrackViewStart.width*0.7f && supportsOffValue == true) {
             newSlidAmount = -1f
         } else {
             newSlidAmount = ((eventX
@@ -536,82 +726,16 @@ class SliderView @JvmOverloads constructor(
         return newSlidAmount
     }
 
-    /**
-     * Move a single handle so it is at a given touch event.
-     * */
-    private fun moveSingleHandleToTouchEvent(sliderViewHandleInnerDetails: SliderViewHandleInnerDetails, event: MotionEvent) {
-        val newSlidAmount = getSlidAmountFromTouchEventXPosition(event.x)
-        Log.v("tinge", "----------------")
-        Log.v("tinge", "SliderView single handle moved to position: "+newSlidAmount+ " ("+handleDetailsMap.size+" handles total)")
-        sliderViewHandleInnerDetails.sliderViewHandle.value.set(newSlidAmount)
-        updateUiOfHandleToMatchCurrentPosition(sliderViewHandleInnerDetails.sliderViewHandle, sliderViewHandleInnerDetails)
-    }
+    private fun getChangeInValueCorrespondingToSizeInDp(sizeInDp: Float): Float
+            = UiHelper.getPxFromDp(context, sizeInDp) / binding.sliderTrackView.width.toFloat()
 
-    /**
-     * Moves all the handles so they are around the given touch event.
-     *
-     * Called by [onTouchEvent]
-     * */
-    private fun moveAllSlidersAroundTouchEvent(eventX: Float, previousEventX: Float?) {
-        //val previousSlidAmount = slidAmount
-        val newSlidAmount = getSlidAmountFromTouchEventXPosition(eventX)
-        var moveDifference = 0f
-
-        if (previousEventX == null) {
-            var oldAverageSlidAmount = 0f
-            handleDetailsMap.forEach { entry ->
-                oldAverageSlidAmount += (entry.key.value.get() ?: 0f) / handleDetailsMap.size
-            }
-            moveDifference = newSlidAmount - oldAverageSlidAmount
-        } else {
-            val oldSlidAmount = getSlidAmountFromTouchEventXPosition(previousEventX)
-            moveDifference = newSlidAmount - oldSlidAmount
-        }
-
-        Log.v("tinge", "----------------")
-        Log.v("tinge", "SliderView average handle moved to position: "+newSlidAmount+ " ("+handleDetailsMap.size+" handles total)")
-
-        handleDetailsMap.forEach { entry ->
-            if (newSlidAmount < 0f) {
-                entry.key.value.set(-1f)
-            } else {
-                var newValue = (entry.key.value.get() ?: 0f) + moveDifference
-                if (wrapsAroundIfMultipleHandlesMoved) {
-                    if (newValue < 0) {
-                        newValue += 1
-                    } else if (newValue > 1) {
-                        newValue -= 1
-                    }
-                } else {
-                    newValue = maxOf(minOf(newValue, 1f), 0f)
-                }
-                entry.key.value.set(newValue)
-                updateUiOfHandleToMatchCurrentPosition(entry.key, entry.value)
-            }
-        }
-    }
-
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        if (changed) {
-            handleDetailsMap.forEach {  entry ->
-                updateUiOfHandleToMatchCurrentPosition(entry.key, entry.value)
-            }
-        }
-    }
-
-
-    private fun updateUiOfHandleToMatchCurrentPosition(sliderViewHandle: SliderViewHandle, sliderViewHandleInnerDetails: SliderViewHandleInnerDetails) {
-
-        val value = sliderViewHandle.value.get() ?: 0f
-
+    private fun getPositionFromLeftInPixelsToDisplayViewAt(value: Float): Float {
         var positionFromLeft = 0f
-
         val startTrackWidth = if (supportsOffValue == true) binding.sliderTrackViewStart.width else 0
         val mainTrackWidth = binding.sliderTrackView.width
 
         val handleViewWidth = UiHelper.getPxFromDp(context, 40f)
-        val parentLeftPadding = UiHelper.getPxFromDp(context, 8f)
+        val parentLeftPadding = if (supportsOffValue == true) binding.sliderTrackViewStart.x else binding.sliderTrackView.x //UiHelper.getPxFromDp(context, 8f)
 
         if (value < 0) {
             positionFromLeft = parentLeftPadding - handleViewWidth/2 + startTrackWidth * 0f
@@ -619,22 +743,157 @@ class SliderView @JvmOverloads constructor(
             positionFromLeft = parentLeftPadding - handleViewWidth/2 + (startTrackWidth + mainTrackWidth * value)
         }
 
-        Log.v("tinge", "SliderView updateUiOfHandleToMatchCurrentPosition setting left to $positionFromLeft (${if (Thread.currentThread() == Looper.getMainLooper().thread) "on UI thread" else "NOT ON UI THREAD"}) (${handleDetailsMap.size} handles total)")
-        //if (positionFromLeft < 1) positionFromLeft = 1f
-
-        (sliderViewHandleInnerDetails.sliderHandleView.root.layoutParams as MarginLayoutParams).leftMargin = positionFromLeft.toInt()
-        sliderViewHandleInnerDetails.sliderHandleView.root.requestLayout()
-
-        sliderViewHandleInnerDetails.sliderHandleView.onMoveLabelTextView.text = String.format(onMoveTextStringFormat, value.times(onMoveTextMaximumAmount))
+        return positionFromLeft
     }
 
-    private fun updateHandleColor(sliderViewHandle: SliderViewHandle, sliderViewHandleInnerDetails: SliderViewHandleInnerDetails) {
+
+
+
+    /**
+     * Starts animations to either turn the view into the touch-down state (with the bigger handle
+     * etc) or the touch-up state (with the regular handle etc).
+     *
+     * Updates [isUiInTouchDownState].
+     * */
+    private fun updateAnimationsForWhetherTouchIsCurrentlyDown() {
+
+        val updateHandle = { it: SliderViewSingleOrGroupHandleDetails ->
+            if (it.currentViewStateAnimatedInto == SliderViewSingleOrGroupHandleDetails.AnimatableState.REMOVED
+                    || it.currentViewStateAnimatedInto == SliderViewSingleOrGroupHandleDetails.AnimatableState.HIDDEN) {
+                // Do nothing
+            } else if (isTouchCurrentlyDown
+                    && hasBeenMovedEnoughInXDirectionToBeValidSide
+                    && currentlyHoveredOverSingleOrGroupHandle == it) {
+                it.animateToHoveredOverForMergeState()
+            } else if (isTouchCurrentlyDown
+                    && hasBeenMovedEnoughInXDirectionToBeValidSide
+                    && (currentlyHeldSliderViewSingleOrGroupHandleDetails == null
+                            || currentlyHeldSliderViewSingleOrGroupHandleDetails == it)) {
+                if (currentlyHoveredOverSingleOrGroupHandle != null) {
+                    it.animateToHoveringOverForMergeState()
+                } else {
+                    it.animateToCurrentlyBeingHeldStateIfAppropriate()
+                }
+            } else {
+                it.animateToNormalStateIfAppropriate()
+            }
+        }
+
+        handleDetailsMap.values.forEach(updateHandle)
+        groupHandles.forEach(updateHandle)
+    }
+
+    /**
+     * Determines whether handles should be merged or unmerged with a group.
+     * Should be called after a handle value is changed.
+     * */
+    private fun updateWhetherHandlesShouldBeMergedOrUnmerged(shouldRunWhenTouchCurrentlyDown: Boolean = false) {
+        // Don't run if the touch is currently down - if this function were to be run while the
+        // user was touching the view, then groups would be merged/unmerged prematurely:
+        if (isTouchCurrentlyDown && !shouldRunWhenTouchCurrentlyDown) return
+
+        // Unmerge entire groups if any of the handles in them are outside of the group:
+        groupHandles.toMutableList().forEach groupHandlesLoop@ { groupHandle ->
+            var lastIndividualHandleValue: Float? = null
+            groupHandle.handlesInsideGroup.forEach { individualHandle ->
+                val currentValue = individualHandle.sliderViewHandle.value.get()
+                if (lastIndividualHandleValue != null
+                        && currentValue?.minus(lastIndividualHandleValue!!)?.absoluteValue ?: 0f
+                        > getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP)) {
+                    unmergeEntireGroup(groupHandle)
+                    return@groupHandlesLoop
+                }
+                lastIndividualHandleValue = currentValue
+            }
+        }
+
+        // Merge handles together if they are close enough:
+        handleDetailsMap.values.forEach { handleDetails1 ->
+            handleDetailsMap.values.forEach { handleDetails2 ->
+                if (handleDetails1 != handleDetails2
+                        && (handleDetails1.groupHandleDetails != handleDetails2.groupHandleDetails
+                                || handleDetails1.groupHandleDetails == null)) {
+
+                    val distanceBetweenHandles = handleDetails1.sliderViewHandle.value.get()
+                            ?.minus(handleDetails2.sliderViewHandle.value.get() ?: 0f)
+                            ?.absoluteValue ?: 0f
+                    if (distanceBetweenHandles < getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP)) {
+                        mergeTwoHandles(handleDetails1, handleDetails2)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateUiPositionOfGroupToMatchCurrentPosition(groupHandleDetails: SliderViewGroupHandleDetails) {
+        val value = groupHandleDetails.getCurrentHandleValue() ?: 0f
+        val positionFromLeft = getPositionFromLeftInPixelsToDisplayViewAt(value)
+
+        (groupHandleDetails.view.root.layoutParams as MarginLayoutParams).leftMargin = positionFromLeft.toInt()
+        groupHandleDetails.view.root.requestLayout()
+        groupHandleDetails.view.onMoveLabelTextView.text = if (value < 0) "" else String.format(onMoveTextStringFormat, value.times(onMoveTextMaximumAmount))
+    }
+
+    private fun updateUiColorOfGroupToMatchCurrentHandleColors(groupHandleDetails: SliderViewGroupHandleDetails) {
+        val paint = Paint()
+        paint.isAntiAlias = true
+        val width = groupHandleDetails.canvas.width.toFloat()
+        val height = groupHandleDetails.canvas.height.toFloat()
+
+        groupHandleDetails.handlesInsideGroup.forEachIndexed { i, handleInnerDetails ->
+            val startAngle = 360f * i.toFloat() / groupHandleDetails.handlesInsideGroup.size
+            val endAngle = 360f * (i.toFloat() + 1f) / groupHandleDetails.handlesInsideGroup.size
+            val midAngle = startAngle * 0.5 + endAngle * 0.5
+
+            paint.color = handleInnerDetails.sliderViewHandle.color.get() ?: 0xff000000.toInt()
+
+
+            groupHandleDetails.canvas.drawArc(0f, 0f, width, height,
+                    startAngle, endAngle-startAngle, true, paint)
+
+        }
+
+        paint.color = 0xdd_ffffff.toInt()
+        groupHandleDetails.canvas.drawCircle(width/2f, height/2f, width*0.7f/2f, paint)
+
+        paint.color = 0xff_333333.toInt()
+        paint.textSize = UiHelper.getPxFromDp(context, 11f)
+        paint.textAlign = Paint.Align.CENTER
+        groupHandleDetails.canvas.drawText("x${groupHandleDetails.handlesInsideGroup.size}", width*0.5f, height*0.67f, paint)
+
+        groupHandleDetails.view.handleView.setBackgroundDrawable(BitmapDrawable(groupHandleDetails.bitmap))
+        groupHandleDetails.view.handleView.outlineProvider = circleOutlineProvider
+    }
+
+    private fun updateUiOfHandleToMatchCurrentPosition(singleHandleDetails: SliderViewSingleHandleDetails) {
+
+        if (singleHandleDetails.groupHandleDetails != null) {
+            updateUiPositionOfGroupToMatchCurrentPosition(singleHandleDetails.groupHandleDetails!!)
+            return
+        }
+
+        val value = singleHandleDetails.sliderViewHandle.value.get() ?: 0f
+        val positionFromLeft = getPositionFromLeftInPixelsToDisplayViewAt(value)
+
+        Log.v("tinge", "SliderView updateUiOfHandleToMatchCurrentPosition setting left to $positionFromLeft (${if (Thread.currentThread() == Looper.getMainLooper().thread) "on UI thread" else "NOT ON UI THREAD"}) (${handleDetailsMap.size} handles total)")
+
+        (singleHandleDetails.sliderHandleView.root.layoutParams as MarginLayoutParams).leftMargin = positionFromLeft.toInt()
+        singleHandleDetails.sliderHandleView.root.requestLayout()
+
+        singleHandleDetails.sliderHandleView.onMoveLabelTextView.text = if (value < 0) "" else String.format(onMoveTextStringFormat, value.times(onMoveTextMaximumAmount))
+    }
+
+    private fun updateHandleColor(singleHandleDetails: SliderViewSingleHandleDetails) {
+        if (singleHandleDetails.groupHandleDetails != null) {
+            updateUiColorOfGroupToMatchCurrentHandleColors(singleHandleDetails.groupHandleDetails!!)
+            return
+        }
         val size = resources.getDimension(R.dimen.slider_handle_diameter).toInt()
         val circleDrawable = ShapeDrawable(OvalShape())
         circleDrawable.intrinsicHeight = size
         circleDrawable.intrinsicWidth = size
-        circleDrawable.paint.color = sliderViewHandle.color.get() ?: 0
-        sliderViewHandleInnerDetails.sliderHandleView.handleView.setBackgroundDrawable(circleDrawable)
+        circleDrawable.paint.color = singleHandleDetails.sliderViewHandle.color.get() ?: 0
+        singleHandleDetails.sliderHandleView.handleView.setBackgroundDrawable(circleDrawable)
     }
 
     /**
@@ -647,9 +906,9 @@ class SliderView @JvmOverloads constructor(
         var maxSlidAmount: Float? = null
         var minSlidAmount: Float? = null
 
-        handleDetailsMap?.forEach {
-            if (!it.value.isUiInTouchDownState) return@forEach
-            val value = it.key.value.get()
+        handleDetailsMap.values.forEach {
+            if (it.currentViewStateAnimatedInto == SliderViewSingleOrGroupHandleDetails.AnimatableState.NORMAL) return@forEach
+            val value = it.getCurrentHandleValue()
             if (maxSlidAmount == null || value ?: 0f > maxSlidAmount!!) {
                 maxSlidAmount = value
             }
