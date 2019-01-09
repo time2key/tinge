@@ -142,10 +142,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
+            android:layout_marginRight="20dp"
             app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="@+id/brightness_image_view"
             app:layout_constraintLeft_toRightOf="@+id/brightness_image_view"
-            app:layout_constraintRight_toRightOf="@+id/title_text_view"
+            app:layout_constraintRight_toRightOf="@+id/expand_contract_button"
             app:layout_constraintTop_toTopOf="@+id/brightness_image_view" />
 
         <android.support.v7.widget.CardView
@@ -213,6 +214,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
+            app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="@+id/hue_image_view"
             app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
             app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
@@ -244,6 +246,7 @@
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
             android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
+            app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="@+id/saturation_image_view"
             app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
             app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
@@ -271,6 +274,7 @@
             android:paddingLeft="0dp"
             android:paddingRight="0dp"
             android:layout_marginLeft="@dimen/list_view_image_slider_horizontal_separation"
+            app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="@+id/white_image_view"
             app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
             app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"

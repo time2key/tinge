@@ -14,16 +14,16 @@
     <dimen name="list_view_inner_top_padding">8dp</dimen>
     <dimen name="list_view_inner_bottom_padding">8dp</dimen>
     <dimen name="list_view_inner_image_text_horizontal_margin">8dp</dimen>
-    <dimen name="list_view_inner_inbetween_vertical_margin">8dp</dimen>
+    <dimen name="list_view_inner_inbetween_vertical_margin">6dp</dimen>
     <dimen name="list_view_title_font_size">14sp</dimen>
     <dimen name="list_view_text_font_size">14sp</dimen>
-    <dimen name="list_view_image_slider_horizontal_separation">8dp</dimen>
+    <dimen name="list_view_image_slider_horizontal_separation">0dp</dimen>
 
     <dimen name="list_view_slider_image_width">18dp</dimen><!--24dp-->
     <dimen name="list_view_slider_image_height">40dp</dimen>
     <dimen name="list_view_slider_image_y_padding">8dp</dimen>
 
-    <dimen name="list_view_expand_contract_image_size">28dp</dimen>
+    <dimen name="list_view_expand_contract_image_size">26dp</dimen>
     <dimen name="list_view_expand_contract_image_padding">2dp</dimen>
 
 
