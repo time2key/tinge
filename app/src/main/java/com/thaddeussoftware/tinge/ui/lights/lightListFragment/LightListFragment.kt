@@ -13,6 +13,7 @@ import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.FragmentLightListBinding
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import com.thaddeussoftware.tinge.helpers.ColorHelper
+import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
 import com.thaddeussoftware.tinge.ui.mainActivity.MultiColouredToolbarActivity
 import io.reactivex.Observable
@@ -81,12 +82,13 @@ class LightListFragment : Fragment() {
                         viewModel.individualGroupViewModels.forEach { groupViewModel ->
                             groupViewModel.individualLightViewModels.forEach {  lightViewModel ->
                                 if (lightViewModel.lightController.isReachable) {
-                                    val color = lightViewModel.colorForPreviewImageView.get() ?: 0
-                                    val newColor =
-                                            ColorHelper.colorFromHsv(
-                                                    ColorHelper.hueFromColor(color),
-                                                    if (lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub == true) 0.32f + 0.32f*ColorHelper.saturationFromColor(color) else 0f,
-                                                    if (lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub == true) 1f else 0.65f)
+
+                                    val hue = lightViewModel.lightController.hue.stagedValueOrLastValueFromHub ?: 0f
+                                    val sat = lightViewModel.lightController.saturation.stagedValueOrLastValueFromHub ?: 0f
+                                    val brightness = lightViewModel.lightController.brightness.stagedValueOrLastValueFromHub ?: 0f
+                                    val isOn = lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub ?: false
+
+                                    val newColor = LightsUiHelper.getGlassToolbarColorFromLightColor(hue, sat, brightness, isOn)
 
                                     if (colourList.size > 0 && previousColor != null) {
                                         val halfWayColor = ColorHelper.mergeColorsPreservingSaturationAndValue(previousColor!!, newColor, 0.5f)

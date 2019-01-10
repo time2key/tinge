@@ -128,7 +128,8 @@ class LightViewModel(
                     LightsUiHelper.getColorForBrightnessSlider(
                             hueObservable.get() ?: 0f,
                             saturationObservable.get() ?: 1f,
-                            brightnessAndIsOnObservable.get() ?: 0f))
+                            brightnessAndIsOnObservable.get() ?: 0f,
+                            brightnessAndIsOnObservable.get() ?: -1f >= 0f))
         }
     }
 
@@ -159,7 +160,9 @@ class LightViewModel(
                             0.5f + 0.5f * (brightnessAndIsOnObservable.get() ?: 0f))
                 else getColorFromHsv(0f, 0f, 0.2f))
         colorForBackgroundView.set(
-                UiHelper.getFadedBackgroundColourFromLightColour(hueObservable.get(), saturationObservable.get(), brightnessAndIsOnObservable.get()))
+                LightsUiHelper.getFadedBackgroundColourFromLightColour(
+                        hueObservable.get(), saturationObservable.get(), brightnessAndIsOnObservable.get(),
+                        brightnessAndIsOnObservable.get() ?: -1f >= 0f))
     }
 
     private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))

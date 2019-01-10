@@ -104,8 +104,11 @@ class GroupViewModel(
 
     private fun setupColorForBackgroundView() {
         colorForBackgroundView.set(
-                UiHelper.getFadedBackgroundColourFromLightColour(
-                        meanHue.get(), meanSaturation.get(), meanBrightness.get()))
+                LightsUiHelper.getFadedBackgroundColourFromLightColour(
+                        meanHue.get(), meanSaturation.get(), meanBrightness.get(),
+                        lightGroupController.lightsNotInSubgroup.any {
+                            it.isOn.stagedValueOrLastValueFromHub == true
+                        }))
     }
 
     private fun refreshSecondaryText() {

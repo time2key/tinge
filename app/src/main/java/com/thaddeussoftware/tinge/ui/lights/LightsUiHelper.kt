@@ -6,6 +6,7 @@ import android.support.v4.graphics.ColorUtils
 import android.util.Log
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.helpers.ColorHelper
+import kotlin.math.sqrt
 
 object LightsUiHelper {
 
@@ -81,9 +82,43 @@ object LightsUiHelper {
      * Get the color that the brightness slider (handle & track) should be, given a hue, saturation
      * and value.
      * */
-    fun getColorForBrightnessSlider(hue: Float, saturation: Float, brightness: Float): Int
-            = ColorUtils.blendARGB(
-            0xff888888.toInt()
-            , ColorHelper.colorFromHsv(hue, saturation, 1f)
-            , 0.2f + 0.8f * brightness)
+    fun getColorForBrightnessSlider(hue: Float, saturation: Float, brightness: Float, isOn: Boolean): Int {
+        if (isOn) {
+            return ColorUtils.blendARGB(
+                    0xff888888.toInt()
+                    , ColorHelper.colorFromHsv(hue, saturation, 1f)
+                    , 0.2f + 0.8f * brightness)
+        } else {
+            return ColorUtils.blendARGB(
+                    0xff888888.toInt()
+                    , ColorHelper.colorFromHsv(hue, saturation*0f, 1f)
+                    , 0.2f + 0.8f * brightness)
+        }
+    }
+
+    /**
+     * Gets a faded background colour to use in the UI, given the current colour of a light
+     * */
+    fun getFadedBackgroundColourFromLightColour(hue: Float?, saturation: Float?, brightness: Float?, isOn: Boolean?): Int {
+        if (isOn == true) {
+            return ColorHelper.colorFromHsv(
+                    hue ?: 0f,
+                    (saturation ?: 0f) * 0.2f * (0.5f + 0.5f * (brightness ?: 0f)),//0.1f  0.4
+                    1.0f)
+        } else {
+            return ColorHelper.colorFromHsv(0f, 0f, 0.93f)
+        }
+    }
+
+    fun getGlassToolbarColorFromLightColor(hue: Float?, saturation: Float?, brightness: Float?, isOn: Boolean?): Int {
+        if (isOn == true) {
+            return ColorHelper.colorFromHsv(
+                    hue ?: 0f,
+                    0.64f * (sqrt(saturation ?: 0f)) * (0.7f + 0.3f * (brightness ?: 0f)),
+                    1f)
+        } else {
+            return ColorHelper.colorFromHsv(0f, 0f, 0.75f)
+        }
+    }
+
 }

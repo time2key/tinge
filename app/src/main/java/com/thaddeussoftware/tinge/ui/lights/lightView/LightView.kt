@@ -55,6 +55,12 @@ class LightView @JvmOverloads constructor(
                 setupBrightnessSlider()
             }
         })
+
+        viewModel?.lightController?.isOn?.stagedValueOrLastValueFromHubObservable?.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                setupBrightnessSlider()
+            }
+        })
     }
 
     private fun setupSliders() {
@@ -74,8 +80,10 @@ class LightView @JvmOverloads constructor(
         val saturation = viewModel?.lightController?.saturation?.stagedValueOrLastValueFromHub ?: 0f
 
         binding.innerLightView.brightnessSeekBar.setTrackToColors(
-                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 0f),
-                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 1f))
+                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 0f,
+                        viewModel?.lightController?.isOn?.stagedValueOrLastValueFromHub == true),
+                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 1f,
+                        viewModel?.lightController?.isOn?.stagedValueOrLastValueFromHub == true))
     }
 
     fun setupHueSlider() {

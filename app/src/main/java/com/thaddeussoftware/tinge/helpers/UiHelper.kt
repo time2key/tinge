@@ -2,7 +2,6 @@ package com.thaddeussoftware.tinge.helpers
 
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
 
 class UiHelper private constructor() {
     companion object {
@@ -25,19 +24,8 @@ class UiHelper private constructor() {
             return returnValue
         }
 
-        /**
-         * Gets a faded background colour to use in the UI, given the current colour of a light
-         * */
-        fun getFadedBackgroundColourFromLightColour(hue: Float?, saturation: Float?, brightness: Float?): Int {
-            return getColorFromHsv(
-                    hue ?: 0f,
-                    (saturation?: 0f) * 0.15f * (0.3f + 0.7f*(brightness ?: 0f)),//0.1f  0.4
-                    1.0f)
-        }
-
-        private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
-
         fun getPxFromDp(context: Context, dp: Float): Float = dp * context.resources.displayMetrics.density
 
+        fun getPxFromSp(context: Context, sp: Float): Float = sp * context.resources.displayMetrics.scaledDensity
     }
 }
