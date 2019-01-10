@@ -63,7 +63,7 @@ class SliderView @JvmOverloads constructor(
          * Only applies if the handle was moved by this SliderView - if the handle was auto moved
          * by another SliderView, [X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP] is used instead.
          * */
-        private val X_DISTANCE_TO_SUGGEST_MERGING_HANDLES_DP = 4f
+        private val X_DISTANCE_TO_SUGGEST_MERGING_HANDLES_DP = 8f
 
         /**
          * How far away the user needs to move the currently held handle away from
@@ -73,20 +73,20 @@ class SliderView @JvmOverloads constructor(
          * Only applies if the handle was moved by this SliderView - if the handle was auto moved
          * by another SliderView, [X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP] is used instead.
          * */
-        private val X_DISTANCE_TO_CANCEL_MERGING_HANDLES_DP = 6f
+        private val X_DISTANCE_TO_CANCEL_MERGING_HANDLES_DP = 9f
 
         /**
          * If handle values are changed, but not by this SliderView, how close two handles need
          * to be moved together to display them as a merged handle in this SliderView.
          * */
-        private val X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP = 4f
+        private val X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP = 6f
 
         /**
          * If handle values are changed, but not by this SliderView, how close two handles need
          * to be moved apart to display them as a individual handles rather than a merged handle
          * in this SliderView.
          * */
-        private val X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP = 6f
+        private val X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP = 7f
     }
 
     /**
