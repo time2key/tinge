@@ -403,12 +403,18 @@ class SliderView @JvmOverloads constructor(
                 if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
                     animateInThenOutForSingleClick(currentlyHeldSliderViewSingleOrGroupHandleDetails!!)
                 } else {
+                    // Only apply animation to each handle if all handles are off or the handle is on:
+                    val handlesInOnState = handleDetailsMap.values.sumBy { if (it.getCurrentHandleValue() ?: -1f >= 0f) 1 else 0 }
                     handleDetailsMap.values.forEach {
                         if (it.groupHandleDetails != null) return@forEach
-                        animateInThenOutForSingleClick(it)
+                        if (handlesInOnState == 0 || it.getCurrentHandleValue() ?: -1f >= 0f) {
+                            animateInThenOutForSingleClick(it)
+                        }
                     }
                     groupHandles.forEach {
-                        animateInThenOutForSingleClick(it)
+                        if (handlesInOnState == 0 || it.getCurrentHandleValue() ?: -1f >= 0f) {
+                            animateInThenOutForSingleClick(it)
+                        }
                     }
                 }
             }
@@ -747,7 +753,7 @@ class SliderView @JvmOverloads constructor(
      * Updates [isUiInTouchDownState].
      * */
     private fun updateAnimationsForWhetherTouchIsCurrentlyDown() {
-
+        val handlesInOnState = handleDetailsMap.values.sumBy { if (it.getCurrentHandleValue() ?: -1f >= 0f) 1 else 0 }
         val updateHandle = { it: SliderViewSingleOrGroupHandleDetails ->
             if (it.currentViewStateAnimatedInto == SliderViewSingleOrGroupHandleDetails.AnimatableState.REMOVED
                     || it.currentViewStateAnimatedInto == SliderViewSingleOrGroupHandleDetails.AnimatableState.HIDDEN) {
@@ -759,7 +765,9 @@ class SliderView @JvmOverloads constructor(
             } else if (isTouchCurrentlyDown
                     && hasBeenMovedEnoughInXDirectionToBeValidSide
                     && (currentlyHeldSliderViewSingleOrGroupHandleDetails == null
-                            || currentlyHeldSliderViewSingleOrGroupHandleDetails == it)) {
+                            || currentlyHeldSliderViewSingleOrGroupHandleDetails == it)
+                    // Only apply if all handles are off or this handle is on:
+                    && (handlesInOnState == 0 || it.getCurrentHandleValue() ?: -1f >= 0f)) {
                 if (currentlyHoveredOverSingleOrGroupHandle != null) {
                     it.animateToHoveringOverForMergeState()
                 } else {
