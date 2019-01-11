@@ -437,14 +437,24 @@ class SliderView @JvmOverloads constructor(
             isTouchCurrentlyDown = true
             initialTouchDownX = event.x
 
+            val slidAmountOfTouchX = getSlidAmountFromTouchEventXPosition(event.x)
             val slidAmountOfTouchXMinusTolerance = getSlidAmountFromTouchEventXPosition(event.x - UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
             val slidAmountOfTouchXPlusTolerance = getSlidAmountFromTouchEventXPosition(event.x + UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
 
             handleDetailsMap.values.forEach {
                 val handleValue = it.sliderViewHandle.value.get() ?: 0f
 
-                if (slidAmountOfTouchXMinusTolerance <= handleValue
-                        && slidAmountOfTouchXPlusTolerance >= handleValue) {
+                if (handleValue in slidAmountOfTouchXMinusTolerance..slidAmountOfTouchXPlusTolerance) {
+
+                    if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null
+                            && (currentlyHeldSliderViewSingleOrGroupHandleDetails?.getCurrentHandleValue()?: 0f
+                                - slidAmountOfTouchX).absoluteValue
+                            < (handleValue - slidAmountOfTouchX).absoluteValue) {
+                        // Ensure that if there are multiple handles within touch tolerance, the
+                        // closest one to the users touch is selected:
+                        return@forEach
+                    }
+
                     if (it.groupHandleDetails == null) {
                         currentlyHeldSliderViewSingleOrGroupHandleDetails = it
                     } else {
