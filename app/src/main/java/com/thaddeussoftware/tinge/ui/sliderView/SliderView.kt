@@ -10,6 +10,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.*
 import com.thaddeussoftware.tinge.R
+import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SimplifiedSetOnObservableListChangedCallback
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewGroupHandleDetails
@@ -19,9 +20,9 @@ import kotlin.math.absoluteValue
 
 
 /**
- * This view is a custom implementation of SeekBar which modifies the appearance from the default
- * in order to provide a vertically thicker selectable track which can be recoloured, including
- * recoloured to multiple colours in a gradient like way
+ * This view is a custom implementation of SeekBar which provides the ability to have multiple
+ * handles which work with data binding, and will be grouped together automatically when moved
+ * close together.
  *
  * This is used to provide the brightness, hue and saturation sliders for each light
  *
@@ -46,7 +47,7 @@ class SliderView @JvmOverloads constructor(
         const val DEFAULT_TRACK_OPACITY = 0.65f
 
         /**
-         * How much the slider view needs to be moved to disable parent scrolling - see [onTouchEvent]
+         * See [onTouchEvent]
          * */
         private val AMOUNT_TO_MOVE_SLIDER_TO_DISABLE_PARENT_SCROLLING_DP = 8f
 
@@ -56,35 +57,30 @@ class SliderView @JvmOverloads constructor(
         private val DP_TOLERANCE_TO_SELECT_HANDLE = 16f
 
         /**
-         * How close the user needs to move a handle to another handle for the SliderView to
-         * set the other handle to [currentlyHoveredOverSingleOrGroupHandle], allowing the user
-         * to merge them.
+         * How close the user needs to move a handle to another handle for the view to suggest
+         * merging them - see [currentlyHoveredOverSingleOrGroupHandle]
          *
-         * Only applies if the handle was moved by this SliderView - if the handle was auto moved
-         * by another SliderView, [X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP] is used instead.
+         * Only applies if the handle was moved by this view - see [X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP]
          * */
         private val X_DISTANCE_TO_SUGGEST_MERGING_HANDLES_DP = 8f
 
         /**
          * How far away the user needs to move the currently held handle away from
-         * [currentlyHoveredOverSingleOrGroupHandle] in order to cancel the process of merging
-         * the handles together and set [currentlyHoveredOverSingleOrGroupHandle] back to null.
+         * [currentlyHoveredOverSingleOrGroupHandle] in order to cancel merging
          *
-         * Only applies if the handle was moved by this SliderView - if the handle was auto moved
-         * by another SliderView, [X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP] is used instead.
+         * Only applies if the handle was moved by this view
          * */
         private val X_DISTANCE_TO_CANCEL_MERGING_HANDLES_DP = 9f
 
         /**
          * If handle values are changed, but not by this SliderView, how close two handles need
-         * to be moved together to display them as a merged handle in this SliderView.
+         * to be moved together to display them as merged.
          * */
         private val X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP = 6f
 
         /**
          * If handle values are changed, but not by this SliderView, how close two handles need
-         * to be moved apart to display them as a individual handles rather than a merged handle
-         * in this SliderView.
+         * to be moved apart to display them as no longer merged.
          * */
         private val X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP = 7f
     }
@@ -103,7 +99,7 @@ class SliderView @JvmOverloads constructor(
         }
 
     /**
-     * Text label shown below the slider view at the start position.
+     * Text label shown below the slider view at the off position (if [supportsOffValue] is true).
      * */
     var offValueText: String? = null
         set(value) {
@@ -114,7 +110,7 @@ class SliderView @JvmOverloads constructor(
         }
 
     /**
-     * Text label shown below the slider view at the start position.
+     * Text label shown below the slider view at the start / minimum position.
      * */
     var startValueText: String? = null
         set(value) {
@@ -125,7 +121,7 @@ class SliderView @JvmOverloads constructor(
         }
 
     /**
-     * Text label shown below the slider view at the end position.
+     * Text label shown below the slider view at the end / maximum position.
      * */
     var endValueText: String? = null
         set(value) {
@@ -138,14 +134,12 @@ class SliderView @JvmOverloads constructor(
     /**
      * The 'on move' text shows a label up below the handle when the slider handle is moved.
      *
-     * This value determines the maximum value that will be shown in this text when the handle is
-     * at position 1, e.g. this would be 100 if the on move text should show a percent symbol.
-     * This value will be formatted by [onMoveTextStringFormat].
+     * The current slid amount of the handle (0-1) will be multiplied by this value, and then
+     * formatted by [onMoveTextStringFormat].
+     *
+     * So e.g. if the slider represents percent / out of 100, this value should be 100.
      * */
     var onMoveTextMaximumAmount: Float = 1f
-        set(value) {
-            field = value
-        }
 
     /**
      * The 'on move' text shows a label up below the handle when the slider handle is moved.
@@ -154,19 +148,13 @@ class SliderView @JvmOverloads constructor(
      * See also [onMoveTextMaximumAmount].
      * */
     var onMoveTextStringFormat: String = ""
-        set(value) {
-            field = value
-        }
 
     /**
      * Determines if handles should wrap around from the start value to the end value if multiple
-     * handles are moved at once
+     * handles are moved at once. Useful for e.g. a hue slider.
      * */
     var wrapsAroundIfMultipleHandlesMoved: Boolean = false
 
-    /**
-     * Opacity of the background track
-     * */
     var trackOpacity = 1f
         set(value) {
             field = value
@@ -197,21 +185,21 @@ class SliderView @JvmOverloads constructor(
 
     private fun addSliderViewHandle(sliderViewHandle: SliderViewHandle) {
         handleDetailsMap[sliderViewHandle] = SliderViewSingleHandleDetails(sliderViewHandle, context, binding.frameLayout)
-        updateUiOfHandleToMatchCurrentPosition(handleDetailsMap[sliderViewHandle]!!)
+        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetailsMap[sliderViewHandle]!!)
         updateWhetherHandlesShouldBeMergedOrUnmerged()
-        updateHandleColor(handleDetailsMap[sliderViewHandle]!!)
+        updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetailsMap[sliderViewHandle]!!)
 
         sliderViewHandle.value.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (Thread.currentThread() == Looper.getMainLooper().thread) {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total)")
                     updateWhetherHandlesShouldBeMergedOrUnmerged()
-                    updateUiOfHandleToMatchCurrentPosition(handleDetailsMap[sliderViewHandle]!!)
+                    updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetailsMap[sliderViewHandle]!!)
                 } else {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total (not from ui thread))")
                     post {
                         updateWhetherHandlesShouldBeMergedOrUnmerged()
-                        updateUiOfHandleToMatchCurrentPosition(handleDetailsMap[sliderViewHandle]!!)
+                        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetailsMap[sliderViewHandle]!!)
                     }
                 }
             }
@@ -219,29 +207,36 @@ class SliderView @JvmOverloads constructor(
         sliderViewHandle.color.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (Thread.currentThread() == Looper.getMainLooper().thread) {
-                    updateHandleColor(handleDetailsMap[sliderViewHandle]!!)
+                    updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetailsMap[sliderViewHandle]!!)
                 } else {
                     Log.v("tinge", "SliderView color updated - not from ui thread")
                     post {
-                        updateHandleColor(handleDetailsMap[sliderViewHandle]!!)
+                        updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetailsMap[sliderViewHandle]!!)
                     }
                 }
             }
         })
     }
 
+    /**
+     * Internal detail stored about each handle.
+     *
+     * The keys are the same [SliderViewHandle]s stored in [handles], which can be shared between
+     * multiple SliderViews.
+     *
+     * The details specify additional information about each handle in this specific SliderView -
+     * see [SliderViewSingleHandleDetails].
+     * */
     private val handleDetailsMap = HashMap<SliderViewHandle, SliderViewSingleHandleDetails>()
 
     private var binding: ViewSliderBinding = ViewSliderBinding.inflate(LayoutInflater.from(context), this, true)
 
     /**
-     * Set to true when the max label has been made visible, set to false when the max label has
-     * been made invisible to accomodate the on-move text.
+     * See [updateUiOfMaxAndMinLabelVisibility]
      * */
     private var isMaxValueLabelAnimatedVisible = true
     /**
-     * Set to true when the min label has been made visible, set to false when the min label has
-     * been made invisible to accomodate the on-move text.
+     * See [updateUiOfMaxAndMinLabelVisibility]
      * */
     private var isMinValueLabelAnimatedVisible = false
 
@@ -269,8 +264,6 @@ class SliderView @JvmOverloads constructor(
 
     /**
      * Whether there is currently an active touch held down on this view.
-     *
-     * Updated in [onTouchEvent] only, read in multiple other places.
      * */
     private var isTouchCurrentlyDown: Boolean = false
 
@@ -327,15 +320,14 @@ class SliderView @JvmOverloads constructor(
 
 
     /**
-     * Sets the track to a given multi-stop gradient. Does not affect the handle colour.
+     * Sets the track to a given multi-stop gradient. Does not affect handle colors.
      * */
-    fun setTrackToColors(vararg colors: Int) {
+    fun setTrackToColors(vararg colors: Int, offColor: Int = 0xff333333.toInt()) {
 
-        val offColour = 0xff333333.toInt()
-        val transparentColour = 0x33000000.toInt() or (colors[0] and 0xffffff).toInt()
+        val transparentColour = ColorHelper.changeOpacityOfColor(colors[0], 0.2f)
 
         val startColors = ArrayList<Int>()
-        for (i in 0..20) { startColors.add(offColour) }
+        for (i in 0..20) { startColors.add(offColor) }
         for (i in 0..30) { startColors.add(transparentColour) }
         for (i in 0..20) { startColors.add(colors[0]) }
 
@@ -392,7 +384,7 @@ class SliderView @JvmOverloads constructor(
                     && currentlyHoveredOverSingleOrGroupHandle != null) {
                 currentlyHeldSliderViewSingleOrGroupHandleDetails?.setCurrentHandleValue(
                         currentlyHoveredOverSingleOrGroupHandle?.getCurrentHandleValue() ?: 0f)
-                mergeTwoHandles(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, currentlyHoveredOverSingleOrGroupHandle!!)
+                mergeTwoHandlesIntoGroup(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, currentlyHoveredOverSingleOrGroupHandle!!)
                 currentlyHoveredOverSingleOrGroupHandle = null
             }
 
@@ -437,10 +429,10 @@ class SliderView @JvmOverloads constructor(
             isTouchCurrentlyDown = true
             initialTouchDownX = event.x
 
+            // Determine and set [currentlyHeldSliderViewSingleOrGroupHandleDetails]:
             val slidAmountOfTouchX = getSlidAmountFromTouchEventXPosition(event.x)
             val slidAmountOfTouchXMinusTolerance = getSlidAmountFromTouchEventXPosition(event.x - UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
             val slidAmountOfTouchXPlusTolerance = getSlidAmountFromTouchEventXPosition(event.x + UiHelper.getPxFromDp(context, DP_TOLERANCE_TO_SELECT_HANDLE))
-
             handleDetailsMap.values.forEach {
                 val handleValue = it.sliderViewHandle.value.get() ?: 0f
 
@@ -494,14 +486,17 @@ class SliderView @JvmOverloads constructor(
 
     }
 
+    /**
+     * Called by android. Position of every handle must be re-updated when view size changes.
+     * */
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (changed) {
             handleDetailsMap.forEach {  entry ->
-                updateUiOfHandleToMatchCurrentPosition(entry.value)
+                updateUiPositionOfHandleToMatchCurrentHandleValue(entry.value)
             }
             groupHandles.forEach {
-                updateUiPositionOfGroupToMatchCurrentPosition(it)
+                updateUiPositionOfGroupToMatchCurrentGroupHandleValue(it)
             }
         }
     }
@@ -540,7 +535,7 @@ class SliderView @JvmOverloads constructor(
         }
     }
 
-    private fun mergeTwoHandles(handle1: SliderViewSingleOrGroupHandleDetails, handle2: SliderViewSingleOrGroupHandleDetails) {
+    private fun mergeTwoHandlesIntoGroup(handle1: SliderViewSingleOrGroupHandleDetails, handle2: SliderViewSingleOrGroupHandleDetails) {
 
         val singleHandle1 = if (handle1 is SliderViewSingleHandleDetails) handle1
                 else (handle1 as SliderViewGroupHandleDetails).handlesInsideGroup.first()
@@ -605,10 +600,10 @@ class SliderView @JvmOverloads constructor(
             groupHandle2.animateInAfterDelay()
         }
 
-        updateUiOfHandleToMatchCurrentPosition(singleHandle1)
-        updateUiOfHandleToMatchCurrentPosition(singleHandle2)
-        updateHandleColor(singleHandle1)
-        updateHandleColor(singleHandle2)
+        updateUiPositionOfHandleToMatchCurrentHandleValue(singleHandle1)
+        updateUiPositionOfHandleToMatchCurrentHandleValue(singleHandle2)
+        updateUiDrawableOfHandleToMatchCurrentHandleColor(singleHandle1)
+        updateUiDrawableOfHandleToMatchCurrentHandleColor(singleHandle2)
     }
 
     private fun unmergeEntireGroup(groupHandleDetails: SliderViewGroupHandleDetails) {
@@ -621,20 +616,23 @@ class SliderView @JvmOverloads constructor(
 
         groupHandleDetails.handlesInsideGroup.forEach {
             it.animateIn()
-            updateUiOfHandleToMatchCurrentPosition(it)
-            updateHandleColor(it)
+            updateUiPositionOfHandleToMatchCurrentHandleValue(it)
+            updateUiDrawableOfHandleToMatchCurrentHandleColor(it)
         }
 
         groupHandleDetails.handlesInsideGroup.clear()
     }
 
+    /**
+     * Moves a single handle to a given touch event - all other handles will remain where they are.
+     * */
     private fun moveSingleOrGroupHandleToTouchEvent(handleDetails: SliderViewSingleOrGroupHandleDetails, event: MotionEvent) {
         var newSlidAmount = getSlidAmountFromTouchEventXPosition(event.x)
 
         if (currentlyHoveredOverSingleOrGroupHandle != null) {
             val differenceBetweenHandles = handleDetails.getCurrentHandleValue()
                     ?.minus(currentlyHoveredOverSingleOrGroupHandle?.getCurrentHandleValue() ?: 0f)?.absoluteValue ?: 0f
-            if (differenceBetweenHandles > getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_CANCEL_MERGING_HANDLES_DP)) {
+            if (differenceBetweenHandles > getChangeInSlidAmountCorrespondingToSizeInDp(X_DISTANCE_TO_CANCEL_MERGING_HANDLES_DP)) {
                 currentlyHoveredOverSingleOrGroupHandle = null
             }
         }
@@ -650,7 +648,7 @@ class SliderView @JvmOverloads constructor(
 
                 val differenceBetweenHandles = handleDetails.getCurrentHandleValue()
                         ?.minus(it.getCurrentHandleValue() ?: 0f)?.absoluteValue ?: 0f
-                if (differenceBetweenHandles < getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_SUGGEST_MERGING_HANDLES_DP)) {
+                if (differenceBetweenHandles < getChangeInSlidAmountCorrespondingToSizeInDp(X_DISTANCE_TO_SUGGEST_MERGING_HANDLES_DP)) {
                     if (it.groupHandleDetails == null) {
                         handleToMergeCurrentHandleWith = it
                     } else {
@@ -733,10 +731,10 @@ class SliderView @JvmOverloads constructor(
         return newSlidAmount
     }
 
-    private fun getChangeInValueCorrespondingToSizeInDp(sizeInDp: Float): Float
+    private fun getChangeInSlidAmountCorrespondingToSizeInDp(sizeInDp: Float): Float
             = UiHelper.getPxFromDp(context, sizeInDp) / binding.sliderTrackView.width.toFloat()
 
-    private fun getPositionFromLeftInPixelsToDisplayViewAt(value: Float): Float {
+    private fun getPositionFromLeftInPixelsToDisplayViewAt(slidAmount: Float): Float {
         var positionFromLeft = 0f
         val startTrackWidth = if (supportsOffValue == true) binding.sliderTrackViewStart.width else 0
         val mainTrackWidth = binding.sliderTrackView.width
@@ -744,10 +742,10 @@ class SliderView @JvmOverloads constructor(
         val handleViewWidth = UiHelper.getPxFromDp(context, 40f)
         val parentLeftPadding = if (supportsOffValue == true) binding.sliderTrackViewStart.x else binding.sliderTrackView.x //UiHelper.getPxFromDp(context, 8f)
 
-        if (value < 0) {
+        if (slidAmount < 0) {
             positionFromLeft = parentLeftPadding - handleViewWidth/2 + startTrackWidth * 0f
         } else {
-            positionFromLeft = parentLeftPadding - handleViewWidth/2 + (startTrackWidth + mainTrackWidth * value)
+            positionFromLeft = parentLeftPadding - handleViewWidth/2 + (startTrackWidth + mainTrackWidth * slidAmount)
         }
 
         return positionFromLeft
@@ -757,10 +755,9 @@ class SliderView @JvmOverloads constructor(
 
 
     /**
-     * Starts animations to either turn the view into the touch-down state (with the bigger handle
-     * etc) or the touch-up state (with the regular handle etc).
-     *
-     * Updates [isUiInTouchDownState].
+     * Iterates through every handle in this view (single handles and group handles) and updates
+     * their animations according to whether they are currently touched, being hovered over to
+     * be merged, etc.
      * */
     private fun updateAnimationsForWhetherTouchIsCurrentlyDown() {
         val handlesInOnState = handleDetailsMap.values.sumBy { if (it.getCurrentHandleValue() ?: -1f >= 0f) 1 else 0 }
@@ -793,8 +790,11 @@ class SliderView @JvmOverloads constructor(
     }
 
     /**
-     * Determines whether handles should be merged or unmerged with a group.
-     * Should be called after a handle value is changed.
+     * Iterates through every handle and determines which handles should be merged and unmerged
+     * into groups.
+     *
+     * Should be called after a handle value is changed externally / not as a result of the user
+     * sliding the handle in this view.
      * */
     private fun updateWhetherHandlesShouldBeMergedOrUnmerged(shouldRunWhenTouchCurrentlyDown: Boolean = false) {
         // Don't run if the touch is currently down - if this function were to be run while the
@@ -808,7 +808,7 @@ class SliderView @JvmOverloads constructor(
                 val currentValue = individualHandle.sliderViewHandle.value.get()
                 if (lastIndividualHandleValue != null
                         && currentValue?.minus(lastIndividualHandleValue!!)?.absoluteValue ?: 0f
-                        > getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP)) {
+                        > getChangeInSlidAmountCorrespondingToSizeInDp(X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP)) {
                     unmergeEntireGroup(groupHandle)
                     return@groupHandlesLoop
                 }
@@ -826,15 +826,18 @@ class SliderView @JvmOverloads constructor(
                     val distanceBetweenHandles = handleDetails1.sliderViewHandle.value.get()
                             ?.minus(handleDetails2.sliderViewHandle.value.get() ?: 0f)
                             ?.absoluteValue ?: 0f
-                    if (distanceBetweenHandles < getChangeInValueCorrespondingToSizeInDp(X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP)) {
-                        mergeTwoHandles(handleDetails1, handleDetails2)
+                    if (distanceBetweenHandles < getChangeInSlidAmountCorrespondingToSizeInDp(X_DISTANCE_TO_AUTO_MERGE_HANDLES_DP)) {
+                        mergeTwoHandlesIntoGroup(handleDetails1, handleDetails2)
                     }
                 }
             }
         }
     }
 
-    private fun updateUiPositionOfGroupToMatchCurrentPosition(groupHandleDetails: SliderViewGroupHandleDetails) {
+    /**
+     * Called by [updateUiPositionOfHandleToMatchCurrentHandleValue]
+     * */
+    private fun updateUiPositionOfGroupToMatchCurrentGroupHandleValue(groupHandleDetails: SliderViewGroupHandleDetails) {
         val value = groupHandleDetails.getCurrentHandleValue() ?: 0f
         val positionFromLeft = getPositionFromLeftInPixelsToDisplayViewAt(value)
 
@@ -843,17 +846,17 @@ class SliderView @JvmOverloads constructor(
         groupHandleDetails.view.onMoveLabelTextView.text = if (value < 0) "" else String.format(onMoveTextStringFormat, value.times(onMoveTextMaximumAmount))
     }
 
-    private fun updateUiOfHandleToMatchCurrentPosition(singleHandleDetails: SliderViewSingleHandleDetails) {
+    private fun updateUiPositionOfHandleToMatchCurrentHandleValue(singleHandleDetails: SliderViewSingleHandleDetails) {
 
         if (singleHandleDetails.groupHandleDetails != null) {
-            updateUiPositionOfGroupToMatchCurrentPosition(singleHandleDetails.groupHandleDetails!!)
+            updateUiPositionOfGroupToMatchCurrentGroupHandleValue(singleHandleDetails.groupHandleDetails!!)
             return
         }
 
         val value = singleHandleDetails.sliderViewHandle.value.get() ?: 0f
         val positionFromLeft = getPositionFromLeftInPixelsToDisplayViewAt(value)
 
-        Log.v("tinge", "SliderView updateUiOfHandleToMatchCurrentPosition setting left to $positionFromLeft (${if (Thread.currentThread() == Looper.getMainLooper().thread) "on UI thread" else "NOT ON UI THREAD"}) (${handleDetailsMap.size} handles total)")
+        Log.v("tinge", "SliderView updateUiPositionOfHandleToMatchCurrentHandleValue setting left to $positionFromLeft (${if (Thread.currentThread() == Looper.getMainLooper().thread) "on UI thread" else "NOT ON UI THREAD"}) (${handleDetailsMap.size} handles total)")
 
         (singleHandleDetails.sliderHandleView.root.layoutParams as MarginLayoutParams).leftMargin = positionFromLeft.toInt()
         singleHandleDetails.sliderHandleView.root.requestLayout()
@@ -861,7 +864,7 @@ class SliderView @JvmOverloads constructor(
         singleHandleDetails.sliderHandleView.onMoveLabelTextView.text = if (value < 0) "" else String.format(onMoveTextStringFormat, value.times(onMoveTextMaximumAmount))
     }
 
-    private fun updateHandleColor(singleHandleDetails: SliderViewSingleHandleDetails) {
+    private fun updateUiDrawableOfHandleToMatchCurrentHandleColor(singleHandleDetails: SliderViewSingleHandleDetails) {
         if (singleHandleDetails.groupHandleDetails != null) {
             singleHandleDetails.groupHandleDetails?.updateHandleDrawableForCurrentColor()
         } else {
@@ -874,6 +877,9 @@ class SliderView @JvmOverloads constructor(
      *
      * These are hidden if the slider is moved close to either edge, so that the value label below
      * the slider is not obscured by the Min/Max labels.
+     *
+     * Note that these labels are also updated outside of this method in
+     * [animateInThenOutForSingleClick].
      * */
     private fun updateUiOfMaxAndMinLabelVisibility() {
         var maxSlidAmount: Float? = null
