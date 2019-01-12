@@ -5,8 +5,10 @@ class CollectionComparisonHelper private constructor() {
         /**
          * Compares all the items in two collections, using a provided lambda, to establish
          * whether either of the two collections contains items which do not have an
-         * equivalent item in the other collection. Provided lambdas are then called with
-         * details of each of the items without an equivalent item in the other collection.
+         * equivalent item in the other collection.
+         *
+         * Provided lambdas are then called with details of each item without an equivalent item in
+         * the other collection.
          *
          * This method is useful if e.g. you have results from a web server, and you want to compare
          * these results to the current results cached / displayed in the UI in order to establish
@@ -31,11 +33,9 @@ class CollectionComparisonHelper private constructor() {
          * @param onElementFoundInBothCollections
          * Optional - will get called for each equivalent pair of items in collectionA and
          * collectionB.
-         * Note that this will not work correctly if there are more than one items in either
-         * collection which are equivalent to the same item in the other collection.
+         * Note that this will not work correctly if an item in one collection is equivalent to
+         * more than one element in the other collection.
          *
-         * @return
-         * If more than
          * */
         fun <A, B> compareCollectionsAndIdentifyMissingElements(
                 collectionA: Collection<A>,
@@ -44,7 +44,7 @@ class CollectionComparisonHelper private constructor() {
                 onElementInCollectionANotFoundInCollectionB: (A) -> Unit,
                 onElementInCollectionBNotFoundInCollectionA: (B) -> Unit,
                 onElementFoundInBothCollections: ((A, B) -> Unit)? = null
-        ): Boolean {
+        ) {
 
             // All results are stored in lists and then the lambdas called afterwards in case
             // the collections are modified as a result of the lambdas being called, which would
@@ -101,7 +101,7 @@ class CollectionComparisonHelper private constructor() {
                 }
             }
 
-            return !wereAnyDuplicateElementsFound
+            //return !wereAnyDuplicateElementsFound
         }
     }
 }
