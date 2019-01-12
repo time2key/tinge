@@ -81,7 +81,7 @@ class LightListFragment : Fragment() {
 
                         viewModel.individualGroupViewModels.forEach { groupViewModel ->
                             groupViewModel.individualLightViewModels.forEach {  lightViewModel ->
-                                if (lightViewModel.lightController.isReachable) {
+                                if (lightViewModel.lightController.isReachable.get() == true) {
 
                                     val hue = lightViewModel.lightController.hue.stagedValueOrLastValueFromHub ?: 0f
                                     val sat = lightViewModel.lightController.saturation.stagedValueOrLastValueFromHub ?: 0f

@@ -119,7 +119,7 @@ class GroupViewModel(
         var lightsOn = 0
 
         lightGroupController.lightsNotInSubgroup.forEach {
-            lightsReachable += if (it.isReachable) 1 else 0
+            lightsReachable += if (it.isReachable.get() == true) 1 else 0
             lightsOn += if (it.isOn.stagedValueOrLastValueFromHub == true) 1 else 0
         }
 

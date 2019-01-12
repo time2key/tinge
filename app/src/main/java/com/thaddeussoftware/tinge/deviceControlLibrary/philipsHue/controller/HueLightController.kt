@@ -21,7 +21,7 @@ class HueLightController(
     set(value) {
         field = value
 
-        backingIsReachable = jsonLight?.state?.reachable ?: false
+        isReachable.set(jsonLight?.state?.reachable ?: false)
         backingDoesSupportColorMode = true
         backingLightId = jsonLight?.uniqueId ?: ""
 
@@ -35,9 +35,7 @@ class HueLightController(
         // TODO color temperature properties
     }
 
-    private var backingIsReachable: Boolean = false
-    override val isReachable: Boolean
-        get() = backingIsReachable
+    override val isReachable: ObservableField<Boolean> = ObservableField(false)
 
     private var backingDoesSupportColorMode: Boolean = false
     override val doesSupportColorMode: Boolean

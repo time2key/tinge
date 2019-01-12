@@ -1,5 +1,6 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller
 
+import android.databinding.ObservableField
 import io.reactivex.Completable
 
 /**
@@ -34,7 +35,7 @@ interface LightController {
     /**
      * Whether this device is currently reachable by the hub or not
      * */
-    val isReachable: Boolean
+    val isReachable: ObservableField<Boolean>
 
     /**
      * Indicates whether this device supports full color mode, which means that this light can
