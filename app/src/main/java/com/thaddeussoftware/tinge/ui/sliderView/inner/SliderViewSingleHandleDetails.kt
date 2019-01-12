@@ -1,6 +1,7 @@
 package com.thaddeussoftware.tinge.ui.sliderView.inner
 
 import android.content.Context
+import android.databinding.Observable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.view.LayoutInflater
@@ -25,6 +26,18 @@ class SliderViewSingleHandleDetails(
      * See [SliderViewGroupHandleDetails] for more info.
      * */
     var groupHandleDetails: SliderViewGroupHandleDetails? = null
+
+    /**
+     * This will be registered with [SliderViewHandle.value], and is kept track of so it can
+     * be unregistered when the handle is removed from the SliderView
+     * */
+    var valueObservablePropertyChangedCallback: Observable.OnPropertyChangedCallback? = null
+
+    /**
+     * This will be registered with [SliderViewHandle.color], and is kept track of so it can
+     * be unregistered when the handle is removed from the SliderView
+     * */
+    var colorObservablePropertyChangedCallback: Observable.OnPropertyChangedCallback? = null
 
 
     override val handleView: View = sliderHandleView.handleView

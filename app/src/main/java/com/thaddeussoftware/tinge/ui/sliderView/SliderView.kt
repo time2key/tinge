@@ -10,6 +10,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.*
 import com.thaddeussoftware.tinge.R
+import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SimplifiedSetOnObservableListChangedCallback
@@ -167,55 +168,88 @@ class SliderView @JvmOverloads constructor(
      *
      * The same handle can be added to multiple SliderViews, e.g. to have a group SliderView
      * that controls the handles of multiple other SliderViews.
+     *
+     * This value must be set using data binding on android so changes are propagated to this view.
      * */
     var handles: ObservableList<SliderViewHandle>? = null
         set(value) {
+            // Set will be called by data binding whenever list is changed.
+
             field = value
-            value?.addOnListChangedCallback(object: SimplifiedSetOnObservableListChangedCallback<SliderViewHandle>() {
-                override fun listModified(itemsAdded: Collection<SliderViewHandle>, itemsRemoved: Collection<SliderViewHandle>) {
-                    itemsAdded.forEach {
-                        addSliderViewHandle(it)
-                    }
-                }
-            })
-            value?.forEach {
-                addSliderViewHandle(it)
+
+            if (value != null) {
+                CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
+                        value,
+                        handleDetailsMap.keys,
+                        { item1, item2 -> item1 == item2 },
+                        { addSliderViewHandle(it) },
+                        { removeSliderViewHandle(it) }
+                )
             }
         }
 
-    private fun addSliderViewHandle(sliderViewHandle: SliderViewHandle) {
-        handleDetailsMap[sliderViewHandle] = SliderViewSingleHandleDetails(sliderViewHandle, context, binding.frameLayout)
-        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetailsMap[sliderViewHandle]!!)
-        updateWhetherHandlesShouldBeMergedOrUnmerged()
-        updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetailsMap[sliderViewHandle]!!)
+    private fun removeSliderViewHandle(sliderViewHandle: SliderViewHandle) {
+        val handleDetails = handleDetailsMap[sliderViewHandle]
+        handleDetailsMap.remove(sliderViewHandle)
+        if (handleDetails?.groupHandleDetails != null) {
+            handleDetails.groupHandleDetails?.handlesInsideGroup?.remove(handleDetails)
+            if (handleDetails.groupHandleDetails?.handlesInsideGroup?.size ?: 0 <= 1) {
+                unmergeEntireGroup(handleDetails.groupHandleDetails!!)
+            } else {
+                handleDetails.groupHandleDetails?.updateHandleDrawableForCurrentColor()
+                handleDetails.groupHandleDetails?.animateOutThenBackIn()
+            }
+        }
+        handleDetails?.animateOutThenRemoveFromLayout()
 
-        sliderViewHandle.value.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        handleDetails?.valueObservablePropertyChangedCallback?.let {
+            sliderViewHandle.value.removeOnPropertyChangedCallback(it)
+        }
+        handleDetails?.colorObservablePropertyChangedCallback?.let {
+            sliderViewHandle.color.removeOnPropertyChangedCallback(it)
+        }
+
+        updateWhetherHandlesShouldBeMergedOrUnmerged(false)
+    }
+
+    private fun addSliderViewHandle(sliderViewHandle: SliderViewHandle) {
+        val handleDetails = SliderViewSingleHandleDetails(sliderViewHandle, context, binding.frameLayout)
+        handleDetailsMap[sliderViewHandle] = handleDetails
+        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetails)
+        updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetails)
+        updateWhetherHandlesShouldBeMergedOrUnmerged()
+        if (handleDetails.groupHandleDetails == null) { handleDetails.animateIn() }
+
+        handleDetails.valueObservablePropertyChangedCallback = object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (Thread.currentThread() == Looper.getMainLooper().thread) {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total)")
                     updateWhetherHandlesShouldBeMergedOrUnmerged()
-                    updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetailsMap[sliderViewHandle]!!)
+                    updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetails)
                 } else {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total (not from ui thread))")
                     post {
                         updateWhetherHandlesShouldBeMergedOrUnmerged()
-                        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetailsMap[sliderViewHandle]!!)
+                        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetails)
                     }
                 }
             }
-        })
-        sliderViewHandle.color.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+        }
+        sliderViewHandle.value.addOnPropertyChangedCallback(handleDetails.valueObservablePropertyChangedCallback!!)
+
+        handleDetails.colorObservablePropertyChangedCallback = object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 if (Thread.currentThread() == Looper.getMainLooper().thread) {
-                    updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetailsMap[sliderViewHandle]!!)
+                    updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetails)
                 } else {
                     Log.v("tinge", "SliderView color updated - not from ui thread")
                     post {
-                        updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetailsMap[sliderViewHandle]!!)
+                        updateUiDrawableOfHandleToMatchCurrentHandleColor(handleDetails)
                     }
                 }
             }
-        })
+        }
+        sliderViewHandle.color.addOnPropertyChangedCallback(handleDetails.colorObservablePropertyChangedCallback!!)
     }
 
     /**
