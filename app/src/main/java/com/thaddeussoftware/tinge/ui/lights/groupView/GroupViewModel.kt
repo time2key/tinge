@@ -7,7 +7,6 @@ import android.databinding.ObservableField
 import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
-import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
@@ -72,32 +71,47 @@ class GroupViewModel(
             }
         })
 
-        individualLightViewModels.forEach {
-            hueHandles.addAll(it.hueHandles)
-            saturationHandles.addAll(it.saturationHandles)
-            brightnessHandles.addAll(it.brightnessHandles)
+        // Setup group brightness, hue and saturation handles:
+        // All lights will always be shown in the group brightness slider (but will be in the 'off'
+        // position) if they are off.
+        // Lights will only be shown in the hue and saturation brightness sliders if they are on.
+        individualLightViewModels.forEach { lightViewModel ->
+
+            val updateStateOfHueBrightnessAndSaturationHandles = {
+                val isOn = lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.get() ?: false
+                val isReachable = lightViewModel.lightController.isReachable.get() ?: false
+                if (isOn && isReachable) {
+                    lightViewModel.hueHandles.forEach {
+                        if (!hueHandles.contains(it)) { hueHandles.add(it) }
+                    }
+                    lightViewModel.saturationHandles.forEach {
+                        if (!saturationHandles.contains(it)) { saturationHandles.add(it) }
+                    }
+                } else {
+                    lightViewModel.hueHandles.forEach { hueHandles.remove(it) }
+                    lightViewModel.saturationHandles.forEach { saturationHandles.remove(it) }
+                }
+                if (isReachable) {
+                    lightViewModel.brightnessHandles.forEach {
+                        if (!brightnessHandles.contains(it)) { brightnessHandles.add(it) }
+                    }
+                } else {
+                    lightViewModel.brightnessHandles.forEach { brightnessHandles.remove(it) }
+                }
+            }
+
+            lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                    updateStateOfHueBrightnessAndSaturationHandles()
+                }
+            })
+            lightViewModel.lightController.isReachable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                    updateStateOfHueBrightnessAndSaturationHandles()
+                }
+            })
+            updateStateOfHueBrightnessAndSaturationHandles()
         }
-
-        /*hue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                applyChanges()
-            }
-        })
-        saturation.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                applyChanges()
-            }
-        })
-
-
-        LightsUiHelper.bindObservableBrightnessViewModelPropertyToController(
-                brightness, lightGroupController.uniformIsOnOfAllLightsInGroupOrNull, lightGroupController.uniformBrightnessOfAllLightsInGroupOrNull)
-        brightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                applyChanges()
-            }
-
-        })*/
 
         setupColorForBackgroundView()
     }
