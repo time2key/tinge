@@ -13,6 +13,7 @@ import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
+import com.thaddeussoftware.tinge.ui.sliderView.groupHandleDetailsPopup.GroupHandleDetailsPopupWindow
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SimplifiedSetOnObservableListChangedCallback
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewGroupHandleDetails
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewSingleHandleDetails
@@ -56,6 +57,12 @@ class SliderView @JvmOverloads constructor(
          * How close the user needs to click to a specific handle to select it.
          * */
         private val DP_TOLERANCE_TO_SELECT_HANDLE = 16f
+
+        /**
+         * If the touch is within this distance of the center of the handle, and the user single
+         * clicks on the handle, don't move the handle to the touch.
+         * */
+        private val X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE_DP = 4f
 
         /**
          * How close the user needs to move a handle to another handle for the view to suggest
@@ -407,10 +414,45 @@ class SliderView @JvmOverloads constructor(
             // Note that here, we do not check if hasBeenMovedEnoughInXDirectionToBeValidSlide is
             // true, we always do it on a touch up:
             if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
-                moveSingleOrGroupHandleToTouchEvent(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, event)
+                // If touch is outside X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE, move the handle:
+                if (currentlyHeldSliderViewSingleOrGroupHandleDetails?.getCurrentHandleValue()
+                                ?.minus(getSlidAmountFromTouchEventXPosition(event.x))?.absoluteValue ?: 0f
+                        > UiHelper.getPxFromDp(context, X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE_DP*0f)) {
+                    moveSingleOrGroupHandleToTouchEvent(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, event)
+                }
             } else {
                 moveAllSlidersAroundTouchEvent(event.x, previousTouchX)
                 previousTouchX = event.x
+            }
+
+            if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null
+                    && currentlyHeldSliderViewSingleOrGroupHandleDetails is SliderViewGroupHandleDetails
+                    && !hasBeenMovedEnoughInXDirectionToBeValidSide) {
+
+                val popup = GroupHandleDetailsPopupWindow(
+                        context,
+                        (currentlyHeldSliderViewSingleOrGroupHandleDetails!! as SliderViewGroupHandleDetails)
+                                .handlesInsideGroup.map { it.sliderViewHandle },
+                        { handle ->
+                            moveHandleOutOfGroup(handleDetailsMap[handle]!!)
+                        },
+                        {
+                            handleDetailsMap.values.forEachIndexed { i, handleDetails ->
+                                if (i != 0) {
+                                    moveHandleOutOfGroup(handleDetails)
+                                }
+                            }
+                        })
+
+                val location = IntArray(2)
+                getLocationOnScreen(location)
+                val x = location[0]
+                val y = location[1]
+
+                popup.showAt(this,
+                        x + getPositionFromLeftInPixelsToDisplayViewAt(
+                                currentlyHeldSliderViewSingleOrGroupHandleDetails?.getCurrentHandleValue() ?: 0.5f).toInt() + UiHelper.getPxFromDp(context, 20f),
+                        y + height/2f)
             }
 
             // If the user was hovering the current handle over another handle, merge them:
@@ -567,6 +609,66 @@ class SliderView @JvmOverloads constructor(
                     .setDuration(SliderView.ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS)
                     .setListener(null)
         }
+    }
+
+    /**
+     * Moves a single handle out of a group. Its position will be set to the nearest position it
+     * can be that is outside of all groups.
+     * */
+    private fun moveHandleOutOfGroup(handle: SliderViewSingleHandleDetails) {
+        val DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP = 16f
+
+        // This function attempts to find the closest point to move the handle to that is
+        // sufficient distance from all the other added points.
+
+        // First, a list of all points to consider are made, which are points just far enough away
+        // from each slider handle:
+
+        val pointsToConsider = ArrayList<Float>()
+
+        handles?.forEach {
+
+            if (it == handle.sliderViewHandle) { return@forEach }
+
+            val changeInValue = getChangeInSlidAmountCorrespondingToSizeInDp(DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP)
+            if (it.value.get() ?: 0f < 0f) {
+                pointsToConsider.add(0f)
+            } else {
+                val lowerPoint = (it.value.get() ?: 0f) - changeInValue
+                val upperPoint = (it.value.get() ?: 0f) + changeInValue
+                if (lowerPoint >= 0f) pointsToConsider.add(lowerPoint)
+                if (upperPoint <= 1f) pointsToConsider.add(upperPoint)
+            }
+        }
+
+        // Remove any points to consider if they are too close to another slider handle:
+
+        pointsToConsider.removeAll { pointToConsider ->
+            var shouldRemovePoint: Boolean = false
+            handles?.forEach {
+
+                if (it == handle.sliderViewHandle) { return@forEach }
+
+                val changeInValue = getChangeInSlidAmountCorrespondingToSizeInDp(DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP)-0.001f
+                val currentValue = it.value.get() ?: 0f
+                if (pointToConsider > currentValue - changeInValue
+                        && pointToConsider < currentValue + changeInValue) {
+                    shouldRemovePoint = true
+                }
+            }
+            return@removeAll shouldRemovePoint
+        }
+
+        // Find the closest point to the current handle point:
+
+        val closestPointToConsider = pointsToConsider.minBy {  pointToConsider ->
+            ((handle.getCurrentHandleValue() ?: 0f) - pointToConsider).absoluteValue
+        }
+
+        // Move the handle to the closest point to consider:
+
+        handle.setCurrentHandleValue(closestPointToConsider ?: 0f)
+        updateWhetherHandlesShouldBeMergedOrUnmerged(true)
     }
 
     private fun mergeTwoHandlesIntoGroup(handle1: SliderViewSingleOrGroupHandleDetails, handle2: SliderViewSingleOrGroupHandleDetails) {

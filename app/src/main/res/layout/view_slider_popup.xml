@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:clipToPadding="false">
+
+        <View
+            android:id="@+id/top_triangle_view"
+
+            android:elevation="8dp"
+
+            android:background="@drawable/popup_triangle_white_top"
+            android:layout_width="16dp"
+            android:layout_height="8dp"/>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/rounded_rect_card_view"
+
+            app:cardCornerRadius="6dp"
+            app:cardBackgroundColor="#ffffff"
+            app:cardElevation="8dp"
+            android:elevation="8dp"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/top_text_view"
+                android:text="Handles in group:"
+
+                style="@style/TextAppearance.AppCompat.Body1"
+
+                android:elevation="2dp"
+                android:background="#ffffff"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+                <com.thaddeussoftware.tinge.ui.sliderView.groupHandleDetailsPopup.MaxHeightScrollView
+                    app:maxHeight="140dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/handle_list_linear_layout"
+                        android:layout_width="match_parent"
+
+                        android:layout_height="wrap_content"
+                        android:background="#ffffff"
+                        android:elevation="-2dp"
+                        android:orientation="vertical" />
+
+                </com.thaddeussoftware.tinge.ui.sliderView.groupHandleDetailsPopup.MaxHeightScrollView>
+
+                <FrameLayout
+                    android:elevation="6dp"
+                    android:background="#ffffff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/ungroup_handles_button"
+
+
+                        android:foreground="?android:attr/selectableItemBackground"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        android:textAllCaps="true"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:textSize="13sp"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:padding="12dp"
+
+                        android:text="Ungroup"
+                        android:textColor="#000000" />
+                </FrameLayout>
+
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
+
+        <View
+            android:id="@+id/bottom_triangle_view"
+
+            android:elevation="20dp"
+
+            android:scaleY="-1"
+            android:background="@drawable/popup_triangle_white_top"
+            android:layout_width="16dp"
+            android:layout_height="8dp"/>
+
+    </LinearLayout>
+</layout>
