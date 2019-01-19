@@ -47,5 +47,15 @@
         <item name="android:paddingTop">@dimen/list_view_slider_image_y_padding</item>
         <item name="android:paddingBottom">@dimen/list_view_slider_image_y_padding</item>
     </style>
+    
+    <style name="GroupHandleDetailsPopupWindow_Animations_FromTop">
+        <item name="android:windowEnterAnimation">@anim/group_handle_details_popup_window_appear_grow_from_top</item>
+        <item name="android:windowExitAnimation">@anim/group_handle_details_popup_window_disappear_explode_from_top</item>
+    </style>
+
+    <style name="GroupHandleDetailsPopupWindow_Animations_FromBottom">
+        <item name="android:windowEnterAnimation">@anim/group_handle_details_popup_window_appear_grow_from_bottom</item>
+        <item name="android:windowExitAnimation">@anim/group_handle_details_popup_window_disappear_explode_from_bottom</item>
+    </style>
 
 </resources>

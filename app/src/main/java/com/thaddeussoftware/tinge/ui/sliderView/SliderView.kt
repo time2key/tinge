@@ -14,7 +14,6 @@ import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.sliderView.groupHandleDetailsPopup.GroupHandleDetailsPopupWindow
-import com.thaddeussoftware.tinge.ui.sliderView.inner.SimplifiedSetOnObservableListChangedCallback
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewGroupHandleDetails
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewSingleHandleDetails
 import com.thaddeussoftware.tinge.ui.sliderView.inner.SliderViewSingleOrGroupHandleDetails
@@ -429,20 +428,12 @@ class SliderView @JvmOverloads constructor(
                     && currentlyHeldSliderViewSingleOrGroupHandleDetails is SliderViewGroupHandleDetails
                     && !hasBeenMovedEnoughInXDirectionToBeValidSide) {
 
-                val popup = GroupHandleDetailsPopupWindow(
-                        context,
+                val popup = GroupHandleDetailsPopupWindow(context,
                         (currentlyHeldSliderViewSingleOrGroupHandleDetails!! as SliderViewGroupHandleDetails)
-                                .handlesInsideGroup.map { it.sliderViewHandle },
+                                .handlesInsideGroup.map { it.sliderViewHandle })
                         { handle ->
-                            moveHandleOutOfGroup(handleDetailsMap[handle]!!)
-                        },
-                        {
-                            handleDetailsMap.values.forEachIndexed { i, handleDetails ->
-                                if (i != 0) {
-                                    moveHandleOutOfGroup(handleDetails)
-                                }
-                            }
-                        })
+                            moveHandleOutOfGroupAndReturnUnlinkDirection(handleDetailsMap[handle]!!)
+                        }
 
                 val location = IntArray(2)
                 getLocationOnScreen(location)
@@ -469,7 +460,10 @@ class SliderView @JvmOverloads constructor(
             val shouldPerformSingleClickAnimationOnHandles = !hasBeenMovedEnoughInXDirectionToBeValidSide
             if (shouldPerformSingleClickAnimationOnHandles) {
                 if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
-                    animateInThenOutForSingleClick(currentlyHeldSliderViewSingleOrGroupHandleDetails!!)
+                    if (currentlyHeldSliderViewSingleOrGroupHandleDetails is SliderViewSingleHandleDetails
+                            && (currentlyHeldSliderViewSingleOrGroupHandleDetails as? SliderViewSingleHandleDetails)?.groupHandleDetails == null) {
+                        animateInThenOutForSingleClick(currentlyHeldSliderViewSingleOrGroupHandleDetails!!)
+                    }
                 } else {
                     // Only apply animation to each handle if all handles are off or the handle is on:
                     val handlesInOnState = handleDetailsMap.values.sumBy { if (it.getCurrentHandleValue() ?: -1f >= 0f) 1 else 0 }
@@ -614,8 +608,11 @@ class SliderView @JvmOverloads constructor(
     /**
      * Moves a single handle out of a group. Its position will be set to the nearest position it
      * can be that is outside of all groups.
+     *
+     * If the handle is unlinked in the right direction, true is returned, otherwise false is
+     * returned.
      * */
-    private fun moveHandleOutOfGroup(handle: SliderViewSingleHandleDetails) {
+    private fun moveHandleOutOfGroupAndReturnUnlinkDirection(handle: SliderViewSingleHandleDetails): Boolean {
         val DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP = 16f
 
         // This function attempts to find the closest point to move the handle to that is
@@ -667,8 +664,12 @@ class SliderView @JvmOverloads constructor(
 
         // Move the handle to the closest point to consider:
 
+        val oldHandlePosition = handle.getCurrentHandleValue()
+
         handle.setCurrentHandleValue(closestPointToConsider ?: 0f)
         updateWhetherHandlesShouldBeMergedOrUnmerged(true)
+
+        return closestPointToConsider ?: 0f > oldHandlePosition ?: 0f
     }
 
     private fun mergeTwoHandlesIntoGroup(handle1: SliderViewSingleOrGroupHandleDetails, handle2: SliderViewSingleOrGroupHandleDetails) {
