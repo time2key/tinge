@@ -1,5 +1,6 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller
 
+import android.databinding.ObservableField
 import com.google.gson.Gson
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
