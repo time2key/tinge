@@ -104,19 +104,31 @@ class HueHubController constructor(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    /**
+     * Sometimes, multiple api calls are made at the same time. If these both complete at the
+     * same time, and both update properties, this can create problems such as
+     * [ConcurrentModificationException]s. To prevent this, all completion events from
+     * network calls are synchronised against this.
+     * */
+    private val synchronisationLockObject = ""
+
     override fun refresh(vararg dataInGroupTypes: DataInGroupType): Completable {
 
         if (dataInGroupTypes.contains(DataInGroupType.LIGHTS)) {
             val lightsCompletable = lightsRetrofitInterface.getAllLights(hubUsernameCredentials)
                     .subscribeOn(Schedulers.io())
                     .flatMapCompletable { resultMap ->
-                        updateLightListToMatchLights(resultMap)
+                        synchronized(synchronisationLockObject) {
+                            updateLightListToMatchLights(resultMap)
+                        }
                         return@flatMapCompletable Completable.complete()
                     }
             val roomsCompletable = roomsRetrofitInterface.getAllLights(hubUsernameCredentials)
                     .subscribeOn(Schedulers.io())
                     .flatMapCompletable { resultMap ->
-                        updateRoomListToMatchRooms(resultMap)
+                        synchronized(synchronisationLockObject) {
+                            updateRoomListToMatchRooms(resultMap)
+                        }
                         return@flatMapCompletable Completable.complete()
                     }
             return Completable.mergeArrayDelayError(lightsCompletable, roomsCompletable)
