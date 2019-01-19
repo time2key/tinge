@@ -134,11 +134,11 @@ class GroupHandleDetailsPopupWindow(
         if (showBelow) {
             showAtLocation(view, Gravity.LEFT or Gravity.TOP,
                     (xPositionOnScreen - popupWidth/2).toInt(),
-                    (yPositionOnScreen).toInt())
+                    (yPositionOnScreen + UiHelper.getPxFromDp(context, 10f)).toInt())
         } else {
             showAtLocation(view, Gravity.LEFT or Gravity.TOP,
                     (xPositionOnScreen - popupWidth/2).toInt(),
-                    (yPositionOnScreen).toInt() - binding.root.measuredHeight)//( -yPositionOnScreen + context.resources.displayMetrics.heightPixels).toInt())
+                    (yPositionOnScreen - UiHelper.getPxFromDp(context, 10f)).toInt() - binding.root.measuredHeight)//( -yPositionOnScreen + context.resources.displayMetrics.heightPixels).toInt())
         }
 
         binding.root.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
@@ -149,10 +149,10 @@ class GroupHandleDetailsPopupWindow(
                 binding.roundedRectCardView.getLocationOnScreen(location)
                 val xPositionOfPopupWindow = location[0]
 
-                (binding.topTriangleView.layoutParams as ViewGroup.MarginLayoutParams).leftMargin =
-                        (xPositionOnScreen - xPositionOfPopupWindow - UiHelper.getPxFromDp(context, 8f)).toInt()
-                (binding.bottomTriangleView.layoutParams as ViewGroup.MarginLayoutParams).leftMargin =
-                        (xPositionOnScreen - xPositionOfPopupWindow - UiHelper.getPxFromDp(context, 8f)).toInt()
+                binding.topTriangleView.translationX =
+                        xPositionOnScreen - xPositionOfPopupWindow - UiHelper.getPxFromDp(context, 8f)
+                binding.bottomTriangleView.translationX =
+                        (xPositionOnScreen - xPositionOfPopupWindow - UiHelper.getPxFromDp(context, 8f))
 
                 if (showBelow) {
                     binding.topTriangleView.visibility = View.VISIBLE

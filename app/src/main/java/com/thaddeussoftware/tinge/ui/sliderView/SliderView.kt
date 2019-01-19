@@ -443,7 +443,7 @@ class SliderView @JvmOverloads constructor(
                 popup.showAt(this,
                         x + getPositionFromLeftInPixelsToDisplayViewAt(
                                 currentlyHeldSliderViewSingleOrGroupHandleDetails?.getCurrentHandleValue() ?: 0.5f).toInt() + UiHelper.getPxFromDp(context, 20f),
-                        y + height/2f)
+                        y + UiHelper.getPxFromDp(context, 20f))
             }
 
             // If the user was hovering the current handle over another handle, merge them:
@@ -462,6 +462,8 @@ class SliderView @JvmOverloads constructor(
                 if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
                     if (currentlyHeldSliderViewSingleOrGroupHandleDetails is SliderViewSingleHandleDetails
                             && (currentlyHeldSliderViewSingleOrGroupHandleDetails as? SliderViewSingleHandleDetails)?.groupHandleDetails == null) {
+                        animateInThenOutForSingleClick(currentlyHeldSliderViewSingleOrGroupHandleDetails!!)
+                    } else if (currentlyHeldSliderViewSingleOrGroupHandleDetails is SliderViewGroupHandleDetails) {
                         animateInThenOutForSingleClick(currentlyHeldSliderViewSingleOrGroupHandleDetails!!)
                     }
                 } else {
