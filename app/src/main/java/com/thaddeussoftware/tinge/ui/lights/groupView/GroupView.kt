@@ -11,9 +11,9 @@ import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.BR
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.ViewGroupBinding
-import com.thaddeussoftware.tinge.databinding.ViewLightBinding
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
+import com.thaddeussoftware.tinge.ui.lights.WeightedStripedColorDrawable
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 
@@ -38,6 +38,7 @@ class GroupView @JvmOverloads constructor(
             viewModel?.meanHue?.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(p0: Observable?, p1: Int) {
                     setupGroupImage()
+                    setupBackgroundImage()
                     setupBrightnessSlider()
                     setupSaturationTrack()
                 }
@@ -45,17 +46,19 @@ class GroupView @JvmOverloads constructor(
             viewModel?.meanBrightness?.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(p0: Observable?, p1: Int) {
                     setupGroupImage()
+                    setupBackgroundImage()
                 }
             })
             viewModel?.meanSaturation?.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
                 override fun onPropertyChanged(p0: Observable?, p1: Int) {
                     setupGroupImage()
+                    setupBackgroundImage()
                     setupBrightnessSlider()
                 }
             })
 
             viewModel?.lightGroupController?.lightsNotInSubgroup?.forEach {
-                individualBitmaps.add(
+                individualLightBitmaps.add(
                         UiHelper.whiteTintBitmapPhotographOfLight(BitmapFactory.decodeResource(resources, if (Math.random()<0.5f) R.drawable.top_light_image else R.drawable.left_selenite_lamp))
                 )
             }
@@ -64,6 +67,7 @@ class GroupView @JvmOverloads constructor(
             setupBrightnessSlider()
             setupSaturationTrack()
             setupGroupImage()
+            setupBackgroundImage()
         }
 
     /**
@@ -72,6 +76,10 @@ class GroupView @JvmOverloads constructor(
     val lightListRecyclerViewItemBinding = ItemBinding.of<LightViewModel>(BR.viewModel, R.layout.holder_view_light)
 
     private var binding: ViewGroupBinding = ViewGroupBinding.inflate(LayoutInflater.from(context), this, true)
+
+    private val backgroundDrawable = WeightedStripedColorDrawable(UiHelper.getPxFromDp(context, 1f))
+
+    private val individualLightBitmaps = ArrayList<Bitmap>()
 
     init {
         binding.view = this
@@ -104,8 +112,17 @@ class GroupView @JvmOverloads constructor(
         binding.innerLightView.leftImageView.setImageDrawable(BitmapDrawable(resources, getBitmapForGroupImage()))
     }
 
-    private val individualBitmaps = ArrayList<Bitmap>()
+    private fun setupBackgroundImage() {
+        val weightedColors = ArrayList<WeightedStripedColorDrawable.GlassToolbarWeightedColor>()
 
+        viewModel?.individualLightViewModels?.forEach {
+            val currentColor = it.colorForBackgroundView.get() ?: 0
+            val weight = if (it.lightController.isOn.stagedValueOrLastValueFromHub != true) 0.5f else 1f
+            weightedColors.add(WeightedStripedColorDrawable.GlassToolbarWeightedColor(currentColor, 0f, weight))
+        }
+        backgroundDrawable.weightedColors = weightedColors
+        binding.innerLightView.root.background = backgroundDrawable
+    }
 
     private fun getBitmapForGroupImage(): Bitmap {
 
@@ -117,9 +134,9 @@ class GroupView @JvmOverloads constructor(
 
         val paint = Paint()
 
-        individualBitmaps.forEachIndexed { i, bitmap ->
-            val startAngle = Math.PI * 2 * i / individualBitmaps.size
-            val endAngle = Math.PI * 2 * (i + 1) / individualBitmaps.size
+        individualLightBitmaps.forEachIndexed { i, bitmap ->
+            val startAngle = Math.PI * 2 * i / individualLightBitmaps.size
+            val endAngle = Math.PI * 2 * (i + 1) / individualLightBitmaps.size
             val midAngle = startAngle * 0.5 + endAngle * 0.5
 
             val path = Path()
