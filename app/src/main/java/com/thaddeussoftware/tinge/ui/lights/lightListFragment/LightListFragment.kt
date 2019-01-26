@@ -1,9 +1,10 @@
 package com.thaddeussoftware.tinge.ui.lights.lightListFragment
 
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
+import android.content.res.Resources
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +14,19 @@ import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.FragmentLightListBinding
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 import com.thaddeussoftware.tinge.helpers.ColorHelper
+import com.thaddeussoftware.tinge.helpers.UiHelper
+import com.thaddeussoftware.tinge.ui.lights.WeightedStripedColorDrawable
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
+import com.thaddeussoftware.tinge.ui.lights.lightView.LightView
+import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import com.thaddeussoftware.tinge.ui.mainActivity.MultiColouredToolbarActivity
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.min
 
 
 class LightListFragment : Fragment() {
@@ -29,6 +36,8 @@ class LightListFragment : Fragment() {
     private var binding: FragmentLightListBinding? = null
 
     private var listener: LightListFragmentListener? = null
+
+    private var toolbarDrawable: WeightedStripedColorDrawable? = null
 
     /**
      * Required to auto bind the light list RecyclerView to the viewModel
@@ -42,6 +51,8 @@ class LightListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
         }
+        toolbarDrawable = WeightedStripedColorDrawable(UiHelper.getPxFromDp(context!!, 1f))
+        (activity as? MultiColouredToolbarActivity)?.setStatusBarAndToolbarToDrawable(toolbarDrawable!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -60,52 +71,107 @@ class LightListFragment : Fragment() {
                 (activity as? MultiColouredToolbarActivity)?.bottomFragmentPadding ?: 0)
         binding?.lightListLinearLayout?.clipToPadding = false
 
+        binding?.lightListLinearLayout?.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                redrawGlassToolbar()
+            }
+        })
+
         viewModel.refreshListOfHubsAndLights()
         //binding?.lightListLinearLayout?.addView(lightView)
 
         return binding?.root
     }
 
+    private val lightListViewMap = HashMap<LightViewModel, LightView>()
+
     var runEverySecondDisposable: Disposable? = null
+
+    private fun iterateThroughAllViewChildrenLookingFor(
+            parentView: ViewGroup, viewTypeLookingFor: Class<out View>, runWhenFound: (View) -> Unit) {
+        for (i in 0..parentView.childCount) {
+            val childView = parentView.getChildAt(i)
+            if (viewTypeLookingFor.isInstance(childView)) {
+                runWhenFound(childView)
+            } else if (childView is ViewGroup) {
+                iterateThroughAllViewChildrenLookingFor(childView, viewTypeLookingFor, runWhenFound)
+            }
+        }
+    }
+
+    private fun populateLightListViewMap() {
+        lightListViewMap.clear()
+        iterateThroughAllViewChildrenLookingFor(binding!!.root as ViewGroup, LightView::class.java) {
+            lightListViewMap.put((it as LightView).viewModel!!, it)
+        }
+    }
+
+    private fun redrawGlassToolbar() {
+        populateLightListViewMap()
+
+        val colourList = ArrayList<WeightedStripedColorDrawable.GlassToolbarWeightedColor>()
+
+        var previousColor:Int? = null
+
+        viewModel.individualGroupViewModels.forEach { groupViewModel ->
+            groupViewModel.individualLightViewModels.forEach {  lightViewModel ->
+                if (lightViewModel.lightController.isReachable.get() == true) {
+
+                    val hue = lightViewModel.lightController.hue.stagedValueOrLastValueFromHub ?: 0f
+                    val sat = lightViewModel.lightController.saturation.stagedValueOrLastValueFromHub ?: 0f
+                    val brightness = lightViewModel.lightController.brightness.stagedValueOrLastValueFromHub ?: 0f
+                    val isOn = lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub ?: false
+
+                    val newColor = LightsUiHelper.getGlassToolbarColorFromLightColor(hue, sat, brightness, isOn)
+
+                    if (colourList.size > 0 && previousColor != null) {
+                        val halfWayColor = ColorHelper.mergeColorsPreservingSaturationAndValue(previousColor!!, newColor, 0.5f)
+                        colourList.add(
+                                WeightedStripedColorDrawable.GlassToolbarWeightedColor(
+                                        ColorHelper.changeOpacityOfColor(halfWayColor, 0.6f),
+                                        12f, 0f)
+                        )
+                    }
+
+                    var lightHeight = 0f
+                    val locationOnScreen = IntArray(2)
+                    if (lightListViewMap.containsKey(lightViewModel)) {
+                        lightListViewMap[lightViewModel]?.getLocationOnScreen(locationOnScreen)
+                        var yOnScreen = locationOnScreen[1]
+                        var y2OnScreen = locationOnScreen[1] + lightListViewMap[lightViewModel]!!.height
+
+                        val screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels + (activity as MultiColouredToolbarActivity).bottomFragmentPadding
+                        val screen0 = (activity as MultiColouredToolbarActivity).topFragmentPadding
+
+                        yOnScreen = min(max(0, yOnScreen - screen0), screenHeight - screen0)
+                        y2OnScreen = min(max(0, y2OnScreen - screen0), screenHeight - screen0)
+                        lightHeight = (y2OnScreen - yOnScreen).toFloat()
+                    }
+
+                    colourList.add(
+                            WeightedStripedColorDrawable.GlassToolbarWeightedColor(
+                                    ColorHelper.changeOpacityOfColor(newColor, 0.85f),
+                                    if (lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub == true) 24f else 12f,
+                                    if (lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub == true) lightHeight+0.001f else lightHeight*0.5f))
+
+                    previousColor = newColor
+                }
+            }
+
+        }
+
+        toolbarDrawable?.weightedColors = colourList
+    }
 
     override fun onResume() {
         super.onResume()
         if (runEverySecondDisposable == null) {
-            runEverySecondDisposable = Observable.interval(1, 1, TimeUnit.SECONDS)
+            runEverySecondDisposable = Observable.interval(1000, 1000, TimeUnit.MILLISECONDS)
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
-                        val colourList = ArrayList<Int>()
-
-                        var previousColor:Int? = null
-
-                        viewModel.individualGroupViewModels.forEach { groupViewModel ->
-                            groupViewModel.individualLightViewModels.forEach {  lightViewModel ->
-                                if (lightViewModel.lightController.isReachable.get() == true) {
-
-                                    val hue = lightViewModel.lightController.hue.stagedValueOrLastValueFromHub ?: 0f
-                                    val sat = lightViewModel.lightController.saturation.stagedValueOrLastValueFromHub ?: 0f
-                                    val brightness = lightViewModel.lightController.brightness.stagedValueOrLastValueFromHub ?: 0f
-                                    val isOn = lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub ?: false
-
-                                    val newColor = LightsUiHelper.getGlassToolbarColorFromLightColor(hue, sat, brightness, isOn)
-
-                                    if (colourList.size > 0 && previousColor != null) {
-                                        val halfWayColor = ColorHelper.mergeColorsPreservingSaturationAndValue(previousColor!!, newColor, 0.5f)
-                                        for (j in 0..2) {
-                                            colourList.add(ColorHelper.changeOpacityOfColor(halfWayColor, 0.6f))
-                                        }
-                                    }
-                                    for (j in 0..if (lightViewModel.lightController.isOn.stagedValueOrLastValueFromHub == true) 12 else 4) {
-                                        colourList.add(ColorHelper.changeOpacityOfColor(newColor, 0.85f))
-                                    }
-                                    previousColor = newColor
-                                }
-                            }
-
-                        }
-
-                        (activity as? MultiColouredToolbarActivity)?.setStatusBarAndToolbarToDrawable(GradientDrawable(GradientDrawable.Orientation.BL_TR, colourList.toIntArray()))
+                        redrawGlassToolbar()
                         (activity as? MultiColouredToolbarActivity)?.setToolbarText("1 hub - 2 groups")
                     }
         }
