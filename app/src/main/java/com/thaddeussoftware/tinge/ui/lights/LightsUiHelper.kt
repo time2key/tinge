@@ -103,7 +103,7 @@ object LightsUiHelper {
         if (isOn == true) {
             return ColorHelper.colorFromHsv(
                     hue ?: 0f,
-                    (saturation ?: 0f) * 0.2f * (0.5f + 0.5f * (brightness ?: 0f)),//0.1f  0.4
+                    (saturation ?: 0f) * 0.225f * (0.5f + 0.5f * (brightness ?: 0f)),//0.1f  0.4
                     1.0f)
         } else {
             return ColorHelper.colorFromHsv(0f, 0f, 0.93f)
