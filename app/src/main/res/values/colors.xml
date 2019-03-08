@@ -4,15 +4,11 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="toggle_hover">@color/gray</color>
-    <color name="toggle_normal">@color/gainsboro</color>
-    <color name="toggle_active">@color/silver</color>
-    <color name="toggle_normal_off">@color/darkgray</color>
+    <color name="toggle_active">#22000000</color>
+    <color name="toggle_active_hover">#33000000</color>
+    <color name="toggle_normal">#0a000000</color>
+    <color name="toggle_normal_hover">#1a000000</color>
 
-    <color name="gainsboro">#aaDCdCdC</color>
-    <color name="silver">#aaC0C0C0</color>
-    <color name="darkgray">#aaa9a9a9</color>
-    <color name="gray">#aa808080</color>
 
     <color name="slider_handle">#88888888</color>
 
