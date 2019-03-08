@@ -23,8 +23,10 @@
     <dimen name="list_view_slider_image_height">40dp</dimen>
     <dimen name="list_view_slider_image_y_padding">8dp</dimen>
 
-    <dimen name="list_view_expand_contract_image_size">26dp</dimen>
-    <dimen name="list_view_expand_contract_image_padding">2dp</dimen>
+    <dimen name="list_view_expand_contract_image_size">34dp</dimen>
+    <dimen name="list_view_expand_contract_image_padding">6dp</dimen>
+    <dimen name="list_view_expand_contract_image_top_margin">2dp</dimen>
+    <dimen name="list_view_expand_contract_image_right_margin">6dp</dimen>
 
 
 

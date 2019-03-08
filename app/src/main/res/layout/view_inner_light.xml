@@ -19,9 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/list_view_inner_bottom_padding"
-        android:paddingEnd="@dimen/list_view_inner_right_padding"
-        android:paddingStart="@dimen/list_view_inner_left_padding"
-        android:paddingTop="@dimen/list_view_inner_top_padding">
+        android:paddingStart="@dimen/list_view_inner_left_padding">
 
         <!--
         LEFT PREVIEW IMAGE:
@@ -34,8 +32,11 @@
 
             android:layout_width="@{ isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
             android:layout_height="@{ isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
+            android:layout_marginTop="@dimen/list_view_inner_top_padding"
             tools:layout_width="50dp"
             tools:layout_height="50dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintVertical_bias="0">
 
@@ -68,8 +69,10 @@
             android:layout_width="@dimen/list_view_expand_contract_image_size"
             android:layout_height="@dimen/list_view_expand_contract_image_size"
             android:padding="@dimen/list_view_expand_contract_image_padding"
+            android:layout_marginTop="@dimen/list_view_expand_contract_image_top_margin"
+            android:layout_marginRight="@dimen/list_view_expand_contract_image_right_margin"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/left_image_view_holder"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@+id/left_image_view_holder"
             app:layout_constraintVertical_bias="0"
             />
@@ -90,6 +93,8 @@
             android:textColor="#000000"
             app:layout_constraintEnd_toStartOf="@+id/expand_contract_button"
             app:layout_constraintStart_toEndOf="@+id/left_image_view_holder"
+            android:layout_marginTop="@dimen/list_view_inner_top_padding"
+            app:layout_constraintTop_toTopOf="parent"
 
             tools:text="Light name"/>
 
