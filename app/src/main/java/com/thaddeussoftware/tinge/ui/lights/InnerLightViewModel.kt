@@ -21,6 +21,13 @@ abstract class InnerLightViewModel: ViewModel() {
     abstract val isInColorMode: ObservableField<Boolean?>
 
     /**
+     * True if full color mode is supported by this light
+     *
+     * For groups, true will be returned if any of the lights in the group support full color mode.
+     * */
+    abstract val doesSupportColorMode: ObservableField<Boolean>
+
+    /**
      * Hue of the light from 0 - 1
      * Null if unknown or this is a group with different values
      * */

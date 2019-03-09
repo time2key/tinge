@@ -24,6 +24,8 @@ class LightViewModel(
 
     override val isInColorMode = lightController.isInColorMode.stagedValueOrLastValueFromHubObservable
 
+    override val doesSupportColorMode = ObservableField<Boolean>(lightController.doesSupportColorMode)
+
     /*override val hue = lightController.hue.stagedValueOrLastValueFromHubObservable
     override val saturation = lightController.saturation.stagedValueOrLastValueFromHubObservable
     override val brightness = ObservableField<Float?>()

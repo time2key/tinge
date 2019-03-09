@@ -20,6 +20,8 @@ class GroupViewModel(
 
     override val isInColorMode = ObservableField<Boolean?>(true)
 
+    override val doesSupportColorMode = ObservableField<Boolean>(true)
+
     override val hueHandles = ObservableArrayList<SliderViewHandle>()
     override val saturationHandles = ObservableArrayList<SliderViewHandle>()
     override val brightnessHandles = ObservableArrayList<SliderViewHandle>()
