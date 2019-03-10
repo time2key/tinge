@@ -61,6 +61,7 @@
             android:id="@+id/expand_contract_button"
 
             android:src="@{ safeUnbox(viewModel.isExpanded()) ? @drawable/ic_expand_less_black_24dp : @drawable/ic_expand_more_black_24dp , default = @drawable/ic_expand_less_black_24dp}"
+            android:visibility="@{ safeUnbox(viewModel.showTopRightExpandButton) ? View.VISIBLE : View.GONE}"
             android:onClick="@{ viewModel::onExpandContractButtonClicked }"
 
             android:clickable="true"

@@ -56,6 +56,11 @@ abstract class InnerLightViewModel: ViewModel() {
     abstract val isExpanded: ObservableField<Boolean>
 
     /**
+     * Whether the top right expand/contract button should be visible.
+     * */
+    abstract val showTopRightExpandButton: ObservableField<Boolean>
+
+    /**
      * Tint colour for the left preview image view
      * */
     abstract val colorForPreviewImageView: ObservableField<Int>

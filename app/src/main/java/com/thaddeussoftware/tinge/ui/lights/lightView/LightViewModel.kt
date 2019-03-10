@@ -40,6 +40,8 @@ class LightViewModel(
 
     override val isExpanded = ObservableField<Boolean>(false)
 
+    override val showTopRightExpandButton = ObservableField<Boolean>(false)
+
     override val colorForPreviewImageView = ObservableField<Int>(0)
 
     override val colorForBackgroundView = ObservableField<Int>(0)
@@ -100,6 +102,7 @@ class LightViewModel(
                 updateHueSliderColor()
                 updateSaturationSliderColor()
                 updateBrightnessSliderColor()
+                updateExpandedFunctionalityVisibility()
             }
 
         })
@@ -109,6 +112,27 @@ class LightViewModel(
         updateHueSliderColor()
         updateSaturationSliderColor()
         updateBrightnessSliderColor()
+        updateExpandedFunctionalityVisibility()
+    }
+
+    private fun updateColorsFromHsv() {
+        lightController.applyChanges().subscribe(
+                {
+                    val i = 0
+                },
+                {
+                    val i = 0
+                }
+        )
+        colorForPreviewImageView.set(
+                if (brightnessAndIsOnObservable.get() ?: -1f >= 0f)
+                    getColorFromHsv(hueObservable.get() ?: 0f, saturationObservable.get() ?: 0f,
+                            0.5f + 0.5f * (brightnessAndIsOnObservable.get() ?: 0f))
+                else getColorFromHsv(0f, 0f, 0.2f))
+        colorForBackgroundView.set(
+                LightsUiHelper.getFadedBackgroundColourFromLightColour(
+                        hueObservable.get(), saturationObservable.get(), brightnessAndIsOnObservable.get(),
+                        brightnessAndIsOnObservable.get() ?: -1f >= 0f))
     }
 
     private fun updateHueSliderColor() {
@@ -135,6 +159,15 @@ class LightViewModel(
         }
     }
 
+    private fun updateExpandedFunctionalityVisibility() {
+        if (brightnessAndIsOnObservable.get() ?: 0f < 0f) {
+            showTopRightExpandButton.set(false)
+            isExpanded.set(false)
+        } else {
+            showTopRightExpandButton.set(true)
+        }
+    }
+
     override fun onExpandContractButtonClicked(view: View) {
         isExpanded.set(! (isExpanded.get() ?: false))
     }
@@ -147,25 +180,7 @@ class LightViewModel(
         isInColorMode.set(false)
     }
 
-    private fun updateColorsFromHsv() {
-        lightController.applyChanges().subscribe(
-                {
-                    val i = 0
-                },
-                {
-                    val i = 0
-                }
-        )
-        colorForPreviewImageView.set(
-                if (brightnessAndIsOnObservable.get() ?: -1f >= 0f)
-                    getColorFromHsv(hueObservable.get() ?: 0f, saturationObservable.get() ?: 0f,
-                            0.5f + 0.5f * (brightnessAndIsOnObservable.get() ?: 0f))
-                else getColorFromHsv(0f, 0f, 0.2f))
-        colorForBackgroundView.set(
-                LightsUiHelper.getFadedBackgroundColourFromLightColour(
-                        hueObservable.get(), saturationObservable.get(), brightnessAndIsOnObservable.get(),
-                        brightnessAndIsOnObservable.get() ?: -1f >= 0f))
-    }
+
 
     private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
 

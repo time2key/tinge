@@ -40,6 +40,7 @@ class GroupViewModel(
     val meanSaturation = lightGroupController.averageSaturationOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
 
     override val isExpanded = ObservableField<Boolean>(false)
+    override val showTopRightExpandButton = ObservableField<Boolean>(false)
 
     override val colorForBackgroundView = ObservableField<Int>(0)
 
@@ -73,49 +74,51 @@ class GroupViewModel(
             }
         })
 
-        // Setup group brightness, hue and saturation handles:
-        // All lights will always be shown in the group brightness slider (but will be in the 'off'
-        // position) if they are off.
-        // Lights will only be shown in the hue and saturation brightness sliders if they are on.
+
         individualLightViewModels.forEach { lightViewModel ->
 
-            val updateStateOfHueBrightnessAndSaturationHandles = {
-                val isOn = lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.get() ?: false
-                val isReachable = lightViewModel.lightController.isReachable.get() ?: false
-                if (isOn && isReachable) {
-                    lightViewModel.hueHandles.forEach {
-                        if (!hueHandles.contains(it)) { hueHandles.add(it) }
-                    }
-                    lightViewModel.saturationHandles.forEach {
-                        if (!saturationHandles.contains(it)) { saturationHandles.add(it) }
-                    }
-                } else {
-                    lightViewModel.hueHandles.forEach { hueHandles.remove(it) }
-                    lightViewModel.saturationHandles.forEach { saturationHandles.remove(it) }
-                }
-                if (isReachable) {
-                    lightViewModel.brightnessHandles.forEach {
-                        if (!brightnessHandles.contains(it)) { brightnessHandles.add(it) }
-                    }
-                } else {
-                    lightViewModel.brightnessHandles.forEach { brightnessHandles.remove(it) }
-                }
-            }
 
-            lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    updateStateOfHueBrightnessAndSaturationHandles()
-                }
-            })
-            lightViewModel.lightController.isReachable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                    updateStateOfHueBrightnessAndSaturationHandles()
-                }
-            })
-            updateStateOfHueBrightnessAndSaturationHandles()
+
         }
 
         setupColorForBackgroundView()
+    }
+
+    /**
+     * Updates:
+     * * Whether the hue and saturation handle should be shown for this light, based on whether
+     * it is reachable and on.
+     * * Whether the brightness handle should be shown for this light, based on whether it is
+     * reachable.
+     * * Whether the top right expanded arrow is shown, based on if any lights are on.
+     * */
+    private fun onIsReachableOrIsOnChangedForIndividualLight(lightViewModel: LightViewModel) {
+        val isOn = lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.get() ?: false
+        val isReachable = lightViewModel.lightController.isReachable.get() ?: false
+        if (isOn && isReachable) {
+            lightViewModel.hueHandles.forEach {
+                if (!hueHandles.contains(it)) { hueHandles.add(it) }
+            }
+            lightViewModel.saturationHandles.forEach {
+                if (!saturationHandles.contains(it)) { saturationHandles.add(it) }
+            }
+        } else {
+            lightViewModel.hueHandles.forEach { hueHandles.remove(it) }
+            lightViewModel.saturationHandles.forEach { saturationHandles.remove(it) }
+        }
+        if (isReachable) {
+            lightViewModel.brightnessHandles.forEach {
+                if (!brightnessHandles.contains(it)) { brightnessHandles.add(it) }
+            }
+        } else {
+            lightViewModel.brightnessHandles.forEach { brightnessHandles.remove(it) }
+        }
+
+        if (hueHandles.size > 0) {
+            showTopRightExpandButton.set(true)
+        } else {
+            showTopRightExpandButton.set(false)
+        }
     }
 
     private fun setupColorForBackgroundView() {
@@ -163,7 +166,24 @@ class GroupViewModel(
                     //}
                 },
                 {
-                    individualLightViewModels.add(LightViewModel(it))
+                    val lightViewModel = LightViewModel(it)
+                    individualLightViewModels.add(lightViewModel)
+
+                    // Setup group brightness, hue and saturation handles:
+                    // All lights will always be shown in the group brightness slider (but will be in the 'off'
+                    // position) if they are off.
+                    // Lights will only be shown in the hue and saturation brightness sliders if they are on.
+                    lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                            onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
+                        }
+                    })
+                    lightViewModel.lightController.isReachable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                            onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
+                        }
+                    })
+                    onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
                 },
                 { lightViewModel, _ ->
                     lightViewModel.refreshToMatchController()
