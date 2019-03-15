@@ -134,34 +134,45 @@ class GroupView @JvmOverloads constructor(
 
         val paint = Paint()
 
-        individualLightBitmaps.forEachIndexed { i, bitmap ->
-            val startAngle = Math.PI * 2 * i / individualLightBitmaps.size
-            val endAngle = Math.PI * 2 * (i + 1) / individualLightBitmaps.size
-            val midAngle = startAngle * 0.5 + endAngle * 0.5
-
-            val path = Path()
-            path.moveTo(width * 0.5f, height * 0.5f)
-            path.lineTo(width * 0.5f + width * Math.sin(startAngle).toFloat(),
-                    height * 0.5f + height * Math.cos(startAngle).toFloat())
-            path.lineTo(width * 0.5f + width * Math.sin(midAngle).toFloat(),
-                    height * 0.5f + height * Math.cos(midAngle).toFloat())
-            path.lineTo(width * 0.5f + width * Math.sin(endAngle).toFloat(),
-                    height * 0.5f + height * Math.cos(endAngle).toFloat())
-            path.close()
-            canvas.save()
-            canvas.clipPath(path)
-
-            val directionShiftX = 20f * Math.sin(midAngle).toFloat()
-            val directionShiftY = 20f * Math.cos(midAngle).toFloat()
-
+        if (individualLightBitmaps.size == 1) {
+            val bitmap = individualLightBitmaps.get(0)
             canvas.drawBitmap(bitmap,
                     Rect(0, 0, bitmap.width, bitmap.height),
-                    Rect(directionShiftX.toInt(), directionShiftY.toInt(), width + directionShiftX.toInt(), height + directionShiftY.toInt()),
+                    Rect(0, 0, width, height),
                     paint)
+            canvas.drawColor(viewModel?.individualLightViewModels?.get(0)?.colorForPreviewImageView?.get()
+                    ?: 0xffffffff.toInt(), PorterDuff.Mode.MULTIPLY)
+        } else {
+            individualLightBitmaps.forEachIndexed { i, bitmap ->
+                val startAngle = Math.PI * 2 * i / individualLightBitmaps.size
+                val endAngle = Math.PI * 2 * (i + 1) / individualLightBitmaps.size
+                val midAngle = startAngle * 0.5 + endAngle * 0.5
 
-            canvas.drawColor(viewModel?.individualLightViewModels?.get(i)?.colorForPreviewImageView?.get() ?: 0xffffffff.toInt(), PorterDuff.Mode.MULTIPLY)
+                val path = Path()
+                path.moveTo(width * 0.5f, height * 0.5f)
+                path.lineTo(width * 0.5f + width * Math.sin(startAngle).toFloat(),
+                        height * 0.5f + height * Math.cos(startAngle).toFloat())
+                path.lineTo(width * 0.5f + width * Math.sin(midAngle).toFloat(),
+                        height * 0.5f + height * Math.cos(midAngle).toFloat())
+                path.lineTo(width * 0.5f + width * Math.sin(endAngle).toFloat(),
+                        height * 0.5f + height * Math.cos(endAngle).toFloat())
+                path.close()
+                canvas.save()
+                canvas.clipPath(path)
 
-            canvas.restore()
+                val directionShiftX = 20f * Math.sin(midAngle).toFloat()
+                val directionShiftY = 20f * Math.cos(midAngle).toFloat()
+
+                canvas.drawBitmap(bitmap,
+                        Rect(0, 0, bitmap.width, bitmap.height),
+                        Rect(directionShiftX.toInt(), directionShiftY.toInt(), width + directionShiftX.toInt(), height + directionShiftY.toInt()),
+                        paint)
+
+                canvas.drawColor(viewModel?.individualLightViewModels?.get(i)?.colorForPreviewImageView?.get()
+                        ?: 0xffffffff.toInt(), PorterDuff.Mode.MULTIPLY)
+
+                canvas.restore()
+            }
         }
 
         return returnValue
