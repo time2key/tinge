@@ -71,10 +71,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="2d2d2d" />
-                                      <entry key="backgroundImage" value="$USER_HOME$/Pictures/tinge bg7.png" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Pictures/tinge fg14.png" />
+                                      <entry key="backgroundImage" value="$USER_HOME$/Pictures/tinge bg8.png" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/Pictures/tinge fg10.png" />
                                       <entry key="showSafeZone" value="false" />
                                     </map>
                                   </option>
