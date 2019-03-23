@@ -21,6 +21,7 @@ import io.reactivex.schedulers.Schedulers
 import android.view.WindowManager
 import android.util.TypedValue
 import com.thaddeussoftware.tinge.helpers.ColorHelper
+import com.thaddeussoftware.tinge.helpers.UiHelper
 
 
 class MainActivity : AppCompatActivity(), LightListFragment.LightListFragmentListener, ConnectToHubFragment.ConnectToHubFragmentListener, MultiColouredToolbarActivity {
@@ -36,12 +37,7 @@ class MainActivity : AppCompatActivity(), LightListFragment.LightListFragmentLis
 
 
     val actionBarHeight: Int by lazy {
-        var actionBarHeight = 0
-        val tv = TypedValue()
-        if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
-        actionBarHeight
+        UiHelper.getPxFromDp(this, 45f + 42f).toInt()
     }
 
     val navigationBarHeight: Int by lazy {
@@ -56,7 +52,6 @@ class MainActivity : AppCompatActivity(), LightListFragment.LightListFragmentLis
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(0xaaaa0000.toInt()))
         window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
@@ -68,10 +63,7 @@ class MainActivity : AppCompatActivity(), LightListFragment.LightListFragmentLis
         //binding?.toolbar?.setTitleTextColor(0xffffffff.toInt())
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        setSupportActionBar(binding?.toolbar)
         binding?.statusBarBackgroundView?.layoutParams?.height = statusBarHeight
-        binding?.toolbarHolder?.layoutParams?.height = actionBarHeight + statusBarHeight
-
 
         DatabaseSingleton.database.hueHubsDao().getAllSavedHueHubs()
                 .subscribeOn(Schedulers.io())
@@ -92,8 +84,8 @@ class MainActivity : AppCompatActivity(), LightListFragment.LightListFragmentLis
     }
 
     override fun setToolbarText(text: String) {
-        binding?.toolbar?.title = "Tinge"
-        binding?.toolbar?.subtitle = text
+        binding?.toolbarTitle?.text = "Tinge"
+        binding?.toolbarDescription?. text = text
     }
 
     override val topFragmentPadding: Int
