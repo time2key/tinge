@@ -140,7 +140,7 @@ class GroupView @JvmOverloads constructor(
                     Rect(0, 0, bitmap.width, bitmap.height),
                     Rect(0, 0, width, height),
                     paint)
-            canvas.drawColor(viewModel?.individualLightViewModels?.get(0)?.colorForPreviewImageView?.get()
+            canvas.drawColor(viewModel?.individualLightViewModels?.getOrNull(0)?.colorForPreviewImageView?.get()
                     ?: 0xffffffff.toInt(), PorterDuff.Mode.MULTIPLY)
         } else {
             individualLightBitmaps.forEachIndexed { i, bitmap ->
@@ -168,7 +168,7 @@ class GroupView @JvmOverloads constructor(
                         Rect(directionShiftX.toInt(), directionShiftY.toInt(), width + directionShiftX.toInt(), height + directionShiftY.toInt()),
                         paint)
 
-                canvas.drawColor(viewModel?.individualLightViewModels?.get(i)?.colorForPreviewImageView?.get()
+                canvas.drawColor(viewModel?.individualLightViewModels?.getOrNull(i)?.colorForPreviewImageView?.get()
                         ?: 0xffffffff.toInt(), PorterDuff.Mode.MULTIPLY)
 
                 canvas.restore()
