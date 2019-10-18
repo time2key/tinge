@@ -65,7 +65,7 @@ class LightView @JvmOverloads constructor(
 
     private fun setupSliders() {
 
-        var bitmap = BitmapFactory.decodeResource(resources, if (Math.random()<0.5f) R.drawable.top_light_image else R.drawable.left_selenite_lamp)
+        var bitmap = BitmapFactory.decodeResource(resources, getImage())
         binding.innerLightView.leftImageView.setImageDrawable(
                 BitmapDrawable(resources, UiHelper.whiteTintBitmapPhotographOfLight(bitmap)))
 
@@ -73,6 +73,25 @@ class LightView @JvmOverloads constructor(
         setupHueSlider()
         setupSaturationTrack()
         setupWhiteTrack()
+    }
+
+    private fun getImage(): Int {
+        val name = viewModel?.displayName?.get() ?: ""
+        if (name.startsWith("Overhead light")) {
+            return R.drawable.top_light_image
+        } else if (name == "Large desk lamp") {
+            return R.drawable.selenite_lamp_1
+        } else if (name == "Small desk lamp") {
+            return R.drawable.selenite_lamp_2
+        } else if (name == "Medium desk lamp") {
+            return R.drawable.selenite_lamp_3
+        } else if (name == "Large sideboard lamp") {
+            return R.drawable.selenite_lamp_side_2
+        } else if (name == "Twin peak sideboard lamp") {
+            return R.drawable.selenite_lamp_side_2
+        } else {
+            return R.drawable.left_selenite_lamp
+        }
     }
 
     fun setupBrightnessSlider() {

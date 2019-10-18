@@ -11,6 +11,7 @@ import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.BR
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.ViewGroupBinding
+import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.WeightedStripedColorDrawable
@@ -59,7 +60,7 @@ class GroupView @JvmOverloads constructor(
 
             viewModel?.lightGroupController?.lightsNotInSubgroup?.forEach {
                 individualLightBitmaps.add(
-                        UiHelper.whiteTintBitmapPhotographOfLight(BitmapFactory.decodeResource(resources, if (Math.random()<0.5f) R.drawable.top_light_image else R.drawable.left_selenite_lamp))
+                        UiHelper.whiteTintBitmapPhotographOfLight(BitmapFactory.decodeResource(resources, getImage(it)))
                 )
             }
 
@@ -69,6 +70,26 @@ class GroupView @JvmOverloads constructor(
             setupGroupImage()
             setupBackgroundImage()
         }
+
+    private fun getImage(lightController: LightController): Int {
+        val name = lightController.displayName.lastValueRetrievedFromHub ?: ""
+        if (name.startsWith("Overhead light")) {
+            return R.drawable.top_light_image
+        } else if (name == "Large desk lamp") {
+            return R.drawable.selenite_lamp_1
+        } else if (name == "Small desk lamp") {
+            return R.drawable.selenite_lamp_2
+        } else if (name == "Medium desk lamp") {
+            return R.drawable.selenite_lamp_3
+        } else if (name == "Large sideboard lamp") {
+            return R.drawable.selenite_lamp_side_2
+        } else if (name == "Twin peak sideboard lamp") {
+            return R.drawable.selenite_lamp_side_2
+        } else {
+            return R.drawable.left_selenite_lamp
+        }
+    }
+
 
     /**
      * Required to auto bind the light list RecyclerView to the viewModel
