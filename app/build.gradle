@@ -28,8 +28,9 @@ android {
 }
 
 repositories {
-    google()
     mavenCentral()
+    google()
+    jcenter() // Always put this last as anyone can upload anything to jcenter
 }
 
 dependencies {

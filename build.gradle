@@ -6,9 +6,10 @@ buildscript {
     repositories {
         mavenCentral()
         google()
+        jcenter() // Always put this last as anyone can upload anything to jcenter
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.android.tools.build:gradle:3.5.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -18,8 +19,9 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
+        jcenter() // Always put this last as anyone can upload anything to jcenter
     }
 }
 
