@@ -1,21 +1,20 @@
 # Tinge
 Tinge is an Android app for controlling the Philips Hue lighting system.
 
-Currently in a pre release development stage, Tinge is being created
-with the core design goals of being Beautiful, Functional and Powerful.
+Tinge brings the vibrancy of the user's current lighting setup to their
+phone screen, and features innovative ways of adjusting the properties
+of multiple lights at once.
+
 
 ### Making Tinge Beautiful
 
 Right from inception, Tinge is being engineered with aesthetics and user
-experience at the forefront.
-
-Material design is the philosophy of designing a user interface as if it
-were a physical item composed of a series of overlapping surfaces. It is
-the gold standard for UI / UX design across the Android ecosystem.
+experience at the forefront. It has been developed to follow material
+design principles.
  
-With Tinge being a light control app, I wanted the app by itself to be
-completely colour-agnostic. This blank canvas would the be illuminated
-with the current lighting setup.
+With Tinge being a light control app, the app itself is completely
+colour-agnostic. This blank canvas is then illuminated with the current
+lighting setup.
 
 Core to this experience, the top toolbar has been designed as a vibrant
 and responsive glass sheet, with a stained-glass effect to reflect the
@@ -27,16 +26,15 @@ user's hue ecosystem.
 
 ### Making Tinge Functional
 
-One of the key things I wanted to bring to Tinge is the ability to
-easily shift the properties of several lights at the same time.
+One of the key usability features of Tinge is the ability to easily
+shift the properties of several lights at the same time. 
 
-I also wanted to minimise the number of clicks and subscreens required
-to move around from one light to another.
+To do this, the number of touches and subscreens required to move from
+one light to another has been minimised.
 
-To do this, I have designed a custom SliderView implementation. This can
-be used with a single slider handle for controlling just one light, but
-it can also be used with multiple handles for adjusting properties of
-several lights at once.
+Tinge features an overhaul of the standard Android SeekBar. This can be
+used with a single slider handle for controlling just one light, but it
+can also be used for adjusting the properties of several lights at once.
 
 ![](/documentation/assets/slider_moving_animation.gif)|![](/documentation/assets/slider_grouping_animation.gif)|![](/documentation/assets/slider_group_popup.png)
 | ------------- | ------------- | ------------- |
@@ -44,38 +42,26 @@ several lights at once.
 
 ### Making Tinge Powerful
 
-Most people understand Philips Hue to be be a system for controlling
-smart lights in quite a basic way. The underlying API provides a lot
-more functionality than this though; with the ability to setup complex
-rules, schedules and variables. This allows for almost boundless custom
-functionality.
+Philips Hue is a system that allows smart lights to be wirelessly set to
+different colours. The underlying API provides a lot more functionality
+than this though; with the ability to setup complex rules, schedules and
+variables. This allows for almost boundless custom functionality.
 
-Very few apps make use of this functionality to anywhere near its full
-potential. 
-
-The official hue app does have 'Hue experiments' which allow some
-complicated behaviours to be defined, such as animations and
-multi-sensor rules. These are very brittle and non-customisable however.
-They are also poorly integrated into the app, being hidden away in a
-settings menu then loaded through a webview.
-
-Available third party apps generally have even less functionality than
-this. Those with complex functionality are similarly brittle,
-non-customisable, and typically have poor UI.
+Current apps don't make use of this functionality to anywhere near its
+full potential. Long term, Tinge will change that.
 
 #### The grand plan
 
-Ultimately, I would like Tinge to provide an intuitive visual interface
-to unleash the capabilities currently trapped beneath the hood of the
-Hue platform.
+Ultimately, Tinge will provide an intuitive visual interface to unleash
+the capabilities currently trapped beneath the hood of the Hue platform.
 
 This would then allow advanced users to view and define rules in a
 completely free way, to achieve any functionality they desire.
 
-Moving on even further, I am ultimately looking at implementing a visual
-flowchart that shows the entire state of all rules and sensors on the
-hue platform. This would analyse the entire system and build up a graph
-showing how each component flows into one another.
+Moving on even further, Tinge will implement a visual flowchart that
+shows the entire state of all rules and sensors on the hue platform.
+This would analyse the entire system and build up a graph showing how
+each component flows into one another.
 
 
 #### Digging solid foundations
@@ -83,43 +69,43 @@ showing how each component flows into one another.
 The precursor to implementing complex functionality like this is
 architecturing solid foundations to build on.
 
-This is being done by building a new alternative to the Philips hue api.
+This is being done by building a new alternative to the Philips hue API.
 
-**The key high level architectural features of this will be:**
+**The key high level architectural features of this are:**
 
-* **Everything exposed by the api will be agnostic to the Hue system.**
+* **Everything exposed by the API will be agnostic to the Hue system.**
   
   There are a lot of alternatives to Philips Hue on the market, and long
   term it would make sense to support some of these.
   
-  Lights, sensors, switches, hubs, etc will all be abstracted into
-  interfaces which are exposed by the api.
+  Lights, sensors, switches, hubs, etc are abstracted into interfaces
+  which are exposed by the API.
   
-  Within the api, all facets of communication with the physical lighting
-  system will be silently handled. Consumers of the api can then update
+  Within the API, all facets of communication with the physical lighting
+  system are silently handled. Consumers of the API can then update
   properties directly as often as they want, without worrying about
   things such as rate limiting quotas on various platforms etc.
   
-  This should mean that few changes would be required outside the api to
+  This means that few changes would be required outside the API to
   implement alternate lighting systems.
   
-* **Every property exposed by the api will be observable.**
+* **Every property exposed by the API will be observable.**
 
-  This will allow parts of the app to update themselves as soon as the
-  api becomes aware of changes, so that the ui updates itself as soon as
-  a light is turned on, for example.
+  This allows parts of the app to update themselves as soon as the API
+  becomes aware of changes, so that the UI updates itself as soon as a
+  light is turned on, for example.
   
-  All regular refreshing / polling code will be handled inside the api,
-  to check for updates that have happened outside the app.
+  All regular refreshing / polling code is handled inside the API, to
+  check for updates that have happened outside the app.
   
-  The api will also expose aggregate observable properties / live
-  events. For example, there will be an per-group observable live event
-  that gets fired whenever any light within that group is updated.
+  The API exposes aggregate observable properties / live events. For
+  example, there is a per-group observable live event that gets fired
+  whenever any light within that group is updated.
   
 **Technology wise:**
   
-Internally, RxJava will be used to manage and synchronise network calls.
-Externally, Android observables will be exposed for each property.
+Internally, RxJava is used to manage and synchronise network calls.
+Externally, Android observables are exposed for each property.
 
 These exact technologies are subject to change as development on Tinge
 progresses, but the concept of using observables will remain.
