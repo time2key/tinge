@@ -9,12 +9,11 @@ of multiple lights at once.
 ### Making Tinge Beautiful
 
 Right from inception, Tinge is being engineered with aesthetics and user
-experience at the forefront. It has been developed to follow material
-design principles.
- 
-With Tinge being a light control app, the app itself is completely
-colour-agnostic. This blank canvas is then illuminated with the current
-lighting setup.
+experience at the forefront. It has been moulded around the material
+design philosophy. 
+
+There are no branding colours visible on the user interface. The UI
+completely reflects the colours of the current lighting setup.
 
 Core to this experience, the top toolbar has been designed as a vibrant
 and responsive glass sheet, with a stained-glass effect to reflect the
