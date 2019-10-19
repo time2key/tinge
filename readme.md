@@ -21,9 +21,8 @@ Core to this experience, the top toolbar has been designed as a vibrant
 and responsive glass sheet, with a stained-glass effect to reflect the
 user's hue ecosystem.
 
-![](/documentation/assets/glass_toolbar_animation.gif)
-![](/documentation/assets/glass_toolbar_1.png)
-![](/documentation/assets/glass_toolbar_2.png)
+![](/documentation/assets/glass_toolbar_1.png)|![](/documentation/assets/glass_toolbar_2.png)|![](/documentation/assets/glass_toolbar_animation.gif)
+| ------------- | ------------- | ------------- |
 
 
 ### Making Tinge Functional
@@ -39,9 +38,8 @@ be used with a single slider handle for controlling just one light, but
 it can also be used with multiple handles for adjusting properties of
 several lights at once.
 
-![](/documentation/assets/slider_moving_animation.gif)
-![](/documentation/assets/slider_grouping_animation.png)
-![](/documentation/assets/slider_group_popup.png)
+![](/documentation/assets/slider_moving_animation.gif)|![](/documentation/assets/slider_grouping_animation.gif)|![](/documentation/assets/slider_group_popup.png)
+| ------------- | ------------- | ------------- |
 
 
 ### Making Tinge Powerful
