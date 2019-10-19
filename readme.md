@@ -74,9 +74,6 @@ This is being done by building a new alternative to the Philips hue API.
 
 * **Everything exposed by the API will be agnostic to the Hue system.**
   
-  There are a lot of alternatives to Philips Hue on the market, and long
-  term it would make sense to support some of these.
-  
   Lights, sensors, switches, hubs, etc are abstracted into interfaces
   which are exposed by the API.
   
