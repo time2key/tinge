@@ -117,13 +117,16 @@ class LightViewModel(
 
     private fun updateColorsFromHsv() {
         colorForPreviewImageView.set(
-                if (brightnessAndIsOnObservable.get() ?: -1f >= 0f)
-                    getColorFromHsv(hueObservable.get() ?: 0f, saturationObservable.get() ?: 0f,
-                            0.5f + 0.5f * (brightnessAndIsOnObservable.get() ?: 0f))
-                else getColorFromHsv(0f, 0f, 0.2f))
+                LightsUiHelper.getPreviewImageTintColourFromLightColour(
+                        hueObservable.get(),
+                        saturationObservable.get(),
+                        brightnessAndIsOnObservable.get(),
+                        brightnessAndIsOnObservable.get() ?: -1f >= 0f))
         colorForBackgroundView.set(
                 LightsUiHelper.getFadedBackgroundColourFromLightColour(
-                        hueObservable.get(), saturationObservable.get(), brightnessAndIsOnObservable.get(),
+                        hueObservable.get(),
+                        saturationObservable.get(),
+                        brightnessAndIsOnObservable.get(),
                         brightnessAndIsOnObservable.get() ?: -1f >= 0f))
     }
 

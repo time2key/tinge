@@ -4,7 +4,6 @@ import android.content.Context
 import android.databinding.Observable
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.support.v4.graphics.ColorUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -12,6 +11,7 @@ import com.thaddeussoftware.tinge.BR
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.ViewGroupBinding
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
+import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.WeightedStripedColorDrawable
@@ -119,13 +119,13 @@ class GroupView @JvmOverloads constructor(
     fun setupHueSlider() {
         val colors = IntArray(20)
         for (i in 0..19) {
-            colors[i] = getColorFromHsv(i/19f, HSV_SATURATION, HSV_VALUE)
+            colors[i] = ColorHelper.colorFromHsv(i/19f, HSV_SATURATION, HSV_VALUE)
         }
         binding.innerLightView.hueSeekBar.setTrackToColors(*colors)
     }
 
     fun setupSaturationTrack() {
-        val color2 = getColorFromHsv(viewModel?.meanHue?.get() ?: 0f, HSV_SATURATION, HSV_VALUE)
+        val color2 = ColorHelper.colorFromHsv(viewModel?.meanHue?.get() ?: 0f, HSV_SATURATION, HSV_VALUE)
         binding.innerLightView.saturationSeekBar.setTrackToColors(0xffeeeeee.toInt(), color2)
     }
 
@@ -137,9 +137,13 @@ class GroupView @JvmOverloads constructor(
         val weightedColors = ArrayList<WeightedStripedColorDrawable.GlassToolbarWeightedColor>()
 
         viewModel?.individualLightViewModels?.forEach {
-            val currentColor = it.colorForBackgroundView.get() ?: 0
+            val colour = LightsUiHelper.getFadedBackgroundColourFromLightColour(
+                    it.lightController.hue.stagedValueOrLastValueFromHub,
+                    it.lightController.saturation.stagedValueOrLastValueFromHub,
+                    it.lightController.brightness.stagedValueOrLastValueFromHub,
+                    it.lightController.isOn.stagedValueOrLastValueFromHub)
             val weight = if (it.lightController.isOn.stagedValueOrLastValueFromHub != true) 0.5f else 1f
-            weightedColors.add(WeightedStripedColorDrawable.GlassToolbarWeightedColor(currentColor, 0f, weight))
+            weightedColors.add(WeightedStripedColorDrawable.GlassToolbarWeightedColor(colour, 0f, weight))
         }
         backgroundDrawable.weightedColors = weightedColors
         binding.innerLightView.root.background = backgroundDrawable
@@ -189,8 +193,13 @@ class GroupView @JvmOverloads constructor(
                         Rect(directionShiftX.toInt(), directionShiftY.toInt(), width + directionShiftX.toInt(), height + directionShiftY.toInt()),
                         paint)
 
-                canvas.drawColor(viewModel?.individualLightViewModels?.getOrNull(i)?.colorForPreviewImageView?.get()
-                        ?: 0xffffffff.toInt(), PorterDuff.Mode.MULTIPLY)
+                canvas.drawColor(
+                        LightsUiHelper.getPreviewImageTintColourFromLightColour(
+                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.hue?.stagedValueOrLastValueFromHub,
+                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.saturation?.stagedValueOrLastValueFromHub,
+                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.brightness?.stagedValueOrLastValueFromHub,
+                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.isOn?.stagedValueOrLastValueFromHub),
+                        PorterDuff.Mode.MULTIPLY)
 
                 canvas.restore()
             }
@@ -199,7 +208,4 @@ class GroupView @JvmOverloads constructor(
         return returnValue
     }
 
-    private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
-
-    private fun mergeColors(color1: Int, color2: Int, mergeAmount: Float) = ColorUtils.blendARGB(color1, color2, mergeAmount)
 }
