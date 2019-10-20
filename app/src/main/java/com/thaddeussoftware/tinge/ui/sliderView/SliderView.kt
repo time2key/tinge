@@ -246,8 +246,17 @@ class SliderView @JvmOverloads constructor(
                 } else {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total (not from ui thread))")
                     post {
-                        updateWhetherHandlesShouldBeMergedOrUnmerged()
-                        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetails)
+                        if (currentlyHeldSliderViewSingleOrGroupHandleDetails == sliderViewHandle
+                                || (currentlyHeldSliderViewSingleOrGroupHandleDetails as? SliderViewGroupHandleDetails)
+                                        ?.handlesInsideGroup?.any { it.sliderViewHandle == sliderViewHandle } == true) {
+                            // The handle that is currently being held by the user was updated by a
+                            // background thread.
+                            // Don't do anything, or the handle will jump as the user is moving it.
+                            Log.e("tinge", "SliderView value updated from non-ui thread as the user was moving it")
+                        } else {
+                            updateWhetherHandlesShouldBeMergedOrUnmerged()
+                            updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetails)
+                        }
                     }
                 }
             }
