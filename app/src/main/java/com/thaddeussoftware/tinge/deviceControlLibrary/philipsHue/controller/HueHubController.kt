@@ -195,7 +195,6 @@ class HueHubController constructor(
         }
         roomsBackingList.forEach {
             it.value.lightsMap = lightsBackingMap
-            it.value.hueNetworkRefreshHasHappened()
         }
         if (hasAnythingBeenAddedOrRemoved) {
             onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.notifyChange()
@@ -219,23 +218,18 @@ class HueHubController constructor(
     }
 
     /**
-     * Called by an individual [LightController] when a light gets updated
-     * */
-    fun hueLightRefreshHasHappened() {
-        roomsBackingList.forEach {
-            it.value.hueNetworkRefreshHasHappened()
-        }
-    }
-
-    /**
      * Called by a [HueLightController] when a value is staged for any property on it.
      *
      * This class then updates aggregate properties and calls events to reflect this change.
      * */
-    protected fun onNewPropertyStagedFromLight(hueLightController: HueLightController) {
+    fun onPropertyStagedFromLight(hueLightController: HueLightController) {
+        onLightPropertyModifiedSingleLiveEvent.onEventStagedToHappen()
         onAnythingModifiedSingleLiveEvent.onEventStagedToHappen()
+        Log.v("tinge", "live events updated for hub")
         lightGroups.forEach {
             if (it.lightsNotInSubgroup.contains(hueLightController)) {
+                Log.v("tinge", "live events updated for room")
+                it.onLightPropertyModifiedSingleLiveEvent.onEventStagedToHappen()
                 it.onAnythingModifiedSingleLiveEvent.onEventStagedToHappen()
             }
         }

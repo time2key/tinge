@@ -54,37 +54,25 @@ abstract class LightGroupController {
     abstract val name: ControllerInternalStageableProperty<String?>
 
     /**
-     * Average brightness of all (reachable, on) [lightsNotInSubgroup]
-     * */
-    val averageBrightnessOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
-
-    /**
-     * Average hue of all (reachable, on) [lightsNotInSubgroup]
-     * */
-    val averageHueOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
-
-    /**
-     * Average saturation of all (reachable, on) [lightsNotInSubgroup]
-     * */
-    val averageSaturationOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
-
-    /**
-     * Listeners to this Observable are notified when:
-     * A light is added
-     * A light is removed
-     * A subgroup is added
-     * A subgroup is removed
+     * This is called when:
+     * * A light is added / removed
+     * * A subgroup is added / removed
      * */
     val onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent = ObservableField<Any>()
 
     /**
-     * Listeners to this Observable are notified when absolutely anything changes related to
-     * this group, such as:
-     * A property of this group being modified (such as the name)
-     * A property of a subgroup being modified
-     * A property of a light in this group or subgroup being modified (such as the colour)
-     * A light being added / removed, or a subgroup being added / removed
+     * This is called when absolutely anything changes related to this group, such as:
+     * * A property of this group being modified (such as the name)
+     * * A property of a subgroup being modified
+     * * A property (such as the brightness) of a light in this group or subgroup being modified
+     * * A light being added / removed, or a subgroup being added / removed
      * */
     val onAnythingModifiedSingleLiveEvent = ControllerLiveEvent()
+
+    /**
+     * This is called when a property (such as the brightness) of a light in this group or subgroup
+     * is modified.
+     * */
+    val onLightPropertyModifiedSingleLiveEvent = ControllerLiveEvent()
 
 }

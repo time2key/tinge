@@ -4,14 +4,13 @@ import android.databinding.ObservableField
 import android.util.Log
 import com.google.gson.Gson
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.retrofitInterfaces.LightsRetrofitInterface
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.json.JsonLight
 import io.reactivex.schedulers.Schedulers
 
 class HueLightController(
-        override val hubController: HubController,
+        override val hubController: HueHubController,
         private val lightNumberInHub: Int,
         jsonLight: JsonLight?,
         private val lightsRetrofitInterface: LightsRetrofitInterface,
@@ -49,29 +48,51 @@ class HueLightController(
     override val lightId: String
         get() = backingLightId
 
-    override val displayName: ControllerInternalStageableProperty<String> = ControllerInternalStageableProperty()
+    override val displayName: ControllerInternalStageableProperty<String> = ControllerInternalStageableProperty(
+            onValueStaged = {
+                hubController.onPropertyStagedFromLight(this)
+            }
+    )
 
-    override val isInColorMode: ControllerInternalStageableProperty<Boolean> = ControllerInternalStageableProperty()
+    override val isInColorMode: ControllerInternalStageableProperty<Boolean> = ControllerInternalStageableProperty(
+            onValueStaged = {
+                hubController.onPropertyStagedFromLight(this)
+            }
+    )
 
-    override val isOn: ControllerInternalStageableProperty<Boolean?> = ControllerInternalStageableProperty()
+    override val isOn: ControllerInternalStageableProperty<Boolean?> = ControllerInternalStageableProperty(
+            onValueStaged = {
+                hubController.onPropertyStagedFromLight(this)
+            }
+    )
 
-    override val brightness: ControllerInternalStageableProperty<Float?> = ControllerInternalStageableProperty()
+    override val brightness: ControllerInternalStageableProperty<Float?> = ControllerInternalStageableProperty(
+            onValueStaged = {
+                hubController.onPropertyStagedFromLight(this)
+            }
+    )
 
     override val hue: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty(
             onValueStaged = {
                 isInColorMode.stageValue(true)
+                // Staging a value for isInColorMode will cause onPropertyStagedFromLight to be
+                // called on the hub
             }
     )
 
     override val saturation: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty(
             onValueStaged = {
                 isInColorMode.stageValue(true)
+                // Staging a value for isInColorMode will cause onPropertyStagedFromLight to be
+                // called on the hub
             }
     )
 
     override val miredColorTemperature: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty(
             onValueStaged = {
                 isInColorMode.stageValue(false)
+                // Staging a value for isInColorMode will cause onPropertyStagedFromLight to be
+                // called on the hub
             }
     )
 
@@ -160,7 +181,7 @@ class HueLightController(
                                 isInColorMode.setValueRetrievedFromHub(false)
                             }
 
-                            (hubController as HueHubController).hueLightRefreshHasHappened()
+
                             return@map it
                         }.toCompletable()
 

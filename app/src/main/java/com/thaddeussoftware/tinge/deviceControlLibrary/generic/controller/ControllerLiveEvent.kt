@@ -47,15 +47,15 @@ class ControllerLiveEvent {
      * Hubs should call this when this event has been staged to happen.
      * */
     fun onEventStagedToHappen() {
-        stagedValueUpdatedLiveEvent.set(null)
-        stagedValueOrValueFromHubUpdatedLiveEvent.set(null)
+        stagedValueUpdatedLiveEvent.set(0f)
+        stagedValueOrValueFromHubUpdatedLiveEvent.set(0f)
     }
 
     /**
      * Hubs should call this when this event has actually happened on the hub.
      * */
     fun onEventHappenedOnHub() {
-        valueFromHubUpdatedLiveEvent.set(null)
-        stagedValueOrValueFromHubUpdatedLiveEvent.set(null)
+        valueFromHubUpdatedLiveEvent.set(0f)
+        stagedValueOrValueFromHubUpdatedLiveEvent.set(0f)
     }
 }
