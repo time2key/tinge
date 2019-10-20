@@ -52,7 +52,6 @@ class GroupViewModel(
     var individualLightViewModels = ObservableArrayList<LightViewModel>()
 
     init {
-        refreshListOfLightsToMatchController()
 
 
         meanBrightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
@@ -81,7 +80,14 @@ class GroupViewModel(
 
         }
 
+        refreshListOfLightsToMatchController()
         setupColorForBackgroundView()
+        lightGroupController.onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                refreshListOfLightsToMatchController()
+                setupColorForBackgroundView()
+            }
+        })
     }
 
     /**
@@ -192,16 +198,6 @@ class GroupViewModel(
         refreshSecondaryText()
     }
 
-    @SuppressLint("CheckResult")
-    fun networkRefreshListOfLights() {
-        lightGroupController
-                .refresh(LightGroupController.DataInGroupType.LIGHTS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    refreshListOfLightsToMatchController()
-                }
-    }
-
     override fun onExpandContractButtonClicked(view: View) {
         isExpanded.set(! (isExpanded.get() ?: false))
     }
@@ -214,13 +210,4 @@ class GroupViewModel(
         isInColorMode.set(false)
     }
 
-
-    private fun applyChanges() {
-        lightGroupController.applyChanges().subscribe(
-                {
-                },
-                {
-                }
-        )
-    }
 }

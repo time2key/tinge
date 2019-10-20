@@ -1,13 +1,13 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller
 
 import android.databinding.ObservableField
+import android.util.Log
 import com.google.gson.Gson
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.retrofitInterfaces.LightsRetrofitInterface
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.json.JsonLight
-import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 
 class HueLightController(
@@ -57,11 +57,23 @@ class HueLightController(
 
     override val brightness: ControllerInternalStageableProperty<Float?> = ControllerInternalStageableProperty()
 
-    override val hue: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty()
+    override val hue: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty(
+            onValueStaged = {
+                isInColorMode.stageValue(true)
+            }
+    )
 
-    override val saturation: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty()
+    override val saturation: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty(
+            onValueStaged = {
+                isInColorMode.stageValue(true)
+            }
+    )
 
-    override val miredColorTemperature: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty()
+    override val miredColorTemperature: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty(
+            onValueStaged = {
+                isInColorMode.stageValue(false)
+            }
+    )
 
     override val colorTemperatureInSupportedRange: ControllerInternalStageableProperty<Float> = ControllerInternalStageableProperty()
 
@@ -70,33 +82,90 @@ class HueLightController(
         this.jsonLight = jsonLight
     }
 
-    override fun applyChanges(): Completable {
+    fun completableForUpdatingLightAndNumberOfUpdatedProperties()
+            : UpdateLightCompletableWithNumberOfZigbeeOperationsRequired {
+        var numberOfPropertiesUpdated = 0
+
+        var hueValueSetTo: Float? = null
+        var satValueSetTo: Float? = null
+        var miredColorTemperatureSetTo: Float? = null
+        var isOnSetTo: Boolean? = null
+        var brightnessSetTo: Float? = null
+
         val jsonLightState = JsonLight.JsonState()
 
-        jsonLightState.on = isOn.stagedValue
-        jsonLightState.brightness = brightness.stagedValue?.times(254)?.toInt()
+        if (isInColorMode.stagedValue == true) {
 
-        if (isInColorMode.stagedValueOrLastValueFromHub == true) {
-            //jsonLightState.colorMode = JsonLight.JsonState.JsonLightColorMode.HUE_AND_SATURATION
+        }
+        if (isInColorMode.stagedValueOrLastValueFromHub == true
+                && (hue.stagedValue != null || saturation.stagedValue != null)) {
             jsonLightState.hue = hue.stagedValue?.times(65535f)?.toInt()
             jsonLightState.sat = saturation.stagedValue?.times(254f)?.toInt()
-        } else if (isInColorMode.stagedValueOrLastValueFromHub == false) {
-            // TODO
+            //if (isInColorMode.stagedValue == true) {
+                jsonLightState.colorMode = JsonLight.JsonState.JsonLightColorMode.HUE_AND_SATURATION
+            //}
+
+            numberOfPropertiesUpdated += 1
+            hueValueSetTo = hue.stagedValue
+            satValueSetTo = saturation.stagedValue
+        } else if (isInColorMode.stagedValueOrLastValueFromHub == false
+                && (miredColorTemperature.stagedValue != null)) {
+            jsonLightState.miredColorTemperature = miredColorTemperature.stagedValue?.toInt()
+            //if (isInColorMode.stagedValue == false) {
+                jsonLightState.colorMode = JsonLight.JsonState.JsonLightColorMode.COLOR_TEMPERATURE
+            //}
+
+            numberOfPropertiesUpdated += 1
+            miredColorTemperatureSetTo = miredColorTemperature.stagedValue
         }
 
-        return lightsRetrofitInterface.updateLightState(hubUsernameCredentials, "$lightNumberInHub", jsonLightState)
-                .subscribeOn(Schedulers.io())
-                .map {
-                    isOn.setStagedValueApplied()
-                    hue.setStagedValueApplied()
-                    saturation.setStagedValueApplied()
-                    brightness.setStagedValueApplied()
-                    (hubController as HueHubController).hueLightRefreshHasHappened()
-                    return@map it
-                }.toCompletable()
+
+        if (isOn.stagedValue != null) {
+            jsonLightState.on = isOn.stagedValue
+
+            numberOfPropertiesUpdated += 1
+            isOnSetTo = isOn.stagedValue
+        }
+        if (brightness.stagedValue != null) {
+            jsonLightState.brightness = brightness.stagedValue?.times(254f)?.toInt()
+
+            numberOfPropertiesUpdated += 1
+            brightnessSetTo = brightness.stagedValue
+        }
+
+        Log.v("tinge", "updating light $lightNumberInHub with $numberOfPropertiesUpdated properties - ${Gson().toJson(jsonLightState)}")
+        val completableForUpdatingLight =
+                if (numberOfPropertiesUpdated == 0) null
+                else lightsRetrofitInterface.updateLightState(
+                        hubUsernameCredentials, "$lightNumberInHub", jsonLightState)
+                        .subscribeOn(Schedulers.io())
+                        .map {
+
+                            if (isOnSetTo != null) {
+                                isOn.setValueRetrievedFromHub(isOnSetTo)
+                            }
+                            if (brightnessSetTo != null) {
+                                brightness.setValueRetrievedFromHub(brightnessSetTo)
+                            }
+                            if (hueValueSetTo != null) {
+                                hue.setValueRetrievedFromHub(hueValueSetTo)
+                                isInColorMode.setValueRetrievedFromHub(true)
+                            }
+                            if (satValueSetTo != null) {
+                                saturation.setValueRetrievedFromHub(satValueSetTo)
+                                isInColorMode.setValueRetrievedFromHub(true)
+                            }
+                            if (miredColorTemperatureSetTo != null) {
+                                miredColorTemperature.setValueRetrievedFromHub(miredColorTemperatureSetTo)
+                                isInColorMode.setValueRetrievedFromHub(false)
+                            }
+
+                            (hubController as HueHubController).hueLightRefreshHasHappened()
+                            return@map it
+                        }.toCompletable()
+
+        return UpdateLightCompletableWithNumberOfZigbeeOperationsRequired(
+                    completableForUpdatingLight, numberOfPropertiesUpdated)
     }
 
-    override fun refresh(): Completable {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }

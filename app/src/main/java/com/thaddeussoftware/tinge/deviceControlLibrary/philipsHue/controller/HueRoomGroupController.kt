@@ -89,25 +89,6 @@ class HueRoomGroupController(
 
     override val name: ControllerInternalStageableProperty<String?> = ControllerInternalStageableProperty(jsonRoom.name)
 
-    override fun applyChanges(vararg dataInGroupTypes: DataInGroupType): Completable {
-        //TODO consider replacing with single network call
-        val completables = ArrayList<Completable>()
-        lightsInGroupOrSubgroups.forEach {
-           completables.add(it.applyChanges())
-        }
-        return Completable.mergeDelayError(completables)
-                .doOnComplete {
-                    uniformBrightnessOfAllLightsInGroupOrNull.discardStagedValue()
-                    uniformHueOfAllLightsInGroupOrNull.discardStagedValue()
-                    uniformSaturationOfAllLightsInGroupOrNull.discardStagedValue()
-                }
-    }
-
-    override fun refresh(vararg dataInGroupTypes: DataInGroupType): Completable {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-
     init {
         this.jsonRoom = jsonRoom
         this.lightsMap = lightsMap
@@ -137,14 +118,6 @@ class HueRoomGroupController(
 
         var reachableLights = lightListBackingProperty.filter { it.isReachable.get() == true }
         var onLights = lightListBackingProperty.filter { it.isReachable.get() == true && it.isOn.lastValueRetrievedFromHub == true }
-
-        if (onLights.size == reachableLights.size) {
-            uniformIsOnOfAllLightsInGroupOrNull.setValueRetrievedFromHub(true)
-        } else if (onLights.size == 0) {
-            uniformIsOnOfAllLightsInGroupOrNull.setValueRetrievedFromHub(false)
-        } else {
-            uniformIsOnOfAllLightsInGroupOrNull.setValueRetrievedFromHub(null)
-        }
 
         val filteredLights = lightListBackingProperty.filter {
             it.isReachable.get() == true
@@ -181,10 +154,6 @@ class HueRoomGroupController(
             previousLightHue = it.hue.lastValueRetrievedFromHub
             previousLightSaturation = it.saturation.lastValueRetrievedFromHub
         }
-
-        uniformBrightnessOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameBrightness) previousLightBrightness else null)
-        uniformHueOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameHue) previousLightHue else null)
-        uniformSaturationOfAllLightsInGroupOrNull.setValueRetrievedFromHub(if (areAllLightsTheSameSaturation) previousLightSaturation else null)
 
         val hsv = FloatArray(3) {0f}
         Color.colorToHSV(Color.rgb(meanRed.toInt(), meanGreen.toInt(), meanBlue.toInt()), hsv)

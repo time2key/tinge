@@ -2,7 +2,10 @@ package com.thaddeussoftware.tinge.ui.lights.lightListFragment
 
 import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModel
+import android.databinding.Observable
 import android.databinding.ObservableArrayList
+import android.os.Handler
+import android.os.Looper
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.thaddeussoftware.tinge.database.DatabaseSingleton
@@ -67,14 +70,45 @@ class LightListFragmentViewModel(
                     hubList.forEach {
                         if (hubControllers[it.hubId] == null) {
                             // Add new controller:
-                            hubControllers[it.hubId] = HueHubController(it.lastKnownIpAddress, it.hubId, it.lastKnownHubName, it.usernameCredentials)
+                            val hueHubController = HueHubController(it.lastKnownIpAddress, it.hubId, it.lastKnownHubName, it.usernameCredentials)
+                            hubControllers[it.hubId] = hueHubController
+                            hueHubController.startUpdateThread()
+
+                            hueHubController.onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                                    Handler(Looper.getMainLooper()).post() {
+                                        refreshListOfGroupsForHub(hueHubController)
+                                    }
+                                }
+                            })
+                            refreshListOfGroupsForHub(hueHubController)
                         } else {
                             // Update existing controller:
                             // TODO
                         }
                     }
-                    refreshListOfGroups()
                 }
+    }
+
+    fun refreshListOfGroupsForHub(hubController: HubController) {
+        CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
+                individualGroupViewModels.filter { it.lightGroupController.hubController == hubController },
+                hubController.lightGroups,
+                { groupViewModel, lightGroupController ->
+                    groupViewModel.lightGroupController == lightGroupController
+                },
+                {
+                    //if (it.lightController.hubController == hubController) {
+                    individualGroupViewModels.remove(it)
+                    //}
+                },
+                {
+                    individualGroupViewModels.add(GroupViewModel(it))
+                },
+                { groupViewModel, _ ->
+                    groupViewModel.refreshListOfLightsToMatchController()
+                }
+        )
     }
 
     /**
@@ -107,7 +141,8 @@ class LightListFragmentViewModel(
                                 }
                         )
                     }*/
-            hubController
+
+            /*hubController
                     .refresh(LightGroupController.DataInGroupType.LIGHTS)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
@@ -129,7 +164,7 @@ class LightListFragmentViewModel(
                                     groupViewModel.refreshListOfLightsToMatchController()
                                 }
                         )
-                    }
+                    }*/
 
         }
     }

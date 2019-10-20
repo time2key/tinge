@@ -116,14 +116,6 @@ class LightViewModel(
     }
 
     private fun updateColorsFromHsv() {
-        lightController.applyChanges().subscribe(
-                {
-                    val i = 0
-                },
-                {
-                    val i = 0
-                }
-        )
         colorForPreviewImageView.set(
                 if (brightnessAndIsOnObservable.get() ?: -1f >= 0f)
                     getColorFromHsv(hueObservable.get() ?: 0f, saturationObservable.get() ?: 0f,
