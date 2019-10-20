@@ -166,7 +166,12 @@ class GroupViewModel(
             }
         }
 
-        if (totalLights == 0) return
+        if (totalLights == 0) {
+            meanHue.set(0f)
+            meanSaturation.set(0f)
+            meanBrightness.set(0f)
+            return
+        }
 
         val averageColorFromRgb = ColorHelper.colorFromRgb(
                 totalRed / totalLights,
