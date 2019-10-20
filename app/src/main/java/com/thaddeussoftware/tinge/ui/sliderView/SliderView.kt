@@ -57,11 +57,22 @@ class SliderView @JvmOverloads constructor(
          * */
         private val DP_TOLERANCE_TO_SELECT_HANDLE = 16f
 
+
         /**
          * If the touch is within this distance of the center of the handle, and the user single
          * clicks on the handle, don't move the handle to the touch.
+         *
+         * Applies where several handles are grouped.
          * */
-        private val X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE_DP = 4f
+        private val X_DISTANCE_GROUP_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP = 16f
+
+        /**
+         * If the touch is within this distance of the center of the handle, and the user single
+         * clicks on the handle, don't move the handle to the touch.
+         *
+         * Applies where there is a single handle.
+         * */
+        private val X_DISTANCE_SINGLE_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP = 0f
 
         /**
          * How close the user needs to move a handle to another handle for the view to suggest
@@ -413,10 +424,15 @@ class SliderView @JvmOverloads constructor(
             // Note that here, we do not check if hasBeenMovedEnoughInXDirectionToBeValidSlide is
             // true, we always do it on a touch up:
             if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
+                val distanceTooCloseDontMoveHandle =
+                        if (currentlyHeldSliderViewSingleOrGroupHandleDetails is SliderViewGroupHandleDetails)
+                            X_DISTANCE_GROUP_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP
+                        else X_DISTANCE_SINGLE_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP
+
                 // If touch is outside X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE, move the handle:
                 if (currentlyHeldSliderViewSingleOrGroupHandleDetails?.getCurrentHandleValue()
                                 ?.minus(getSlidAmountFromTouchEventXPosition(event.x))?.absoluteValue ?: 0f
-                        > UiHelper.getPxFromDp(context, X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE_DP*0f)) {
+                        > UiHelper.getPxFromDp(context, distanceTooCloseDontMoveHandle)) {
                     moveSingleOrGroupHandleToTouchEvent(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, event)
                 }
             } else {
