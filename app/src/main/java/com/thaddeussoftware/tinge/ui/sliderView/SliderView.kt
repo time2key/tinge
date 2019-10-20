@@ -36,13 +36,39 @@ class SliderView @JvmOverloads constructor(
         defStyle: Int = 0): FrameLayout(context, attrs, defStyle) {
 
     companion object {
+        /**
+         * If the 'Min' and 'Max' animations are faded back in, the animation takes this long in ms.
+         * */
         const val ANIMATION_DURATION_MIN_MAX_LABELS_IN_MS = 400L
+        /**
+         * If the 'Min' and 'Max' labels are faded out, the animation takes this long in ms.
+         * */
         const val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_MS = 200L
+        /**
+         * If the 'Min' and 'Max' labels are faded out as a result of a single click (touching then
+         * releasing quickly), the animation takes this long in ms.
+         * */
         const val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS = 50L
 
+        /**
+         * If the currently held handle is moved above this value (from 0-1), the 'Max' text is
+         * faded out (if present), so it does not overlap with the text below the handle.
+         * */
         const val AMOUNT_SLID_TO_HIDE_MAX_LABEL = 0.8f
+        /**
+         * If the currently held handle is moved below this value (from 0-1), and the 'Max' text
+         * has been faded out, it is faded back in.
+         * */
         const val AMOUNT_SLID_TO_RESHOW_MAX_LABEL = 0.75f
+        /**
+         * If the currently held handle is moved below this value (from 0-1), the 'Min' text is
+         * faded out (if present), so it does not overlap with the text below the handle.
+         * */
         const val AMOUNT_SLID_TO_HIDE_MIN_LABEL = 0.2f
+        /**
+         * If the currently held handle is moved above this value (from 0-1) and the 'Min' text
+         * has been faded out, it is faded back in.
+         * */
         const val AMOUNT_SLID_TO_RESHOW_MIN_LABEL = 0.25f
 
         const val DEFAULT_TRACK_OPACITY = 0.65f
@@ -101,6 +127,12 @@ class SliderView @JvmOverloads constructor(
          * to be moved apart to display them as no longer merged.
          * */
         private val X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP = 7f
+
+        /**
+         * If the unmerge button is pressed for a handle that is merged, it is moved this far in dp
+         * away from where it was.
+         * */
+        private val DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP = 16f
     }
 
     /**
@@ -640,7 +672,6 @@ class SliderView @JvmOverloads constructor(
      * returned.
      * */
     private fun moveHandleOutOfGroupAndReturnUnlinkDirection(handle: SliderViewSingleHandleDetails): Boolean {
-        val DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP = 16f
 
         // This function attempts to find the closest point to move the handle to that is
         // sufficient distance from all the other added points.
