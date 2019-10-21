@@ -19,7 +19,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         tools:context="com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragment"
 
-        android:id="@+id/light_list_linear_layout"
+        android:id="@+id/light_list_recycler_view"
 
         android:orientation="vertical"
 

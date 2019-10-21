@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModel
 import android.databinding.Observable
 import android.databinding.ObservableArrayList
+import android.databinding.ObservableField
 import android.os.Handler
 import android.os.Looper
 import com.google.gson.GsonBuilder
@@ -30,23 +31,9 @@ class LightListFragmentViewModel(
         val hueLightsDao: HueLightsDao = DatabaseSingleton.database.hueLightsDao()
 ): ViewModel() {
 
-    /**
-     * View models of each of the lights that should be shown on screen
-     * */
-    var individualLightViewModels = ObservableArrayList<LightViewModel>()
-
     var individualGroupViewModels = ObservableArrayList<GroupViewModel>()
 
-    /*init {
-        hueHubsDao.getAllSavedHueHubs()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { listResult ->
-                    listResult.forEach {
-
-                    }
-                }
-    }*/
+    val onAnyLightInAnyHubUpdatedLiveEvent = ObservableField<Any>()
 
     /**
      * All of the hub controllers currently added in the app
@@ -57,11 +44,12 @@ class LightListFragmentViewModel(
         //refreshListOfHubsAndLights()
     }
 
-    @SuppressLint("CheckResult")
-            /**
+
+    /**
      * Refreshes [hubControllers] to match the current database of stored hubs, then calls
      * [refreshListOfGroups] upon completion.
      * */
+    @SuppressLint("CheckResult")
     fun refreshListOfHubsAndLights() {
         hueHubsDao.getAllSavedHueHubs()
                 .subscribeOn(Schedulers.io())
@@ -82,6 +70,14 @@ class LightListFragmentViewModel(
                                 }
                             })
                             refreshListOfGroupsForHub(hueHubController)
+
+                            hueHubController.onLightPropertyModifiedSingleLiveEvent
+                                    .stagedValueOrValueFromHubUpdatedLiveEvent
+                                    .addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                                        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                                            onAnyLightInAnyHubUpdatedLiveEvent.notifyChange()
+                                        }
+                                    })
                         } else {
                             // Update existing controller:
                             // TODO
@@ -111,61 +107,5 @@ class LightListFragmentViewModel(
         )
     }
 
-    /**
-     * Contacts each hub to get a list of all lights, then updates the database and updates
-     * this view model to reflect the lights scanned.
-     * */
-    fun refreshListOfGroups() {
-        hubControllers.forEach { entry ->
-            val hubController = entry.value
-            /*hubController
-                    .refresh(LightGroupController.DataInGroupType.LIGHTS)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
-                                individualLightViewModels.filter { it.lightController.hubController == hubController },
-                                hubController.lightsInGroupOrSubgroups,
-                                { lightViewModel, lightController ->
-                                    lightViewModel.lightController == lightController
-                                },
-                                {
-                                    //if (it.lightController.hubController == hubController) {
-                                        individualLightViewModels.remove(it)
-                                    //}
-                                },
-                                {
-                                    individualLightViewModels.add(LightViewModel(it))
-                                },
-                                { lightViewModel, _ ->
-                                    lightViewModel.refreshToMatchController()
-                                }
-                        )
-                    }*/
 
-            /*hubController
-                    .refresh(LightGroupController.DataInGroupType.LIGHTS)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
-                                individualGroupViewModels.filter { it.lightGroupController.hubController == hubController },
-                                hubController.lightGroups,
-                                { groupViewModel, lightGroupController ->
-                                    groupViewModel.lightGroupController == lightGroupController
-                                },
-                                {
-                                    //if (it.lightController.hubController == hubController) {
-                                    individualGroupViewModels.remove(it)
-                                    //}
-                                },
-                                {
-                                    individualGroupViewModels.add(GroupViewModel(it))
-                                },
-                                { groupViewModel, _ ->
-                                    groupViewModel.refreshListOfLightsToMatchController()
-                                }
-                        )
-                    }*/
-
-        }
-    }
 }

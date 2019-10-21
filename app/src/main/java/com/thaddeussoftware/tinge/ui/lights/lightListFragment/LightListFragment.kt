@@ -39,11 +39,6 @@ class LightListFragment : Fragment() {
 
     private var toolbarDrawable: WeightedStripedColorDrawable? = null
 
-    /**
-     * Required to auto bind the light list RecyclerView to the viewModel
-     * */
-    //val lightListRecyclerViewItemBinding = ItemBinding.of<LightViewModel>(BR.viewModel, R.layout.holder_view_light)
-
     val groupListRecyclerViewItemBinding = ItemBinding.of<GroupViewModel>(BR.viewModel, R.layout.holder_view_group)
 
 
@@ -59,34 +54,34 @@ class LightListFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         binding = FragmentLightListBinding.inflate(inflater, container, false)
 
-        //val lightView = LightView(activity!!)
-        //binding?.lightListLinearLayout?.removeAllViews()
-
         binding?.view = this
         binding?.viewModel = viewModel
-        binding?.lightListLinearLayout?.setPadding(
+        binding?.lightListRecyclerView?.setPadding(
                 0,
                 (activity as? MultiColouredToolbarActivity)?.topFragmentPadding ?: 0,
                 0,
                 (activity as? MultiColouredToolbarActivity)?.bottomFragmentPadding ?: 0)
-        binding?.lightListLinearLayout?.clipToPadding = false
+        binding?.lightListRecyclerView?.clipToPadding = false
 
-        binding?.lightListLinearLayout?.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+        binding?.lightListRecyclerView?.addOnScrollListener(object: RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 redrawGlassToolbar()
             }
         })
 
+        viewModel.onAnyLightInAnyHubUpdatedLiveEvent.addOnPropertyChangedCallback(object: android.databinding.Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: android.databinding.Observable?, propertyId: Int) {
+                redrawGlassToolbar()
+            }
+        })
+
         viewModel.refreshListOfHubsAndLights()
-        //binding?.lightListLinearLayout?.addView(lightView)
 
         return binding?.root
     }
 
     private val lightListViewMap = HashMap<LightViewModel, LightView>()
-
-    var runEverySecondDisposable: Disposable? = null
 
     private fun iterateThroughAllViewChildrenLookingFor(
             parentView: ViewGroup, viewTypeLookingFor: Class<out View>, runWhenFound: (View) -> Unit) {
@@ -162,25 +157,6 @@ class LightListFragment : Fragment() {
         }
 
         toolbarDrawable?.weightedColors = colourList
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (runEverySecondDisposable == null) {
-            runEverySecondDisposable = Observable.interval(1000, 1000, TimeUnit.MILLISECONDS)
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        redrawGlassToolbar()
-                        (activity as? MultiColouredToolbarActivity)?.setToolbarText("1 hub - 2 groups")
-                    }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        runEverySecondDisposable?.dispose()
-        runEverySecondDisposable = null
     }
 
     override fun onAttach(context: Context?) {
