@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.databinding.Observable
 import android.databinding.ObservableArrayList
 import android.databinding.ObservableField
+import android.util.Log
 import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
+import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
@@ -33,11 +35,9 @@ class GroupViewModel(
 
     override val secondaryInformation = ObservableField<String?>("")
 
-    val meanBrightness = lightGroupController.averageBrightnessOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
-
-    val meanHue = lightGroupController.averageHueOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
-
-    val meanSaturation = lightGroupController.averageSaturationOfAllLightsInGroup.stagedValueOrLastValueFromHubObservable
+    val meanBrightness = ObservableField<Float>(0f)
+    val meanHue = ObservableField<Float>(0f)
+    val meanSaturation = ObservableField<Float>(0f)
 
     override val isExpanded = ObservableField<Boolean>(false)
     override val showTopRightExpandButton = ObservableField<Boolean>(false)
@@ -52,25 +52,14 @@ class GroupViewModel(
     var individualLightViewModels = ObservableArrayList<LightViewModel>()
 
     init {
-        refreshListOfLightsToMatchController()
 
-
-        meanBrightness.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        lightGroupController.onLightPropertyModifiedSingleLiveEvent.stagedValueOrValueFromHubUpdatedLiveEvent
+                .addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                setupColorForBackgroundView()
+                Log.v("tinge", "live events update received for room")
+                updateMeanProperties()
                 refreshSecondaryText()
-            }
-        })
-        meanSaturation.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 setupColorForBackgroundView()
-                refreshSecondaryText()
-            }
-        })
-        meanHue.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                setupColorForBackgroundView()
-                refreshSecondaryText()
             }
         })
 
@@ -81,7 +70,14 @@ class GroupViewModel(
 
         }
 
+        refreshListOfLightsToMatchController()
         setupColorForBackgroundView()
+        lightGroupController.onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                refreshListOfLightsToMatchController()
+                setupColorForBackgroundView()
+            }
+        })
     }
 
     /**
@@ -130,6 +126,75 @@ class GroupViewModel(
                         }))
     }
 
+    private fun updateMeanProperties() {
+        var totalRed = 0f
+        var totalGreen = 0f
+        var totalBlue = 0f
+
+        var totalRedWithFullSat = 0f
+        var totalGreenWithFullSat = 0f
+        var totalBlueWithFullSat = 0f
+
+        var totalLights = 0
+
+
+        lightGroupController.lightsNotInSubgroup.forEach {
+            if (it.isReachable.get() == true
+                    && it.isOn.stagedValueOrLastValueFromHub == true) {
+
+                val hue = it.hue.stagedValueOrLastValueFromHub ?: 0f
+                val sat = it.saturation.stagedValueOrLastValueFromHub ?: 0f
+                val brightness = it.brightness.stagedValueOrLastValueFromHub ?: 0f
+
+                val color = ColorHelper.colorFromHsv(hue, sat, brightness)
+                val red = ColorHelper.redFromColor(color)
+                val green = ColorHelper.greenFromColor(color)
+                val blue = ColorHelper.blueFromColor(color)
+                totalRed += red
+                totalGreen += green
+                totalBlue += blue
+
+                val colorWithFullSat = ColorHelper.colorFromHsv(hue, 1f, brightness)
+                val redWithFullSat = ColorHelper.redFromColor(colorWithFullSat)
+                val greenWithFullSat = ColorHelper.greenFromColor(colorWithFullSat)
+                val blueWithFullSat = ColorHelper.blueFromColor(colorWithFullSat)
+                totalRedWithFullSat += redWithFullSat
+                totalGreenWithFullSat += greenWithFullSat
+                totalBlueWithFullSat += blueWithFullSat
+
+                totalLights += 1
+            }
+        }
+
+        if (totalLights == 0) {
+            meanHue.set(0f)
+            meanSaturation.set(0f)
+            meanBrightness.set(0f)
+            return
+        }
+
+        val averageColorFromRgb = ColorHelper.colorFromRgb(
+                totalRed / totalLights,
+                totalGreen / totalLights,
+                totalBlue / totalLights)
+
+        val averageColorFromRgbWithFullSat = ColorHelper.colorFromRgb(
+                totalRedWithFullSat / totalLights,
+                totalGreenWithFullSat / totalLights,
+                totalBlueWithFullSat / totalLights)
+
+
+        val hueOfAverageColorFromRgb = ColorHelper.hueFromColor(averageColorFromRgb)
+        val satOfAverageColorFromRgb = ColorHelper.saturationFromColor(averageColorFromRgb)
+        val brightnessOfAverageColorFromRgb = ColorHelper.valueBrightnessFromColor(averageColorFromRgb)
+
+        val hueOfAverageColorFromRgbWithFullSat = ColorHelper.hueFromColor(averageColorFromRgbWithFullSat)
+
+        meanHue.set(if (satOfAverageColorFromRgb < 0.01f) hueOfAverageColorFromRgbWithFullSat else hueOfAverageColorFromRgb)
+        meanSaturation.set(satOfAverageColorFromRgb)
+        meanBrightness.set(brightnessOfAverageColorFromRgb)
+    }
+
     private fun refreshSecondaryText() {
         //TODO use strings file
 
@@ -144,11 +209,15 @@ class GroupViewModel(
 
         var secondaryInformationString = "$totalLights lights - "
 
-        if (lightsReachable < totalLights) {
+        if (lightsReachable == 0) {
+            secondaryInformationString += "all unreachable"
+        } else if (lightsReachable < totalLights) {
             secondaryInformationString += "${totalLights - lightsReachable} unreachable - "
         }
 
-        secondaryInformationString += if (lightsOn == 0) "all off" else if (lightsOn == totalLights) "all on" else "$lightsOn on"
+        if (lightsReachable > 0) {
+            secondaryInformationString += if (lightsOn == 0) "all off" else if (lightsOn == totalLights) "all on" else "$lightsOn on"
+        }
 
         secondaryInformation.set(secondaryInformationString)
     }
@@ -192,16 +261,6 @@ class GroupViewModel(
         refreshSecondaryText()
     }
 
-    @SuppressLint("CheckResult")
-    fun networkRefreshListOfLights() {
-        lightGroupController
-                .refresh(LightGroupController.DataInGroupType.LIGHTS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    refreshListOfLightsToMatchController()
-                }
-    }
-
     override fun onExpandContractButtonClicked(view: View) {
         isExpanded.set(! (isExpanded.get() ?: false))
     }
@@ -214,13 +273,4 @@ class GroupViewModel(
         isInColorMode.set(false)
     }
 
-
-    private fun applyChanges() {
-        lightGroupController.applyChanges().subscribe(
-                {
-                },
-                {
-                }
-        )
-    }
 }

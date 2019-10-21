@@ -1,5 +1,6 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller
 
+import android.databinding.ObservableField
 import io.reactivex.Completable
 
 /**
@@ -52,109 +53,26 @@ abstract class LightGroupController {
      * */
     abstract val name: ControllerInternalStageableProperty<String?>
 
-
-    var uniformIsOnOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Boolean?> { stagedValue ->
-        lightsNotInSubgroup.forEach { lightController ->
-            lightController.isOn.stagedValueObservable.set(stagedValue)
-        }
-    }
+    /**
+     * This is called when:
+     * * A light is added / removed
+     * * A subgroup is added / removed
+     * */
+    val onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent = ObservableField<Any>()
 
     /**
-     * If all (reachable, on) [lightsNotInSubgroup] have the same brightness, property will be
-     * brightness, otherwise null.
-     * Setting this property sets all lights.
+     * This is called when absolutely anything changes related to this group, such as:
+     * * A property of this group being modified (such as the name)
+     * * A property of a subgroup being modified
+     * * A property (such as the brightness) of a light in this group or subgroup being modified
+     * * A light being added / removed, or a subgroup being added / removed
      * */
-    val uniformBrightnessOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Float?> { stagedValue ->
-        lightsNotInSubgroup.forEach { lightController ->
-            lightController.brightness.stagedValueObservable.set(stagedValue)
-        }
-    }
+    val onAnythingModifiedSingleLiveEvent = ControllerLiveEvent()
 
     /**
-     * If all (reachable, on) [lightsNotInSubgroup] have the same hue, property will be hue, otherwise
-     * null.
-     * Setting this properties sets all lights.
+     * This is called when a property (such as the brightness) of a light in this group or subgroup
+     * is modified.
      * */
-    val uniformHueOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Float?> { stagedValue ->
-        lightsNotInSubgroup.forEach { lightController ->
-            lightController.hue.stagedValueObservable.set(stagedValue)
-        }
-    }
+    val onLightPropertyModifiedSingleLiveEvent = ControllerLiveEvent()
 
-    /**
-     * If all (reachable, on) [lightsNotInSubgroup] have the same saturation, property will be sat,
-     * otherwise null.
-     * Setting this property sets all lights.
-     * */
-    val uniformSaturationOfAllLightsInGroupOrNull = ControllerInternalStageableProperty<Float?> { stagedValue ->
-        lightsNotInSubgroup.forEach { lightController ->
-            lightController.saturation.stagedValueObservable.set(stagedValue)
-        }
-    }
-
-    /**
-     * Average brightness of all (reachable, on) [lightsNotInSubgroup]
-     * */
-    val averageBrightnessOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
-
-    /**
-     * Average hue of all (reachable, on) [lightsNotInSubgroup]
-     * */
-    val averageHueOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
-
-    /**
-     * Average saturation of all (reachable, on) [lightsNotInSubgroup]
-     * */
-    val averageSaturationOfAllLightsInGroup = ControllerInternalStageableProperty<Float?>()
-
-
-    /**
-     * Sends all shelved changes for the [DataInGroupType]s specified to the group.
-     *
-     * See [LightGroupController] and [discardChanges].
-     * */
-    abstract fun applyChanges(vararg dataInGroupTypes: DataInGroupType): Completable
-
-    /**
-     * Discards all shelved changes for the [DataInGroupType]s specified.
-     *
-     * See [LightGroupController] and [applyChanges].
-     * */
-    open fun discardChanges(vararg dataInGroupTypes: DataInGroupType) {
-        if (dataInGroupTypes.contains(DataInGroupType.GROUP_CONFIG)) {
-            name.discardStagedValue()
-        }
-
-        if (dataInGroupTypes.contains(DataInGroupType.LIGHTS)) {
-            lightsInGroupOrSubgroups.forEach { it.discardChanges() }
-        }
-    }
-
-    /**
-     * Contacts the hub to update the properties relating to the [DataInGroupType]s specified to
-     * match the values returned for the group.
-     *
-     * See [LightGroupController].
-     * */
-    abstract fun refresh(vararg dataInGroupTypes: DataInGroupType): Completable
-
-
-
-
-    /**
-     * Represents a type of data in the group that can be updated.
-     *
-     * This allows methods such as [applyChanges] to be called and only apply to particular types
-     * of data, such as the current group config but not lights associated with the group.
-     * */
-    enum class DataInGroupType {
-        /**
-         * The properties of all lights associated with this group.
-         * */
-        LIGHTS,
-        /**
-         * The group configuration itself, such as the name of the group etc.
-         * */
-        GROUP_CONFIG
-    }
 }

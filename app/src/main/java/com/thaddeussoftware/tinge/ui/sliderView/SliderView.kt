@@ -36,13 +36,39 @@ class SliderView @JvmOverloads constructor(
         defStyle: Int = 0): FrameLayout(context, attrs, defStyle) {
 
     companion object {
+        /**
+         * If the 'Min' and 'Max' animations are faded back in, the animation takes this long in ms.
+         * */
         const val ANIMATION_DURATION_MIN_MAX_LABELS_IN_MS = 400L
+        /**
+         * If the 'Min' and 'Max' labels are faded out, the animation takes this long in ms.
+         * */
         const val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_MS = 200L
+        /**
+         * If the 'Min' and 'Max' labels are faded out as a result of a single click (touching then
+         * releasing quickly), the animation takes this long in ms.
+         * */
         const val ANIMATION_DURATION_MIN_MAX_LABELS_OUT_SINGLE_CLICK_MS = 50L
 
+        /**
+         * If the currently held handle is moved above this value (from 0-1), the 'Max' text is
+         * faded out (if present), so it does not overlap with the text below the handle.
+         * */
         const val AMOUNT_SLID_TO_HIDE_MAX_LABEL = 0.8f
+        /**
+         * If the currently held handle is moved below this value (from 0-1), and the 'Max' text
+         * has been faded out, it is faded back in.
+         * */
         const val AMOUNT_SLID_TO_RESHOW_MAX_LABEL = 0.75f
+        /**
+         * If the currently held handle is moved below this value (from 0-1), the 'Min' text is
+         * faded out (if present), so it does not overlap with the text below the handle.
+         * */
         const val AMOUNT_SLID_TO_HIDE_MIN_LABEL = 0.2f
+        /**
+         * If the currently held handle is moved above this value (from 0-1) and the 'Min' text
+         * has been faded out, it is faded back in.
+         * */
         const val AMOUNT_SLID_TO_RESHOW_MIN_LABEL = 0.25f
 
         const val DEFAULT_TRACK_OPACITY = 0.65f
@@ -57,11 +83,22 @@ class SliderView @JvmOverloads constructor(
          * */
         private val DP_TOLERANCE_TO_SELECT_HANDLE = 16f
 
+
         /**
          * If the touch is within this distance of the center of the handle, and the user single
          * clicks on the handle, don't move the handle to the touch.
+         *
+         * Applies where several handles are grouped.
          * */
-        private val X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE_DP = 4f
+        private val X_DISTANCE_GROUP_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP = 16f
+
+        /**
+         * If the touch is within this distance of the center of the handle, and the user single
+         * clicks on the handle, don't move the handle to the touch.
+         *
+         * Applies where there is a single handle.
+         * */
+        private val X_DISTANCE_SINGLE_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP = 0f
 
         /**
          * How close the user needs to move a handle to another handle for the view to suggest
@@ -90,6 +127,12 @@ class SliderView @JvmOverloads constructor(
          * to be moved apart to display them as no longer merged.
          * */
         private val X_DISTANCE_TO_AUTO_UNMERGE_MERGED_HANDLES_DP = 7f
+
+        /**
+         * If the unmerge button is pressed for a handle that is merged, it is moved this far in dp
+         * away from where it was.
+         * */
+        private val DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP = 16f
     }
 
     /**
@@ -235,8 +278,17 @@ class SliderView @JvmOverloads constructor(
                 } else {
                     Log.v("tinge", "SliderView value updated to ${sliderViewHandle.value.get()} - updating UI ("+handles?.size+" handles total (not from ui thread))")
                     post {
-                        updateWhetherHandlesShouldBeMergedOrUnmerged()
-                        updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetails)
+                        if (currentlyHeldSliderViewSingleOrGroupHandleDetails == sliderViewHandle
+                                || (currentlyHeldSliderViewSingleOrGroupHandleDetails as? SliderViewGroupHandleDetails)
+                                        ?.handlesInsideGroup?.any { it.sliderViewHandle == sliderViewHandle } == true) {
+                            // The handle that is currently being held by the user was updated by a
+                            // background thread.
+                            // Don't do anything, or the handle will jump as the user is moving it.
+                            Log.e("tinge", "SliderView value updated from non-ui thread as the user was moving it")
+                        } else {
+                            updateWhetherHandlesShouldBeMergedOrUnmerged()
+                            updateUiPositionOfHandleToMatchCurrentHandleValue(handleDetails)
+                        }
                     }
                 }
             }
@@ -413,10 +465,15 @@ class SliderView @JvmOverloads constructor(
             // Note that here, we do not check if hasBeenMovedEnoughInXDirectionToBeValidSlide is
             // true, we always do it on a touch up:
             if (currentlyHeldSliderViewSingleOrGroupHandleDetails != null) {
+                val distanceTooCloseDontMoveHandle =
+                        if (currentlyHeldSliderViewSingleOrGroupHandleDetails is SliderViewGroupHandleDetails)
+                            X_DISTANCE_GROUP_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP
+                        else X_DISTANCE_SINGLE_HANDLE_TOO_CLOSE_DONT_MOVE_HANDLE_DP
+
                 // If touch is outside X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE, move the handle:
                 if (currentlyHeldSliderViewSingleOrGroupHandleDetails?.getCurrentHandleValue()
                                 ?.minus(getSlidAmountFromTouchEventXPosition(event.x))?.absoluteValue ?: 0f
-                        > UiHelper.getPxFromDp(context, X_DISTANCE_TOO_CLOSE_DONT_MOVE_HANDLE_DP*0f)) {
+                        > UiHelper.getPxFromDp(context, distanceTooCloseDontMoveHandle)) {
                     moveSingleOrGroupHandleToTouchEvent(currentlyHeldSliderViewSingleOrGroupHandleDetails!!, event)
                 }
             } else {
@@ -615,7 +672,6 @@ class SliderView @JvmOverloads constructor(
      * returned.
      * */
     private fun moveHandleOutOfGroupAndReturnUnlinkDirection(handle: SliderViewSingleHandleDetails): Boolean {
-        val DISTANCE_TO_MOVE_HANDLE_OUT_OF_GROUP_DP = 16f
 
         // This function attempts to find the closest point to move the handle to that is
         // sufficient distance from all the other added points.

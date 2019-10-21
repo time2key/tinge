@@ -87,18 +87,24 @@ interface LightController {
     /**
      * Hue from 0 (red) cycling round to 1 (red).
      * Only supported if [doesSupportColorMode] is true.
+     *
+     * Setting this property will cause [isInColorMode] to be set to true.
      * */
     val hue: ControllerInternalStageableProperty<Float>
 
     /**
      * Saturation from 0 to 1.
      * Only supported if [doesSupportColorMode] is true.
+     *
+     * Setting this property will cause [isInColorMode] to be set to true.
      * */
     val saturation: ControllerInternalStageableProperty<Float>
 
     /**
      * The current mired color temperature of this light.
      * Only supported if [doesSupportTemperatureMode] is true.
+     *
+     * Setting this property will cause [isInColorMode] to be set to false.
      * */
     val miredColorTemperature: ControllerInternalStageableProperty<Float>
 
@@ -110,41 +116,4 @@ interface LightController {
     val colorTemperatureInSupportedRange: ControllerInternalStageableProperty<Float>
 
 
-
-
-    /**
-     * This method applies all staged changes, communicating with the hub to update the light.
-     *
-     * Note that if you are modifying multiple lights at once, for some hub types it can be more
-     * efficient to call [HubController#applyAllLightChanges], as it may be possible to make one
-     * call only that updates multiple lights at once.
-     *
-     * See [LightController] and [discardChanges] for more information.
-     * */
-    fun applyChanges(): Completable
-
-    /**
-     * This method discards all staged changes, reverting this instance back to the state that
-     * matches the last returned state of the actual light from the api.
-     *
-     * See [LightController] and [applyChanges] for more information.
-     * */
-    fun discardChanges() {
-        displayName.discardStagedValue()
-        isInColorMode.discardStagedValue()
-        isOn.discardStagedValue()
-        brightness.discardStagedValue()
-        hue.discardStagedValue()
-        saturation.discardStagedValue()
-        miredColorTemperature.discardStagedValue()
-    }
-
-    /**
-     * Contacts the hub associated with this light to refresh the properties of this instance to
-     * match the physical light.
-     *
-     * You should call [applyChanges] or [discardChanges] before calling this method. Calling this
-     * method without applying or discarding changes will cause staged changes to be discarded.
-     * */
-    fun refresh(): Completable
 }

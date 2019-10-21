@@ -2,6 +2,7 @@ package com.thaddeussoftware.tinge.helpers
 
 import android.graphics.Color
 import android.support.v4.graphics.ColorUtils
+import kotlin.math.roundToInt
 
 object ColorHelper {
 
@@ -12,6 +13,27 @@ object ColorHelper {
     fun changeOpacityOfColor(color: Int, opacity: Float) =
             (color and 0xffffff) or ((opacity * 255f).toInt().shl(24))
 
+
+    /**
+     * @return Red from 0 - 1
+     * */
+    fun redFromColor(color: Int): Float {
+        return Color.red(color)/255f
+    }
+
+    /**
+     * @return Green from 0 - 1
+     * */
+    fun greenFromColor(color: Int): Float {
+        return Color.green(color)/255f
+    }
+
+    /**
+     * @return Blue from 0 - 1
+     * */
+    fun blueFromColor(color: Int): Float {
+        return Color.blue(color)/255f
+    }
 
     /**
      * @return Hue from 0 - 1
@@ -41,16 +63,32 @@ object ColorHelper {
     }
 
     /**
-     * @param h
+     * @param hue
      * Hue from 0 - 1
-     * @param s
+     * @param saturation
      * Saturation from 0 - 1
-     * @param v
+     * @param value
      * Value (brightness) from 0 - 1
      * */
-    fun colorFromHsv(h:Float, s:Float, v:Float, alpha:Float = 1f)
+    fun colorFromHsv(hue: Float, saturation: Float, value: Float, alpha: Float = 1f)
             = (alpha*255f).toInt().shl(24) or
-                (0xffffff and Color.HSVToColor(floatArrayOf(h*360f, s, v)))
+                (0xffffff and Color.HSVToColor(floatArrayOf(hue*360f, saturation, value)))
+
+    /**
+     * @param red
+     * Red from 0 - 1
+     * @param green
+     * Green from 0 - 1
+     * @param blue
+     * Blue from 0 - 1
+     * */
+    fun colorFromRgb(red: Float, green: Float, blue: Float, alpha: Float = 1f): Int {
+        return Color.argb(
+                (alpha * 255f).roundToInt(),
+                (red * 255f).roundToInt(),
+                (green * 255f).roundToInt(),
+                (blue * 255f).roundToInt())
+    }
 
     /**
      * Merge two colors, preserving the saturation and value of the resulting returned color.

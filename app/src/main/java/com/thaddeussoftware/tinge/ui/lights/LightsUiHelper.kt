@@ -97,16 +97,28 @@ object LightsUiHelper {
     }
 
     /**
-     * Gets a faded background colour to use in the UI, given the current colour of a light
+     * Gets the preview image tint colour to use in the UI, given the current setup of a light.
+     * */
+    fun getPreviewImageTintColourFromLightColour(hue: Float?, saturation: Float?, brightness: Float?, isOn: Boolean?): Int {
+        return if (isOn == true)
+            ColorHelper.colorFromHsv(
+                    hue ?: 0f,
+                    saturation ?: 0f,
+                    0.5f + 0.5f * (brightness ?: 0f))
+        else ColorHelper.colorFromHsv(0f, 0f, 0.2f)
+    }
+
+    /**
+     * Gets the faded background colour to use in the UI, given the current setup of a light.
      * */
     fun getFadedBackgroundColourFromLightColour(hue: Float?, saturation: Float?, brightness: Float?, isOn: Boolean?): Int {
-        if (isOn == true) {
-            return ColorHelper.colorFromHsv(
+        return if (isOn == true) {
+            ColorHelper.colorFromHsv(
                     hue ?: 0f,
-                    (saturation ?: 0f) * 0.225f * (0.5f + 0.5f * (brightness ?: 0f)),//0.1f  0.4
+                    (saturation ?: 0f) * 0.225f * (0.5f + 0.5f * (brightness ?: 0f)),
                     1.0f)
         } else {
-            return ColorHelper.colorFromHsv(0f, 0f, 0.93f)
+            ColorHelper.colorFromHsv(0f, 0f, 0.93f)
         }
     }
 
