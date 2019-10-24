@@ -198,6 +198,7 @@ class HueHubController constructor(
         }
         if (hasAnythingBeenAddedOrRemoved) {
             onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.notifyChange()
+            onAnythingModifiedSingleLiveEvent.onEventHappenedOnHub()
         }
     }
 
@@ -214,6 +215,25 @@ class HueHubController constructor(
         }
         if (hasAnythingBeenAddedOrRemoved) {
             onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.notifyChange()
+            onAnythingModifiedSingleLiveEvent.onEventHappenedOnHub()
+        }
+    }
+
+    /**
+     * Called by a [HueLightController] when a value is retrieved from the hub for any property on it.
+     *
+     * This class then updates aggregate properties and calls events to reflect this change.
+     * */
+    fun onPropertyRetrievedFromLight(hueLightController: HueLightController) {
+        onLightPropertyModifiedSingleLiveEvent.onEventHappenedOnHub()
+        onAnythingModifiedSingleLiveEvent.onEventHappenedOnHub()
+        Log.v("tinge", "live events updated for hub")
+        lightGroups.forEach {
+            if (it.lightsNotInSubgroup.contains(hueLightController)) {
+                Log.v("tinge", "live events updated for room")
+                it.onLightPropertyModifiedSingleLiveEvent.onEventHappenedOnHub()
+                it.onAnythingModifiedSingleLiveEvent.onEventHappenedOnHub()
+            }
         }
     }
 

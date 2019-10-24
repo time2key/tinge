@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.databinding.Observable
 import android.databinding.ObservableArrayList
 import android.databinding.ObservableField
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
@@ -56,28 +58,23 @@ class GroupViewModel(
         lightGroupController.onLightPropertyModifiedSingleLiveEvent.stagedValueOrValueFromHubUpdatedLiveEvent
                 .addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                Log.v("tinge", "live events update received for room")
                 updateMeanProperties()
                 refreshSecondaryText()
                 setupColorForBackgroundView()
             }
         })
 
-
-        individualLightViewModels.forEach { lightViewModel ->
-
-
-
-        }
-
-        refreshListOfLightsToMatchController()
-        setupColorForBackgroundView()
         lightGroupController.onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 refreshListOfLightsToMatchController()
+                updateMeanProperties()
+                refreshSecondaryText()
                 setupColorForBackgroundView()
             }
         })
+
+        refreshListOfLightsToMatchController()
+        setupColorForBackgroundView()
     }
 
     /**
@@ -114,6 +111,7 @@ class GroupViewModel(
             showTopRightExpandButton.set(true)
         } else {
             showTopRightExpandButton.set(false)
+            isExpanded.set(false)
         }
     }
 
@@ -223,42 +221,44 @@ class GroupViewModel(
     }
 
     fun refreshListOfLightsToMatchController() {
-        CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
-                individualLightViewModels,
-                lightGroupController.lightsInGroupOrSubgroups,
-                { lightViewModel, lightController ->
-                    lightViewModel.lightController == lightController
-                },
-                {
-                    //if (it.lightController.hubController == hubController) {
-                    individualLightViewModels.remove(it)
-                    //}
-                },
-                {
-                    val lightViewModel = LightViewModel(it)
-                    individualLightViewModels.add(lightViewModel)
+        // ObservableArrayLists must be modified from the UI thread only:
+        Handler(Looper.getMainLooper()).post {
+            CollectionComparisonHelper.compareCollectionsAndIdentifyMissingElements(
+                    individualLightViewModels,
+                    lightGroupController.lightsInGroupOrSubgroups,
+                    { lightViewModel, lightController ->
+                        lightViewModel.lightController == lightController
+                    },
+                    {
+                        //if (it.lightController.hubController == hubController) {
+                        individualLightViewModels.remove(it)
+                        //}
+                    },
+                    {
+                        val lightViewModel = LightViewModel(it)
+                        individualLightViewModels.add(lightViewModel)
 
-                    // Setup group brightness, hue and saturation handles:
-                    // All lights will always be shown in the group brightness slider (but will be in the 'off'
-                    // position) if they are off.
-                    // Lights will only be shown in the hue and saturation brightness sliders if they are on.
-                    lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-                        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                            onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
-                        }
-                    })
-                    lightViewModel.lightController.isReachable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-                        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                            onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
-                        }
-                    })
-                    onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
-                },
-                { lightViewModel, _ ->
-                    lightViewModel.refreshToMatchController()
-                }
-        )
-        refreshSecondaryText()
+                        // Setup group brightness, hue and saturation handles:
+                        // All lights will always be shown in the group brightness slider (but will be in the 'off'
+                        // position) if they are off.
+                        // Lights will only be shown in the hue and saturation brightness sliders if they are on.
+                        lightViewModel.lightController.isOn.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                                onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
+                            }
+                        })
+                        lightViewModel.lightController.isReachable.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+                            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                                onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
+                            }
+                        })
+                        onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
+                    },
+                    { lightViewModel, _ ->
+                        lightViewModel.refreshToMatchController()
+                    }
+            )
+        }
     }
 
     override fun onExpandContractButtonClicked(view: View) {

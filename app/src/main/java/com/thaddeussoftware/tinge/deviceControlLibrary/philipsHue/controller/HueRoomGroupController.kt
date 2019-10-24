@@ -56,13 +56,19 @@ class HueRoomGroupController(
      * Uses [jsonRoom] and [lightsMap] to calculate [lightListBackingProperty]
      * */
     private fun updateLightListForCurrentJsonRoomAndLightsMap() {
+        var hasAnythingBeenAddedOrRemoved = false
         lightListBackingProperty.clear()
         jsonRoom.lightNumbersInBridge?.forEach {  lightNumberInBridge ->
             lightsMap.forEach { entry ->
                 if (entry.key == lightNumberInBridge) {
                     lightListBackingProperty.add(entry.value)
+                    hasAnythingBeenAddedOrRemoved = true
                 }
             }
+        }
+        if (hasAnythingBeenAddedOrRemoved) {
+            onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.notifyChange()
+            onAnythingModifiedSingleLiveEvent.onEventHappenedOnHub()
         }
     }
 

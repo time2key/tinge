@@ -32,6 +32,9 @@ class HueLightController(
         brightness.setValueRetrievedFromHub(jsonLight?.state?.brightness?.div(254f))
         hue.setValueRetrievedFromHub((jsonLight?.state?.hue ?: 0) / 65535f)
         saturation.setValueRetrievedFromHub( (jsonLight?.state?.sat ?: 0) / 254f)
+
+
+        hubController.onPropertyRetrievedFromLight(this)
         // TODO color temperature properties
     }
 
@@ -154,7 +157,9 @@ class HueLightController(
             brightnessSetTo = brightness.stagedValue
         }
 
-        Log.v("tinge", "updating light $lightNumberInHub with $numberOfPropertiesUpdated properties - ${Gson().toJson(jsonLightState)}")
+        if (numberOfPropertiesUpdated > 0) {
+            Log.v("tinge", "updating light $lightNumberInHub with $numberOfPropertiesUpdated properties - ${Gson().toJson(jsonLightState)}")
+        }
         val completableForUpdatingLight =
                 if (numberOfPropertiesUpdated == 0) null
                 else lightsRetrofitInterface.updateLightState(
