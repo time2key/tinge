@@ -178,8 +178,9 @@ class GroupView @JvmOverloads constructor(
                     Rect(0, 0, bitmap.width, bitmap.height),
                     Rect(0, 0, width, height),
                     paint)
-            canvas.drawColor(viewModel?.individualLightViewModels?.getOrNull(0)?.colorForPreviewImageView?.get()
-                    ?: 0xffffffff.toInt(), PorterDuff.Mode.MULTIPLY)
+            canvas.drawColor(LightsUiHelper.getPreviewImageTintColourFromLightController(
+                    viewModel?.lightGroupController?.lightsNotInSubgroup?.getOrNull(0)),
+                    PorterDuff.Mode.MULTIPLY)
         } else {
             individualLightBitmaps.forEachIndexed { i, bitmap ->
                 val startAngle = Math.PI * 2 * i / individualLightBitmaps.size
