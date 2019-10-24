@@ -58,28 +58,23 @@ class GroupViewModel(
         lightGroupController.onLightPropertyModifiedSingleLiveEvent.stagedValueOrValueFromHubUpdatedLiveEvent
                 .addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                Log.v("tinge", "live events update received for room")
                 updateMeanProperties()
                 refreshSecondaryText()
                 setupColorForBackgroundView()
             }
         })
 
-
-        individualLightViewModels.forEach { lightViewModel ->
-
-
-
-        }
-
-        refreshListOfLightsToMatchController()
-        setupColorForBackgroundView()
         lightGroupController.onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 refreshListOfLightsToMatchController()
+                updateMeanProperties()
+                refreshSecondaryText()
                 setupColorForBackgroundView()
             }
         })
+
+        refreshListOfLightsToMatchController()
+        setupColorForBackgroundView()
     }
 
     /**
@@ -262,7 +257,6 @@ class GroupViewModel(
                         lightViewModel.refreshToMatchController()
                     }
             )
-            refreshSecondaryText()
         }
     }
 
