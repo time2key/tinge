@@ -207,11 +207,8 @@ class GroupView @JvmOverloads constructor(
                         paint)
 
                 canvas.drawColor(
-                        LightsUiHelper.getPreviewImageTintColourFromLightColour(
-                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.hue?.stagedValueOrLastValueFromHub,
-                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.saturation?.stagedValueOrLastValueFromHub,
-                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.brightness?.stagedValueOrLastValueFromHub,
-                                viewModel?.individualLightViewModels?.getOrNull(i)?.lightController?.isOn?.stagedValueOrLastValueFromHub),
+                        LightsUiHelper.getPreviewImageTintColourFromLightController(
+                                viewModel?.lightGroupController?.lightsNotInSubgroup?.getOrNull(i)),
                         PorterDuff.Mode.MULTIPLY)
 
                 canvas.restore()

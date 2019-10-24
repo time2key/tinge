@@ -5,6 +5,7 @@ import android.databinding.ObservableField
 import android.support.v4.graphics.ColorUtils
 import android.util.Log
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
+import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.helpers.ColorHelper
 import kotlin.math.sqrt
 
@@ -94,6 +95,17 @@ object LightsUiHelper {
                     , ColorHelper.colorFromHsv(hue, saturation*0f, 1f)
                     , 0.2f + 0.8f * brightness)
         }
+    }
+
+    /**
+     * Gets the preview image tint colour to use in the UI, given a light.
+     * */
+    fun getPreviewImageTintColourFromLightController(lightController: LightController?): Int {
+        return getPreviewImageTintColourFromLightColour(
+                lightController?.hue?.stagedValueOrLastValueFromHub,
+                lightController?.saturation?.stagedValueOrLastValueFromHub,
+                lightController?.brightness?.stagedValueOrLastValueFromHub,
+                lightController?.isOn?.stagedValueOrLastValueFromHub)
     }
 
     /**
