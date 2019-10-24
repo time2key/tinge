@@ -5,6 +5,7 @@ import android.databinding.Observable
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.BR
@@ -58,11 +59,13 @@ class GroupView @JvmOverloads constructor(
                 }
             })
 
-            viewModel?.lightGroupController?.lightsNotInSubgroup?.forEach {
-                individualLightBitmaps.add(
-                        UiHelper.whiteTintBitmapPhotographOfLight(BitmapFactory.decodeResource(resources, getImage(it)))
-                )
-            }
+            viewModel?.lightGroupController?.onLightsOrSubgroupsAddedOrRemovedSingleLiveEvent?.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+                override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                    Log.v("tinge", "GroupView light bitmaps re-setup")
+                    setupLightBitmaps()
+                }
+            })
+            setupLightBitmaps()
 
             setupHueSlider()
             setupBrightnessSlider()
@@ -105,6 +108,16 @@ class GroupView @JvmOverloads constructor(
     init {
         binding.view = this
         binding.viewModel = viewModel
+    }
+
+    private fun setupLightBitmaps() {
+        individualLightBitmaps.clear()
+        viewModel?.lightGroupController?.lightsNotInSubgroup?.forEach {
+            individualLightBitmaps.add(
+                    UiHelper.whiteTintBitmapPhotographOfLight(BitmapFactory.decodeResource(resources, getImage(it)))
+            )
+        }
+        Log.v("tinge", "GroupView light bitmaps setup - ${individualLightBitmaps.size} bitmaps")
     }
 
     private fun setupBrightnessSlider() {
