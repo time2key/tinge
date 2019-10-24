@@ -111,6 +111,7 @@ class GroupViewModel(
             showTopRightExpandButton.set(true)
         } else {
             showTopRightExpandButton.set(false)
+            isExpanded.set(false)
         }
     }
 
