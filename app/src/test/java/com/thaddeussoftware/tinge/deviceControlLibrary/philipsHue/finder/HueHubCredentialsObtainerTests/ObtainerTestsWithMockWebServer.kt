@@ -9,7 +9,11 @@ import org.junit.Before
 import org.junit.Test
 
 class ObtainerTestsWithMockWebServer {
-    private val TIME_TO_WAIT_MS: Long = 11_000
+    /**
+     * The username is requested from the hub every 1.5 seconds, so the tests wait 2 seconds to
+     * make sure that the username will definitely have been requested from the hub.
+     * */
+    private val TIME_TO_WAIT_MS: Long = 2_000
 
     lateinit var mockWebServer: MockWebServer
     lateinit var mockWebServer2: MockWebServer
