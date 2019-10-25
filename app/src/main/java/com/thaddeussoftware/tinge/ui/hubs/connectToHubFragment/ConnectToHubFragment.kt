@@ -1,13 +1,14 @@
 package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.Observable
 import com.thaddeussoftware.tinge.BR
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.FragmentConnectToHubBinding
@@ -35,9 +36,13 @@ class ConnectToHubFragment: Fragment() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(ConnectToHubFragmentViewModel::class.java)
 
-        viewModel?.deviceAddedLiveEvent?.observe(this, Observer { eventData ->
-            if (eventData == null) return@Observer
-            listener?.connectToHubFragmentDeviceAdded(eventData.hubSearchFoundResult)
+        viewModel?.deviceAddedEvent?.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                val eventData = viewModel?.deviceAddedEvent?.get()
+                if (eventData == null) return
+                listener?.connectToHubFragmentDeviceAdded(eventData.hubSearchFoundResult)
+            }
+
         })
     }
 
@@ -63,12 +68,12 @@ class ConnectToHubFragment: Fragment() {
         viewModel?.pauseViewModel()
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is ConnectToHubFragmentListener) {
             listener = context
         } else {
-            throw RuntimeException(context?.toString() + " must implement ConnectToHubFragmentListener")
+            throw RuntimeException(context.toString() + " must implement ConnectToHubFragmentListener")
         }
     }
 

@@ -1,6 +1,9 @@
 package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment
 
-import android.support.test.InstrumentationRegistry
+import android.os.Handler
+import android.os.Looper
+import androidx.databinding.Observable
+import androidx.test.platform.app.InstrumentationRegistry
 import com.thaddeussoftware.tinge.TingeApplication
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.GenericHubFinder
@@ -20,7 +23,7 @@ class ConnectToHubFragmentViewModelTests {
 
     @Before
     fun setup() {
-        TingeApplication.tingeApplication = InstrumentationRegistry.getTargetContext()
+        TingeApplication.tingeApplication = InstrumentationRegistry.getInstrumentation().targetContext
         wasCorrectMethodCalled = false
     }
 
@@ -32,9 +35,11 @@ class ConnectToHubFragmentViewModelTests {
         val viewModel = ConnectToHubFragmentViewModel(
                 getHubFinder(), getHueHubCredentialsObtainer(), deviceHubDao)
 
-        viewModel.deviceAddedLiveEvent.observeForever { deviceAddedEventData ->
-            wasCorrectMethodCalled = true
-        }
+        viewModel.deviceAddedEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                wasCorrectMethodCalled = true
+            }
+        })
 
         // Act:
         viewModel.startSearchingForHubs()

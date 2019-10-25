@@ -1,10 +1,10 @@
 package com.thaddeussoftware.tinge.ui.lights.lightListFragment
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.ViewModel
-import android.databinding.Observable
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableField
+import androidx.lifecycle.ViewModel
+import androidx.databinding.Observable
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableField
 import android.os.Handler
 import android.os.Looper
 import com.google.gson.GsonBuilder
@@ -13,11 +13,9 @@ import com.thaddeussoftware.tinge.database.DatabaseSingleton
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
 import com.thaddeussoftware.tinge.database.phillipsHue.lights.HueLightsDao
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.HueHubController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
-import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit

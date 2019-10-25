@@ -1,10 +1,10 @@
 package com.thaddeussoftware.tinge.ui.lights.lightView
 
 import android.content.Context
-import android.databinding.Observable
+import androidx.databinding.Observable
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.support.v4.graphics.ColorUtils
+import androidx.core.graphics.ColorUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout

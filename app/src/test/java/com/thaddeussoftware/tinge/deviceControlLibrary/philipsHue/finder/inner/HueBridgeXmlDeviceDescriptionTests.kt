@@ -1,6 +1,6 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.inner
 
-import android.support.test.filters.SmallTest
+import androidx.test.filters.SmallTest
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 

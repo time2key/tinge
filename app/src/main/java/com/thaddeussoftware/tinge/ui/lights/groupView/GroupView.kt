@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.ui.lights.groupView
 
 import android.content.Context
-import android.databinding.Observable
+import androidx.databinding.Observable
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.util.AttributeSet

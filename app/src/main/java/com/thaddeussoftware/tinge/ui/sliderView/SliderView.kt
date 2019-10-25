@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.ui.sliderView
 
 import android.content.Context
-import android.databinding.*
+import androidx.databinding.*
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.thaddeussoftware.tinge.databinding.ViewSliderBinding

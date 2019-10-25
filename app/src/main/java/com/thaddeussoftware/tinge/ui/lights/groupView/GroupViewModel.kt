@@ -1,9 +1,9 @@
 package com.thaddeussoftware.tinge.ui.lights.groupView
 
 import android.annotation.SuppressLint
-import android.databinding.Observable
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableField
+import androidx.databinding.Observable
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableField
 import android.os.Handler
 import android.os.Looper
 import android.util.Log

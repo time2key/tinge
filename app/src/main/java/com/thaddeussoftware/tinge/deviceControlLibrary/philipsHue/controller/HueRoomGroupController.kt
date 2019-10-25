@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller
 
 import android.graphics.Color
-import android.support.v4.graphics.ColorUtils
+import androidx.core.graphics.ColorUtils
 import android.util.Log
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController

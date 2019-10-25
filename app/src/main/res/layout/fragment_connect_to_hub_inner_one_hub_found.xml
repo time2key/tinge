@@ -11,7 +11,7 @@
             type="com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel"/>
     </data>
 
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
 
     android:id="@+id/large_single_hub_constraint_layout"
 
@@ -95,5 +95,5 @@
 
 
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

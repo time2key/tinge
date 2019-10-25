@@ -1,6 +1,6 @@
 package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.hubConnectionMethodView
 
-import android.databinding.ObservableField
+import androidx.databinding.ObservableField
 
 /**
  * Created by thaddeusreason on 14/04/2018.

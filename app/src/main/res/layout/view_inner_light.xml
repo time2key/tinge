@@ -14,7 +14,7 @@
             type="java.lang.Boolean" />
     </data>
 
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
         LEFT PREVIEW IMAGE:
         -->
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/left_image_view_holder"
 
             app:cardCornerRadius="@{ 0.15f * (isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width) }"
@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
 
         <!--
@@ -279,5 +279,5 @@
             app:layout_constraintTop_toTopOf="@+id/white_image_view" />
 
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

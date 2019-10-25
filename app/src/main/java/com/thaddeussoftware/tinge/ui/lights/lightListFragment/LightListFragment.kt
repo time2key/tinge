@@ -3,11 +3,12 @@ package com.thaddeussoftware.tinge.ui.lights.lightListFragment
 import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.Observable
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.thaddeussoftware.tinge.BR
 import com.thaddeussoftware.tinge.R
 
@@ -21,10 +22,6 @@ import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightView
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import com.thaddeussoftware.tinge.ui.mainActivity.MultiColouredToolbarActivity
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
 
@@ -70,8 +67,8 @@ class LightListFragment : Fragment() {
             }
         })
 
-        viewModel.onAnyLightInAnyHubUpdatedLiveEvent.addOnPropertyChangedCallback(object: android.databinding.Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: android.databinding.Observable?, propertyId: Int) {
+        viewModel.onAnyLightInAnyHubUpdatedLiveEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 redrawGlassToolbar()
             }
         })
@@ -159,12 +156,12 @@ class LightListFragment : Fragment() {
         toolbarDrawable?.weightedColors = colourList
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is LightListFragmentListener) {
             listener = context
         } else {
-            throw RuntimeException(context?.toString() + " must implement LightListFragmentListener")
+            throw RuntimeException(context.toString() + " must implement LightListFragmentListener")
         }
     }
 

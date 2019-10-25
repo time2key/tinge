@@ -1,15 +1,15 @@
 package com.thaddeussoftware.tinge.ui.mainActivity
 
-import android.databinding.DataBindingUtil
+import androidx.databinding.DataBindingUtil
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.graphics.ColorUtils
+import androidx.fragment.app.Fragment
+import androidx.core.graphics.ColorUtils
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.database.DatabaseSingleton
 import com.thaddeussoftware.tinge.databinding.ActivityMainBinding

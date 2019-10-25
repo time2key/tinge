@@ -1,6 +1,6 @@
 package com.thaddeussoftware.tinge.ui.sliderView.inner
 
-import android.databinding.ObservableList
+import androidx.databinding.ObservableList
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 
 /**

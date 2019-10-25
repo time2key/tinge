@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.database
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.RoomDatabase
+import androidx.room.Database
+import androidx.room.RoomDatabase
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubEntity
 import com.thaddeussoftware.tinge.database.phillipsHue.lights.HueLightEntity

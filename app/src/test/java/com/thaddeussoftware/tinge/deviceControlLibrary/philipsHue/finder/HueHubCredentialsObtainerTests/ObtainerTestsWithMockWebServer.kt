@@ -1,6 +1,6 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubCredentialsObtainerTests
 
-import android.support.test.filters.LargeTest
+import androidx.test.filters.LargeTest
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubCredentialsObtainer
 import junit.framework.Assert.*
 import okhttp3.mockwebserver.MockWebServer
