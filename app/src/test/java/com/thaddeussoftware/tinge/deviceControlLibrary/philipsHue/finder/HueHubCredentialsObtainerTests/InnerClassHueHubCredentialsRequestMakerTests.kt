@@ -26,10 +26,7 @@ class InnerClassHueHubCredentialsRequestMakerTests {
     fun setupMockServer() {
         mockWebServer = MockWebServer()
         mockWebServer2 = MockWebServer()
-        requestMaker = HueHubCredentialsObtainer.HueHubCredentialsRequestMaker(/*Retrofit.Builder()
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(
-                        GsonBuilder().setLenient().create()))*/)
+        requestMaker = HueHubCredentialsObtainer.HueHubCredentialsRequestMaker()
         wasCorrectMethodCalled = false
     }
 

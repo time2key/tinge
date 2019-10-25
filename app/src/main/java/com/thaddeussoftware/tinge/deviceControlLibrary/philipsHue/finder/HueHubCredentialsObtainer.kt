@@ -38,6 +38,8 @@ open class HueHubCredentialsObtainer(
                 HueHubCredentialsRequestMaker()
 ) {
 
+    private val TRY_TO_ATTEMPTY_CREDENTIALS_EVERY_X_MS = 1_500
+
     /**
      * Ip address that will be repeatedly contacted to try and obtain authentication credentials.
      * It is safe to change this value while the class is running.
@@ -72,7 +74,8 @@ open class HueHubCredentialsObtainer(
         if (!isPaused) return
         isPaused = false
 
-        repeatedlyTryToObtainUsernameDisposable = Observable.interval(10, TimeUnit.SECONDS).doOnNext {
+        repeatedlyTryToObtainUsernameDisposable = Observable.interval(
+                TRY_TO_ATTEMPTY_CREDENTIALS_EVERY_X_MS.toLong(), TimeUnit.MILLISECONDS).doOnNext {
 
             // Cache this each time immediately before making the web request:
             val cachedIpAddress = ipAddress
