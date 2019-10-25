@@ -15,7 +15,6 @@ import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubF
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubCredentialsObtainer
 import com.thaddeussoftware.tinge.deviceControlLibrary.utils.ipScanner.ScannableIpRangeCalculator
 import com.thaddeussoftware.tinge.deviceControlLibrary.utils.ipScanner.WifiDetailsFromContext
-import com.thaddeussoftware.tinge.ui.SingleLiveEvent
 import com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -69,7 +68,7 @@ class ConnectToHubFragmentViewModel(
     /**
      * Called when a Phillips Hue Bridge has been successfully added to the app.
      * */
-    var deviceAddedLiveEvent = SingleLiveEvent<DeviceAddedEventData>()
+    var deviceAddedEvent = ObservableField<DeviceAddedEventData>()
 
     data class DeviceAddedEventData(val hubSearchFoundResult: HubSearchFoundResult)
 
@@ -112,7 +111,7 @@ class ConnectToHubFragmentViewModel(
                     }.subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
-                                deviceAddedLiveEvent.call(DeviceAddedEventData(currentlySelectedDevice))
+                                deviceAddedEvent.set(DeviceAddedEventData(currentlySelectedDevice))
                             }
 
                 }

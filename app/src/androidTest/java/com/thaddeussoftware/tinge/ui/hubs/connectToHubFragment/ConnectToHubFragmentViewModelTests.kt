@@ -2,6 +2,7 @@ package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment
 
 import android.os.Handler
 import android.os.Looper
+import androidx.databinding.Observable
 import androidx.test.platform.app.InstrumentationRegistry
 import com.thaddeussoftware.tinge.TingeApplication
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
@@ -34,11 +35,11 @@ class ConnectToHubFragmentViewModelTests {
         val viewModel = ConnectToHubFragmentViewModel(
                 getHubFinder(), getHueHubCredentialsObtainer(), deviceHubDao)
 
-        Handler(Looper.getMainLooper()).post {
-            viewModel.deviceAddedLiveEvent.observeForever { deviceAddedEventData ->
+        viewModel.deviceAddedEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
                 wasCorrectMethodCalled = true
             }
-        }
+        })
 
         // Act:
         viewModel.startSearchingForHubs()
