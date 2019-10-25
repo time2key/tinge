@@ -10,7 +10,7 @@
             type="com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.ConnectToHubFragmentViewModel"/>
     </data>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/fragment_top_padding"
@@ -66,5 +66,5 @@
             app:layout_constraintBottom_toBottomOf="@+id/still_loading_text_view"
             />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

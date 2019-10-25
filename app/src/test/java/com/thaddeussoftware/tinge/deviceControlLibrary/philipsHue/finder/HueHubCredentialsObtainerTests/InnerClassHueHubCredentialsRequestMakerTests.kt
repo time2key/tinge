@@ -1,9 +1,7 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubCredentialsObtainerTests
 
-import android.support.test.filters.MediumTest
-import android.support.test.filters.SmallTest
-import com.google.gson.GsonBuilder
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SmallTest
 import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubCredentialsObtainer
 import junit.framework.Assert.*
 import okhttp3.mockwebserver.MockResponse
@@ -12,8 +10,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * Created by thaddeusreason on 22/04/2018.

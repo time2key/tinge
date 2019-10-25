@@ -1,8 +1,8 @@
 package com.thaddeussoftware.tinge.ui.lights
 
-import android.databinding.Observable
-import android.databinding.ObservableField
-import android.support.v4.graphics.ColorUtils
+import androidx.databinding.Observable
+import androidx.databinding.ObservableField
+import androidx.core.graphics.ColorUtils
 import android.util.Log
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController

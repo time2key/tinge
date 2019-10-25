@@ -1,7 +1,6 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller
 
-import android.databinding.ObservableField
-import io.reactivex.Completable
+import androidx.databinding.ObservableField
 
 /**
  * Represents a single light of any type that can be controlled.

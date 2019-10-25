@@ -1,9 +1,9 @@
 package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import android.content.Context
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableField
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableField
 import android.util.Log
 import com.thaddeussoftware.tinge.TingeApplication
 import com.thaddeussoftware.tinge.database.DatabaseSingleton

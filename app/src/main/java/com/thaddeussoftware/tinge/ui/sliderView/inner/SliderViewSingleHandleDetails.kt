@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.ui.sliderView.inner
 
 import android.content.Context
-import android.databinding.Observable
+import androidx.databinding.Observable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.view.LayoutInflater

@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller
 
-import android.databinding.Observable
-import android.databinding.ObservableField
+import androidx.databinding.Observable
+import androidx.databinding.ObservableField
 
 /**
  * Represents a property of any type on the Tinge API, such as hue of a light etc.

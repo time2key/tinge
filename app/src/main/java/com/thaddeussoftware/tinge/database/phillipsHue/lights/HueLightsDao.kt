@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.database.phillipsHue.lights
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Query
+import androidx.room.Dao
+import androidx.room.Query
 import io.reactivex.Single
 
 @Dao

@@ -21,7 +21,7 @@
             android:layout_width="16dp"
             android:layout_height="8dp"/>
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/rounded_rect_card_view"
 
             app:cardCornerRadius="6dp"
@@ -96,7 +96,7 @@
                 </FrameLayout>
 
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
         <View
             android:id="@+id/bottom_triangle_view"

@@ -1,10 +1,10 @@
 package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,12 +63,12 @@ class ConnectToHubFragment: Fragment() {
         viewModel?.pauseViewModel()
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is ConnectToHubFragmentListener) {
             listener = context
         } else {
-            throw RuntimeException(context?.toString() + " must implement ConnectToHubFragmentListener")
+            throw RuntimeException(context.toString() + " must implement ConnectToHubFragmentListener")
         }
     }
 

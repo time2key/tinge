@@ -1,8 +1,8 @@
 package com.thaddeussoftware.tinge.ui.lights
 
-import android.arch.lifecycle.ViewModel
-import android.databinding.ObservableField
-import android.databinding.ObservableList
+import androidx.lifecycle.ViewModel
+import androidx.databinding.ObservableField
+import androidx.databinding.ObservableList
 import android.view.View
 import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
 

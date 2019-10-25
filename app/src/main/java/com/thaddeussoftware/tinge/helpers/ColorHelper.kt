@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.helpers
 
 import android.graphics.Color
-import android.support.v4.graphics.ColorUtils
+import androidx.core.graphics.ColorUtils
 import kotlin.math.roundToInt
 
 object ColorHelper {

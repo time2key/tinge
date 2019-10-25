@@ -1,6 +1,6 @@
 package com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller
 
-import android.databinding.ObservableField
+import androidx.databinding.ObservableField
 
 /**
  * Represents an observable event that happens on a controller.

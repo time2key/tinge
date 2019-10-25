@@ -1,8 +1,8 @@
 package com.thaddeussoftware.tinge.database.phillipsHue.hubs
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 /**
  * Created by thaddeusreason on 19/01/2018.

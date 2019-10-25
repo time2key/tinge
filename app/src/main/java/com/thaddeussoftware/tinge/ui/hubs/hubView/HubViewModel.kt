@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.ui.hubs.hubView
 
-import android.arch.lifecycle.ViewModel
-import android.databinding.ObservableField
+import androidx.lifecycle.ViewModel
+import androidx.databinding.ObservableField
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.HubSearchFoundResult
 

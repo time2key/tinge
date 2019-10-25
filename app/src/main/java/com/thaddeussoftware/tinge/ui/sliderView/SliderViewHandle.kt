@@ -1,6 +1,6 @@
 package com.thaddeussoftware.tinge.ui.sliderView
 
-import android.databinding.ObservableField
+import androidx.databinding.ObservableField
 
 interface SliderViewHandle {
     /**
