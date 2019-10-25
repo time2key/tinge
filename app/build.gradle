@@ -46,31 +46,27 @@ dependencies {
     // Kotlin standard library:
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.ext.kotlin_version"
 
-    //kapt "com.android.databinding:compiler:$rootProject.ext.androidStudioVersion"
-
     //
     // ANDROID ARCHITECTURE COMPONENTS
     // https://developer.android.com/topic/libraries/architecture/adding-components.html
     //
 
     // ViewModel and LiveData:
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
-    //annotationProcessor "android.arch.lifecycle:compiler:$rootProject.ext.androidArchLifecycleVersion"
-    kapt 'androidx.lifecycle:lifecycle-compiler:2.1.0'
-    testImplementation 'androidx.arch.core:core-testing:2.1.0' //LiveData test helpers
+    implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.ext.androidXLifecycleVersion"
+    kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.ext.androidXLifecycleVersion"
+    testImplementation "androidx.arch.core:core-testing:$rootProject.ext.androidXLifecycleVersion" //LiveData test helpers
 
     // Room:
-    implementation 'androidx.room:room-runtime:2.2.1'
-    //annotationProcessor "android.arch.persistence.room:compiler:$rootProject.ext.androidArchRoomVersion"
-    kapt 'androidx.room:room-compiler:2.2.1'
-    testImplementation 'androidx.room:room-testing:2.2.1' //Room test helpers
+    implementation "androidx.room:room-runtime:$rootProject.ext.androidXRoomVersion"
+    kapt "androidx.room:room-compiler:$rootProject.ext.androidXRoomVersion"
+    testImplementation "androidx.room:room-testing:$rootProject.ext.androidXRoomVersion" //Room test helpers
 
     // ReactiveStreams support for LiveData:
-    implementation 'androidx.lifecycle:lifecycle-reactivestreams:2.1.0'
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:$rootProject.ext.androidXLifecycleVersion"
     // RxJava support for Room:
-    implementation 'androidx.room:room-rxjava2:2.2.1'
+    implementation "androidx.room:room-rxjava2:$rootProject.ext.androidXRoomVersion"
     // Paging (for Room):
-    implementation 'androidx.paging:paging-runtime:2.1.0'
+    implementation "androidx.paging:paging-runtime:$rootProject.ext.androidXLifecycleVersion"
 
     //
     // THIRD PARTY LIBRARIES
@@ -78,12 +74,11 @@ dependencies {
 
     // RxJava 2:
     implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: "$rootProject.ext.rxJavaVersion"
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxJavaVersion"
     // Gson elegant json parsing:
     implementation 'com.google.code.gson:gson:2.8.5'
     // Retrofit elegant HTTP api networking library:
     implementation "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
-    //annotationProcessor "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
     kapt "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
     // OKHttp networking library:
     implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okHttpVersion"
@@ -95,11 +90,9 @@ dependencies {
 
     // Dagger 2 itself:
     implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
-    //annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
     // Dagger 2 Android - allows use of DaggerActivity etc:
     implementation "com.google.dagger:dagger-android:$rootProject.ext.daggerVersion"
-    //annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
     kapt "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
     // Dagger 2 Android for support libraries:
     implementation "com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion"
