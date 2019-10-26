@@ -149,13 +149,13 @@ class GroupView @JvmOverloads constructor(
     private fun setupBackgroundImage() {
         val weightedColors = ArrayList<WeightedStripedColorDrawable.GlassToolbarWeightedColor>()
 
-        viewModel?.individualLightViewModels?.forEach {
+        viewModel?.lightGroupController?.lightsNotInSubgroup?.forEach {
             val colour = LightsUiHelper.getFadedBackgroundColourFromLightColour(
-                    it.lightController.hue.stagedValueOrLastValueFromHub,
-                    it.lightController.saturation.stagedValueOrLastValueFromHub,
-                    it.lightController.brightness.stagedValueOrLastValueFromHub,
-                    it.lightController.isOn.stagedValueOrLastValueFromHub)
-            val weight = if (it.lightController.isOn.stagedValueOrLastValueFromHub != true) 0.5f else 1f
+                    it.hue.stagedValueOrLastValueFromHub,
+                    it.saturation.stagedValueOrLastValueFromHub,
+                    it.brightness.stagedValueOrLastValueFromHub,
+                    it.isOn.stagedValueOrLastValueFromHub)
+            val weight = if (it.isOn.stagedValueOrLastValueFromHub != true) 0.5f else 1f
             weightedColors.add(WeightedStripedColorDrawable.GlassToolbarWeightedColor(colour, 0f, weight))
         }
         backgroundDrawable.weightedColors = weightedColors
