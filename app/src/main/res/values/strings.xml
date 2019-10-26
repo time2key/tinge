@@ -37,4 +37,6 @@
     <string name="group_info_all_on">All lights on</string>
     <string name="group_info_one_on">%s$1 light on</string>
     <string name="group_info_some_on">%s$1 lights on</string>
+
+    <string name="light_unreachable">Unreachable</string>
 </resources>
