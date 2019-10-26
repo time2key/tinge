@@ -106,7 +106,7 @@
             app:layout_constraintEnd_toStartOf="@+id/expand_contract_button"
             app:layout_constraintStart_toEndOf="@+id/unreachable_text_view"
             android:layout_marginTop="@dimen/list_view_inner_top_padding"
-            android:layout_marginLeft="@{viewModel.isReachable() ? 0f : 4f * @dimen/dimen_1dp}"
+            android:layout_marginStart="@{viewModel.isReachable() ? 0f : 4f * @dimen/dimen_1dp}"
             app:layout_constraintTop_toTopOf="parent"
 
             tools:text="Light name"/>
