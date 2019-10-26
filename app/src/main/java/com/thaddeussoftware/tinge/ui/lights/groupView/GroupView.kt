@@ -150,11 +150,7 @@ class GroupView @JvmOverloads constructor(
         val weightedColors = ArrayList<WeightedStripedColorDrawable.GlassToolbarWeightedColor>()
 
         viewModel?.lightGroupController?.lightsNotInSubgroup?.forEach {
-            val colour = LightsUiHelper.getFadedBackgroundColourFromLightColour(
-                    it.hue.stagedValueOrLastValueFromHub,
-                    it.saturation.stagedValueOrLastValueFromHub,
-                    it.brightness.stagedValueOrLastValueFromHub,
-                    it.isOn.stagedValueOrLastValueFromHub)
+            val colour = LightsUiHelper.getFadedBackgroundColourFromLightController(it)
             val weight = if (it.isOn.stagedValueOrLastValueFromHub != true) 0.5f else 1f
             weightedColors.add(WeightedStripedColorDrawable.GlassToolbarWeightedColor(colour, 0f, weight))
         }

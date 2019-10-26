@@ -101,6 +101,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
 
+            android:alpha="@{viewModel.isReachable() ? 1f : 0.5f}"
 
             android:text="@{viewModel.displayName}"
             android:textSize="@dimen/list_view_title_font_size"
@@ -120,6 +121,7 @@
             android:layout_height="wrap_content"
 
             android:visibility="@{viewModel.isReachable() ? View.GONE : View.VISIBLE}"
+            android:alpha="0.5"
 
             android:background="@drawable/unreachable_text_background_view"
             android:paddingLeft="4dp"
@@ -163,6 +165,7 @@
             style="@style/ListViewSliderImage"
             android:layout_marginTop="0dp"
             android:contentDescription="@string/accessibility_brightness"
+            android:alpha="@{viewModel.isReachable() ? 1f : 0.5f}"
 
             android:src="@drawable/ic_brightness_5_black_24dp"
             app:layout_constraintLeft_toLeftOf="@+id/content_start_space"
@@ -172,6 +175,7 @@
             android:id="@+id/brightness_seek_bar"
 
             app:handles="@{viewModel.brightnessHandles}"
+            android:alpha="@{viewModel.isReachable() ? 1f : 0.5f}"
 
             app:offValueText="Off"
             app:supportsOffValue="true"

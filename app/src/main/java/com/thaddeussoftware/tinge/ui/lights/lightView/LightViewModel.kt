@@ -114,17 +114,9 @@ class LightViewModel(
 
     private fun updateColorsFromHsv() {
         colorForPreviewImageView.set(
-                LightsUiHelper.getPreviewImageTintColourFromLightColour(
-                        hueObservable.get(),
-                        saturationObservable.get(),
-                        brightnessAndIsOnObservable.get(),
-                        brightnessAndIsOnObservable.get() ?: -1f >= 0f))
+                LightsUiHelper.getPreviewImageTintColourFromLightController(lightController))
         colorForBackgroundView.set(
-                LightsUiHelper.getFadedBackgroundColourFromLightColour(
-                        hueObservable.get(),
-                        saturationObservable.get(),
-                        brightnessAndIsOnObservable.get(),
-                        brightnessAndIsOnObservable.get() ?: -1f >= 0f))
+                LightsUiHelper.getFadedBackgroundColourFromLightController(lightController))
     }
 
     private fun updateHueSliderColor() {

@@ -123,7 +123,8 @@ class GroupViewModel(
                         meanHue.get(), meanSaturation.get(), meanBrightness.get(),
                         lightGroupController.lightsNotInSubgroup.any {
                             it.isOn.stagedValueOrLastValueFromHub == true
-                        }))
+                        },
+                        true))
     }
 
     private fun updateMeanProperties() {
