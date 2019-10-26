@@ -46,6 +46,7 @@
                 android:tint="@{ safeUnbox(viewModel.colorForPreviewImageView) }"
                 android:tintMode="multiply"
                 android:src="@drawable/top_light_image"
+                android:importantForAccessibility="no"
 
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
@@ -73,6 +74,7 @@
             android:src="@{ safeUnbox(viewModel.isExpanded()) ? @drawable/ic_expand_less_black_24dp : @drawable/ic_expand_more_black_24dp , default = @drawable/ic_expand_less_black_24dp}"
             android:visibility="@{ safeUnbox(viewModel.showTopRightExpandButton) ? View.VISIBLE : View.GONE}"
             android:onClick="@{ viewModel::onExpandContractButtonClicked }"
+            android:contentDescription="@{ safeUnbox(viewModel.isExpanded()) ? @string/accessibility_contract : @string/accessibility_expand }"
 
             android:clickable="true"
             android:focusable="true"
@@ -160,6 +162,7 @@
 
             style="@style/ListViewSliderImage"
             android:layout_marginTop="0dp"
+            android:contentDescription="@string/accessibility_brightness"
 
             android:src="@drawable/ic_brightness_5_black_24dp"
             app:layout_constraintLeft_toLeftOf="@+id/content_start_space"
@@ -225,6 +228,7 @@
             android:id="@+id/hue_image_view"
 
             android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+            android:contentDescription="@string/accessibility_hue"
 
             style="@style/ListViewSliderImage"
             android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
@@ -256,6 +260,7 @@
             android:id="@+id/saturation_image_view"
 
             android:visibility="@{ safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+            android:contentDescription="@string/accessibility_saturation"
 
             style="@style/ListViewSliderImage"
             android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"
@@ -288,6 +293,7 @@
             android:id="@+id/white_image_view"
 
             android:visibility="@{ !safeUnbox(viewModel.isInColorMode()) &amp;&amp; safeUnbox(viewModel.isExpanded()) ? View.VISIBLE : View.GONE }"
+            android:contentDescription="@string/accessibility_white_tint"
 
             style="@style/ListViewSliderImage"
             android:layout_marginTop="@dimen/list_view_inner_inbetween_vertical_margin"

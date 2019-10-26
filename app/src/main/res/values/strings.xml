@@ -39,4 +39,11 @@
     <string name="group_info_some_on">%s$1 lights on</string>
 
     <string name="light_unreachable">Unreachable</string>
+
+    <string name="accessibility_brightness">Brightness</string>
+    <string name="accessibility_hue">Hue</string>
+    <string name="accessibility_saturation">Brightness</string>
+    <string name="accessibility_white_tint">White temperature</string>
+    <string name="accessibility_expand">Expand additional properties</string>
+    <string name="accessibility_contract">Hide additional properties</string>
 </resources>
