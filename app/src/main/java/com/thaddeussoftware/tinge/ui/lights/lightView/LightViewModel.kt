@@ -26,17 +26,16 @@ class LightViewModel(
 
     override val doesSupportColorMode = ObservableField<Boolean>(lightController.doesSupportColorMode)
 
-    /*override val hue = lightController.hue.stagedValueOrLastValueFromHubObservable
-    override val saturation = lightController.saturation.stagedValueOrLastValueFromHubObservable
-    override val brightness = ObservableField<Float?>()
+    override val displayName = lightController.displayName.stagedValueOrLastValueFromHubObservable
 
-    /**The amount that the white slider should be at*/
-    override val whiteTemperature = ObservableField<Float?>()*/
+    override val isReachable = lightController.isReachable
+
 
     override val hueHandles = ObservableArrayList<SliderViewHandle>()
     override val saturationHandles = ObservableArrayList<SliderViewHandle>()
     override val brightnessHandles = ObservableArrayList<SliderViewHandle>()
     override val whiteTemperatureHandles = ObservableArrayList<SliderViewHandle>()
+
 
     override val isExpanded = ObservableField<Boolean>(false)
 
@@ -45,8 +44,6 @@ class LightViewModel(
     override val colorForPreviewImageView = ObservableField<Int>(0)
 
     override val colorForBackgroundView = ObservableField<Int>(0)
-
-    override val displayName = lightController.displayName.stagedValueOrLastValueFromHubObservable
 
     override val secondaryInformation = ObservableField<String?>("")
 
@@ -135,7 +132,7 @@ class LightViewModel(
     }
 
     private fun updateSaturationSliderColor() {
-        val color2 = getColorFromHsv(hueObservable.get()?: 0f, 1f, 1f)
+        val color2 = ColorHelper.colorFromHsv(hueObservable.get()?: 0f, 1f, 1f)
 
         saturationHandles[0].color.set(ColorUtils.blendARGB(0xffeeeeee.toInt(), color2,
                 saturationObservable.get()?:1f))
@@ -175,9 +172,6 @@ class LightViewModel(
         isInColorMode.set(false)
     }
 
-
-
-    private fun getColorFromHsv(h:Float, s:Float, v:Float) = Color.HSVToColor(floatArrayOf(h*360f, s, v))
 
     fun getColorFromWhiteAmount(whiteAmount: Double): Int {
         val temperature = (2000.0+6500.0*whiteAmount)/100.0
