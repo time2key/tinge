@@ -39,6 +39,7 @@
     <string name="group_info_some_on">%s$1 lights on</string>
 
     <string name="light_unreachable">Unreachable</string>
+    <string name="light_unreachable_disclaimer">This light is unreachable, but you can try to adjust it anyway.</string>
 
     <string name="accessibility_brightness">Brightness</string>
     <string name="accessibility_hue">Hue</string>

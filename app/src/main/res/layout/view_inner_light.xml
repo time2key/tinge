@@ -30,8 +30,8 @@
 
             app:cardCornerRadius="@{ 0.15f * (isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width) }"
 
-            android:layout_width="@{ isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
-            android:layout_height="@{ isGroup ? @dimen/view_group_left_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
+            android:layout_width="@{ isGroup ? @dimen/view_group_left_image_width : (!viewModel.isReachable() &amp;&amp; !viewModel.isExpanded()) ? @dimen/view_light_unreachable_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
+            android:layout_height="@{ isGroup ? @dimen/view_group_left_image_width : (!viewModel.isReachable() &amp;&amp; !viewModel.isExpanded()) ? @dimen/view_light_unreachable_image_width : @dimen/view_light_left_image_width, default = wrap_content}"
             android:layout_marginTop="@dimen/list_view_inner_top_padding"
             tools:layout_width="50dp"
             tools:layout_height="50dp"
@@ -165,7 +165,7 @@
             style="@style/ListViewSliderImage"
             android:layout_marginTop="0dp"
             android:contentDescription="@string/accessibility_brightness"
-            android:alpha="@{viewModel.isReachable() ? 1f : 0.5f}"
+            android:visibility="@{ safeUnbox(viewModel.isExpanded() || viewModel.isReachable()) ? View.VISIBLE : View.GONE }"
 
             android:src="@drawable/ic_brightness_5_black_24dp"
             app:layout_constraintLeft_toLeftOf="@+id/content_start_space"
@@ -175,7 +175,7 @@
             android:id="@+id/brightness_seek_bar"
 
             app:handles="@{viewModel.brightnessHandles}"
-            android:alpha="@{viewModel.isReachable() ? 1f : 0.5f}"
+            android:visibility="@{ safeUnbox(viewModel.isExpanded() || viewModel.isReachable()) ? View.VISIBLE : View.GONE }"
 
             app:offValueText="Off"
             app:supportsOffValue="true"
@@ -321,6 +321,26 @@
             app:layout_constraintLeft_toLeftOf="@+id/brightness_seek_bar"
             app:layout_constraintRight_toRightOf="@+id/brightness_seek_bar"
             app:layout_constraintTop_toTopOf="@+id/white_image_view" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/below_controls_barrier"
+            app:constraint_referenced_ids="white_seek_view,saturation_seek_bar"
+            app:barrierDirection="bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"/>
+
+        <TextView
+            android:textSize="@dimen/list_view_title_font_size"
+            android:textColor="#aa000000"
+            android:text="@string/light_unreachable_disclaimer"
+
+            android:visibility="@{!viewModel.isReachable() &amp;&amp; viewModel.isExpanded() ? View.VISIBLE : View.GONE}"
+
+            app:layout_constraintStart_toStartOf="@+id/brightness_image_view"
+            app:layout_constraintEnd_toEndOf="@+id/brightness_seek_bar"
+            app:layout_constraintTop_toBottomOf="@+id/below_controls_barrier"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

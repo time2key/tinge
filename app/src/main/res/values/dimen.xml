@@ -33,6 +33,7 @@
 
     <dimen name="view_light_left_image_width">38dp</dimen>
     <dimen name="view_group_left_image_width">56dp</dimen>
+    <dimen name="view_light_unreachable_image_width">22dp</dimen>
 
     <dimen name="fragment_connect_to_hub_horizontal_still_searching_padding">8dp</dimen>
     <dimen name="fragment_connect_to_hub_padding_above_large_image">8dp</dimen>

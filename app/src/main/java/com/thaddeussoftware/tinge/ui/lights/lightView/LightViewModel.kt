@@ -101,7 +101,12 @@ class LightViewModel(
                 updateBrightnessSliderColor()
                 updateExpandedFunctionalityVisibility()
             }
+        })
 
+        lightController.isReachable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                updateExpandedFunctionalityVisibility()
+            }
         })
 
 
@@ -144,7 +149,9 @@ class LightViewModel(
     }
 
     private fun updateExpandedFunctionalityVisibility() {
-        if (brightnessAndIsOnObservable.get() ?: 0f < 0f) {
+        if (lightController.isReachable.get() != true) {
+            showTopRightExpandButton.set(true)
+        } else if (brightnessAndIsOnObservable.get() ?: 0f < 0f) {
             showTopRightExpandButton.set(false)
             isExpanded.set(false)
         } else {
