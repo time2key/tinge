@@ -33,24 +33,30 @@ object LightsUiHelper {
                     // Do nothing
                     Log.v("tinge", "LightsUiHelper brightness slider changed to null ???")
                 } else if (value < 0) {
-                    isOnStageableProperty.stageValue(false)
+                    if (isOnStageableProperty.lastValueRetrievedFromHub != false) {
+                        isOnStageableProperty.stageValue(false)
+                    }
                     Log.v("tinge", "LightsUiHelper brightness slider changed to off, setting light controller off ")
                 } else if (value >= 0f){
                     Log.v("tinge", "LightsUiHelper brightness slider changed, setting light controller brightness to: "+value)
-                    isOnStageableProperty.stageValue(true)
-                    brightnessStageableProperty.stageValue(value)
+                    if (isOnStageableProperty.lastValueRetrievedFromHub != true) {
+                        isOnStageableProperty.stageValue(true)
+                    }
+                    if (brightnessStageableProperty.lastValueRetrievedFromHub != value) {
+                        brightnessStageableProperty.stageValue(value)
+                    }
                 }
                 isPropertyBeingChangedByCode = false
             }
         })
 
         // When controller isOn property changed, UI property should be updated:
-        isOnStageableProperty.lastValueRetrievedFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        isOnStageableProperty.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                if (isOnStageableProperty.lastValueRetrievedFromHub == false) {
+                if (isOnStageableProperty.stagedValueOrLastValueFromHub == false) {
                     Log.v("tinge", "LightsUiHelper controller isOn set to false, updating slider")
                     brightnessViewModelProperty.set(-1f)
-                } else if (isOnStageableProperty.lastValueRetrievedFromHub == true) {
+                } else if (isOnStageableProperty.stagedValueOrLastValueFromHub == true) {
                     Log.v("tinge", "LightsUiHelper controller isOn set to true, updating slider")
                     brightnessViewModelProperty.set(brightnessStageableProperty.stagedValueOrLastValueFromHub)
                 } else {
@@ -61,12 +67,12 @@ object LightsUiHelper {
         })
 
         // When controller brightness property changed, UI property should be updated:
-        brightnessStageableProperty.lastValueRetrievedFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        brightnessStageableProperty.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                if (isOnStageableProperty.lastValueRetrievedFromHub == false) {
+                if (isOnStageableProperty.stagedValueOrLastValueFromHub == false) {
                     Log.v("tinge", "LightsUiHelper controller brightness changed, isOn is false, updating slider")
                     brightnessViewModelProperty.set(-1f)
-                } else if (isOnStageableProperty.lastValueRetrievedFromHub == true) {
+                } else if (isOnStageableProperty.stagedValueOrLastValueFromHub == true) {
                     Log.v("tinge", "LightsUiHelper controller brightness changed, isOn is true, updating slider")
                     brightnessViewModelProperty.set(brightnessStageableProperty.stagedValueOrLastValueFromHub)
                 } else {
