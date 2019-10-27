@@ -75,6 +75,7 @@ class GroupViewModel(
             }
         })
 
+        refreshSecondaryText()
         refreshListOfLightsToMatchController()
         setupColorForBackgroundView()
     }
