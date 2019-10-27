@@ -150,12 +150,11 @@ class GroupView @JvmOverloads constructor(
         val weightedColors = ArrayList<WeightedStripedColorDrawable.GlassToolbarWeightedColor>()
 
         viewModel?.lightGroupController?.lightsNotInSubgroup?.forEach {
-            val colour = LightsUiHelper.getFadedBackgroundColourFromLightColour(
-                    it.hue.stagedValueOrLastValueFromHub,
-                    it.saturation.stagedValueOrLastValueFromHub,
-                    it.brightness.stagedValueOrLastValueFromHub,
-                    it.isOn.stagedValueOrLastValueFromHub)
-            val weight = if (it.isOn.stagedValueOrLastValueFromHub != true) 0.5f else 1f
+            val colour = LightsUiHelper.getFadedBackgroundColourFromLightController(it)
+            val weight =
+                    if (it.isReachable.get() != true) 0.35f
+                    else if (it.isOn.stagedValueOrLastValueFromHub != true) 0.5f
+                    else 1f
             weightedColors.add(WeightedStripedColorDrawable.GlassToolbarWeightedColor(colour, 0f, weight))
         }
         backgroundDrawable.weightedColors = weightedColors
@@ -172,6 +171,13 @@ class GroupView @JvmOverloads constructor(
 
         val paint = Paint()
 
+        var numberOfLightsToShow = viewModel?.lightGroupController?.lightsNotInSubgroup?.
+                count { it.isReachable.get() == true } ?: 0
+        val includeUnreachableLights = numberOfLightsToShow == 0
+        if (includeUnreachableLights) {
+            numberOfLightsToShow = viewModel?.lightGroupController?.lightsNotInSubgroup?.size ?: 0
+        }
+
         if (individualLightBitmaps.size == 1) {
             val bitmap = individualLightBitmaps.get(0)
             canvas.drawBitmap(bitmap,
@@ -182,9 +188,16 @@ class GroupView @JvmOverloads constructor(
                     viewModel?.lightGroupController?.lightsNotInSubgroup?.getOrNull(0)),
                     PorterDuff.Mode.MULTIPLY)
         } else {
+            var drawnLightI = 0
             individualLightBitmaps.forEachIndexed { i, bitmap ->
-                val startAngle = Math.PI * 2 * i / individualLightBitmaps.size
-                val endAngle = Math.PI * 2 * (i + 1) / individualLightBitmaps.size
+                val lightController = viewModel?.lightGroupController?.lightsNotInSubgroup?.getOrNull(i)
+
+                if (lightController?.isReachable?.get() != true && !includeUnreachableLights) {
+                    return@forEachIndexed
+                }
+
+                val startAngle = Math.PI * 2 * drawnLightI / numberOfLightsToShow
+                val endAngle = Math.PI * 2 * (drawnLightI + 1) / numberOfLightsToShow
                 val midAngle = startAngle * 0.5 + endAngle * 0.5
 
                 val path = Path()
@@ -209,10 +222,12 @@ class GroupView @JvmOverloads constructor(
 
                 canvas.drawColor(
                         LightsUiHelper.getPreviewImageTintColourFromLightController(
-                                viewModel?.lightGroupController?.lightsNotInSubgroup?.getOrNull(i)),
+                                lightController),
                         PorterDuff.Mode.MULTIPLY)
 
                 canvas.restore()
+
+                drawnLightI += 1
             }
         }
 

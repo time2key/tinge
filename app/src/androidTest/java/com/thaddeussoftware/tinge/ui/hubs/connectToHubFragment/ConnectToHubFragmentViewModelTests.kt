@@ -1,7 +1,5 @@
 package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment
 
-import android.os.Handler
-import android.os.Looper
 import androidx.databinding.Observable
 import androidx.test.platform.app.InstrumentationRegistry
 import com.thaddeussoftware.tinge.TingeApplication
@@ -19,7 +17,13 @@ import org.mockito.Mockito.verify
 
 class ConnectToHubFragmentViewModelTests {
 
-    var wasCorrectMethodCalled = false
+    /**
+     * The username is requested from the hub every 1.5 seconds, so the tests wait 2 seconds to
+     * make sure that the username will definitely have been requested from the hub.
+     * */
+    private val TIME_TO_WAIT_MS: Long = 2_000
+
+    private var wasCorrectMethodCalled = false
 
     @Before
     fun setup() {
@@ -28,12 +32,12 @@ class ConnectToHubFragmentViewModelTests {
     }
 
     @Test
-    fun test() {
+    fun viewModelSetupWithFakeClassesThatFindAndAuthenticateHub_deviceAddedEventCalledAndHueHubAddedToRoomDao() {
         // Arrange:
         val deviceHubDao = Mockito.mock(HueHubsDao::class.java)
 
         val viewModel = ConnectToHubFragmentViewModel(
-                getHubFinder(), getHueHubCredentialsObtainer(), deviceHubDao)
+                getFakeHubFinderThatFindsAHub(), getFakeHueHubCredentialsObtainer(), deviceHubDao)
 
         viewModel.deviceAddedEvent.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
@@ -45,15 +49,18 @@ class ConnectToHubFragmentViewModelTests {
         viewModel.startSearchingForHubs()
         viewModel.resumeViewModel()
 
-        Thread.sleep(11000)
+        Thread.sleep(TIME_TO_WAIT_MS)
 
         // Assert:
         verify(deviceHubDao).addHueHub(anyObject())
         assertTrue(wasCorrectMethodCalled)
     }
 
-    fun getHubFinder(): GenericHubFinder = object : GenericHubFinder() {
-
+    /**
+     * @return
+     * A fake [GenericHubFinder] that immediately finds a hub with id "0" when searching starts.
+     * */
+    private fun getFakeHubFinderThatFindsAHub(): GenericHubFinder = object : GenericHubFinder() {
         override fun startFindingHubs() {
             hubSearchMethodIndividualResultFound(
                     HubSearchFoundResult.HubSearchIndividualResult(
@@ -66,7 +73,12 @@ class ConnectToHubFragmentViewModelTests {
         override fun reset() {}
     }
 
-    fun getHueHubCredentialsObtainer() = HueHubCredentialsObtainer(
+    /**
+     * @return
+     * A fake [HueHubCredentialsObtainer] that returns the id "1" if the ipAddress is "0", or
+     * otherwise throws an exception.
+     * */
+    private fun getFakeHueHubCredentialsObtainer() = HueHubCredentialsObtainer(
             object: HueHubCredentialsObtainer.HueHubCredentialsRequestMaker() {
                 override fun obtainUsernameTokenOrNullFrom(ipAddress: String): Single<String>?
                         = if (ipAddress == "0") Single.just("1") else Single.error(RuntimeException())

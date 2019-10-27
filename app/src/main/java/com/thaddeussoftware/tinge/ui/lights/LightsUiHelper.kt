@@ -33,24 +33,30 @@ object LightsUiHelper {
                     // Do nothing
                     Log.v("tinge", "LightsUiHelper brightness slider changed to null ???")
                 } else if (value < 0) {
-                    isOnStageableProperty.stageValue(false)
+                    if (isOnStageableProperty.lastValueRetrievedFromHub != false) {
+                        isOnStageableProperty.stageValue(false)
+                    }
                     Log.v("tinge", "LightsUiHelper brightness slider changed to off, setting light controller off ")
                 } else if (value >= 0f){
                     Log.v("tinge", "LightsUiHelper brightness slider changed, setting light controller brightness to: "+value)
-                    isOnStageableProperty.stageValue(true)
-                    brightnessStageableProperty.stageValue(value?:0f)
+                    if (isOnStageableProperty.lastValueRetrievedFromHub != true) {
+                        isOnStageableProperty.stageValue(true)
+                    }
+                    if (brightnessStageableProperty.lastValueRetrievedFromHub != value) {
+                        brightnessStageableProperty.stageValue(value)
+                    }
                 }
                 isPropertyBeingChangedByCode = false
             }
         })
 
         // When controller isOn property changed, UI property should be updated:
-        isOnStageableProperty.lastValueRetrievedFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        isOnStageableProperty.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                if (isOnStageableProperty.lastValueRetrievedFromHub == false) {
+                if (isOnStageableProperty.stagedValueOrLastValueFromHub == false) {
                     Log.v("tinge", "LightsUiHelper controller isOn set to false, updating slider")
                     brightnessViewModelProperty.set(-1f)
-                } else if (isOnStageableProperty.lastValueRetrievedFromHub == true) {
+                } else if (isOnStageableProperty.stagedValueOrLastValueFromHub == true) {
                     Log.v("tinge", "LightsUiHelper controller isOn set to true, updating slider")
                     brightnessViewModelProperty.set(brightnessStageableProperty.stagedValueOrLastValueFromHub)
                 } else {
@@ -61,12 +67,12 @@ object LightsUiHelper {
         })
 
         // When controller brightness property changed, UI property should be updated:
-        brightnessStageableProperty.lastValueRetrievedFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
+        brightnessStageableProperty.stagedValueOrLastValueFromHubObservable.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-                if (isOnStageableProperty.lastValueRetrievedFromHub == false) {
+                if (isOnStageableProperty.stagedValueOrLastValueFromHub == false) {
                     Log.v("tinge", "LightsUiHelper controller brightness changed, isOn is false, updating slider")
                     brightnessViewModelProperty.set(-1f)
-                } else if (isOnStageableProperty.lastValueRetrievedFromHub == true) {
+                } else if (isOnStageableProperty.stagedValueOrLastValueFromHub == true) {
                     Log.v("tinge", "LightsUiHelper controller brightness changed, isOn is true, updating slider")
                     brightnessViewModelProperty.set(brightnessStageableProperty.stagedValueOrLastValueFromHub)
                 } else {
@@ -105,32 +111,55 @@ object LightsUiHelper {
                 lightController?.hue?.stagedValueOrLastValueFromHub,
                 lightController?.saturation?.stagedValueOrLastValueFromHub,
                 lightController?.brightness?.stagedValueOrLastValueFromHub,
-                lightController?.isOn?.stagedValueOrLastValueFromHub)
+                lightController?.isOn?.stagedValueOrLastValueFromHub,
+                lightController?.isReachable?.get())
     }
 
     /**
      * Gets the preview image tint colour to use in the UI, given the current setup of a light.
      * */
-    fun getPreviewImageTintColourFromLightColour(hue: Float?, saturation: Float?, brightness: Float?, isOn: Boolean?): Int {
+    fun getPreviewImageTintColourFromLightColour(
+            hue: Float?, saturation: Float?, brightness: Float?,
+            isOn: Boolean?, isReachable: Boolean?): Int {
         return if (isOn == true)
             ColorHelper.colorFromHsv(
                     hue ?: 0f,
                     saturation ?: 0f,
-                    0.5f + 0.5f * (brightness ?: 0f))
-        else ColorHelper.colorFromHsv(0f, 0f, 0.2f)
+                    0.5f + 0.5f * (brightness ?: 0f),
+                    (if (isReachable == true) 1.0f else 0.5f))
+        else ColorHelper.colorFromHsv(
+                0f, 0f, 0.2f,
+                (if (isReachable == true) 1.0f else 0.5f))
+    }
+
+    /**
+     * Gets the faded background colour to use in the UI, given a light.
+     * */
+    fun getFadedBackgroundColourFromLightController(lightController: LightController?): Int {
+        return getFadedBackgroundColourFromLightColour(
+                lightController?.hue?.stagedValueOrLastValueFromHub,
+                lightController?.saturation?.stagedValueOrLastValueFromHub,
+                lightController?.brightness?.stagedValueOrLastValueFromHub,
+                lightController?.isOn?.stagedValueOrLastValueFromHub,
+                lightController?.isReachable?.get())
     }
 
     /**
      * Gets the faded background colour to use in the UI, given the current setup of a light.
      * */
-    fun getFadedBackgroundColourFromLightColour(hue: Float?, saturation: Float?, brightness: Float?, isOn: Boolean?): Int {
+    fun getFadedBackgroundColourFromLightColour(
+            hue: Float?, saturation: Float?, brightness: Float?,
+            isOn: Boolean?, isReachable: Boolean?): Int {
         return if (isOn == true) {
             ColorHelper.colorFromHsv(
                     hue ?: 0f,
                     (saturation ?: 0f) * 0.225f * (0.5f + 0.5f * (brightness ?: 0f)),
-                    1.0f)
+                    1.0f,
+                    (if (isReachable == true) 1.0f else 0.5f))
         } else {
-            ColorHelper.colorFromHsv(0f, 0f, 0.93f)
+            ColorHelper.colorFromHsv(
+                    0f, 0f, 0.93f,
+                    (if (isReachable == true) 1.0f else 0.5f))
         }
     }
 

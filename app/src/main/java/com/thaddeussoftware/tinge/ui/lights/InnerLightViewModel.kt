@@ -5,7 +5,20 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableList
 import android.view.View
 import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
+import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
+import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
+import com.thaddeussoftware.tinge.R
 
+/**
+ * Represents a ViewModel that contains an inner light view (With a title, a brightness slider,
+ * an expandable area containing hue and saturation sliders).
+ *
+ * This class exists in order to make large parts of shared behaviour from [LightViewModel] and
+ * [GroupViewModel] into one common class.
+ *
+ * [R.layout.view_inner_light] can then bind directly to this ViewModel, whether it is a
+ * [LightViewModel] or [GroupViewModel], meaning only one view implementation needs to exist.
+ * */
 abstract class InnerLightViewModel: ViewModel() {
 
     /**
@@ -28,24 +41,21 @@ abstract class InnerLightViewModel: ViewModel() {
     abstract val doesSupportColorMode: ObservableField<Boolean>
 
     /**
-     * Hue of the light from 0 - 1
-     * Null if unknown or this is a group with different values
+     * [SliderViewHandle]s for Hues to show in Hue slider (from 0 - 1)
      * */
     abstract val hueHandles: ObservableList<SliderViewHandle>
     /**
-     * Saturation of the light from 0 - 1
-     * Null if unknown or this is a group with different values
+     * [SliderViewHandle]s for Saturation values to show in Saturation slider (from 0 - 1)
      * */
     abstract val saturationHandles: ObservableList<SliderViewHandle>
     /**
-     * Brightness of the light from 0 - 1
-     * Null if unknown or this is a group with different values
+     * [SliderViewHandle]s for Brightness values to show in Brightness slider (from 0 - 1)
+     * Lights that are off should be set to -1.
      * */
     abstract val brightnessHandles: ObservableList<SliderViewHandle>
 
     /**
-     * White temperature of the light from 0 - 1
-     * Null if unknown or this is a group with different values
+     * [SliderViewHandle]s for White temperatures to show in White temperature slider (from 0 - 1)
      * */
     abstract val whiteTemperatureHandles: ObservableList<SliderViewHandle>
 
@@ -75,7 +85,18 @@ abstract class InnerLightViewModel: ViewModel() {
      * */
     abstract val displayName: ObservableField<String?>
 
+    /**
+     * This can be used to add a second line of information below [displayName]
+     * */
     abstract val secondaryInformation: ObservableField<String?>
+
+    /**
+     * Whether this light / group is currently reachable or not.
+     *
+     * Groups should always return true if the Hub that the group is in is reachable by the app,
+     * regardless of whether any of the lights in the group are reachable or not.
+     * */
+    abstract val isReachable: ObservableField<Boolean>
 
 
     abstract fun onExpandContractButtonClicked(view: View)

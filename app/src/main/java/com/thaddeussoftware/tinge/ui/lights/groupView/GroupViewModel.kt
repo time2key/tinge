@@ -37,6 +37,8 @@ class GroupViewModel(
 
     override val secondaryInformation = ObservableField<String?>("")
 
+    override val isReachable = ObservableField<Boolean>(true)
+
     val meanBrightness = ObservableField<Float>(0f)
     val meanHue = ObservableField<Float>(0f)
     val meanSaturation = ObservableField<Float>(0f)
@@ -121,7 +123,8 @@ class GroupViewModel(
                         meanHue.get(), meanSaturation.get(), meanBrightness.get(),
                         lightGroupController.lightsNotInSubgroup.any {
                             it.isOn.stagedValueOrLastValueFromHub == true
-                        }))
+                        },
+                        true))
     }
 
     private fun updateMeanProperties() {
@@ -230,9 +233,7 @@ class GroupViewModel(
                         lightViewModel.lightController == lightController
                     },
                     {
-                        //if (it.lightController.hubController == hubController) {
                         individualLightViewModels.remove(it)
-                        //}
                     },
                     {
                         val lightViewModel = LightViewModel(it)
