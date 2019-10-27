@@ -17,6 +17,9 @@ class IsReachablePropertyTests {
 
     private var wasCorrectMethodCalled = false
 
+    /**
+     * Blank fake [LightController] with no logic in it
+     * */
     private lateinit var lightController: LightController
 
 
