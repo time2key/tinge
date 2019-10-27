@@ -159,15 +159,15 @@ class LightViewModel(
         }
     }
 
-    override fun onExpandContractButtonClicked(view: View) {
+    override fun onExpandContractButtonClicked() {
         isExpanded.set(! (isExpanded.get() ?: false))
     }
 
-    override fun onColorTabClicked(view: View) {
+    override fun onColorTabClicked() {
         isInColorMode.set(true)
     }
 
-    override fun onWhiteTabClicked(view: View) {
+    override fun onWhiteTabClicked() {
         isInColorMode.set(false)
     }
 

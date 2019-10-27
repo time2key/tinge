@@ -99,10 +99,10 @@ abstract class InnerLightViewModel: ViewModel() {
     abstract val isReachable: ObservableField<Boolean>
 
 
-    abstract fun onExpandContractButtonClicked(view: View)
+    abstract fun onExpandContractButtonClicked()
 
-    abstract fun onColorTabClicked(view: View)
+    abstract fun onColorTabClicked()
 
-    abstract fun onWhiteTabClicked(view: View)
+    abstract fun onWhiteTabClicked()
 
 }
