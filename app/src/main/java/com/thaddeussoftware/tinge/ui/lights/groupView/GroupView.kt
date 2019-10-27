@@ -125,8 +125,8 @@ class GroupView @JvmOverloads constructor(
         val saturation = viewModel?.meanSaturation?.get() ?: 0f
 
         binding.innerLightView.brightnessSeekBar.setTrackToColors(
-                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 0f, true),
-                LightsUiHelper.getColorForBrightnessSlider(hue, saturation, 1f, true))
+                LightsUiHelper.getColorForBrightnessSliderTrack(hue, saturation, 0f, true),
+                LightsUiHelper.getColorForBrightnessSliderTrack(hue, saturation, 1f, true))
     }
 
     fun setupHueSlider() {

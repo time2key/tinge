@@ -86,10 +86,23 @@ object LightsUiHelper {
     }
 
     /**
-     * Get the color that the brightness slider (handle & track) should be, given a hue, saturation
-     * and value.
+     * Get the color that the brightness slider HANDLE should be, for given light values.
      * */
-    fun getColorForBrightnessSlider(hue: Float, saturation: Float, brightness: Float, isOn: Boolean): Int {
+    fun getColorForBrightnessSliderHandle(hue: Float, saturation: Float, brightness: Float, isOn: Boolean): Int {
+        if (isOn) {
+            return ColorUtils.blendARGB(
+                    0xff888888.toInt()
+                    , ColorHelper.colorFromHsv(hue, saturation, 1f)
+                    , 0.2f + 0.8f * brightness)
+        } else {
+            return 0xff444444.toInt()
+        }
+    }
+
+    /**
+     * Get the color that the brightness slider TRACK should be, for given light values.
+     * */
+    fun getColorForBrightnessSliderTrack(hue: Float, saturation: Float, brightness: Float, isOn: Boolean): Int {
         if (isOn) {
             return ColorUtils.blendARGB(
                     0xff888888.toInt()
@@ -101,6 +114,16 @@ object LightsUiHelper {
                     , ColorHelper.colorFromHsv(hue, saturation*0f, 1f)
                     , 0.2f + 0.8f * brightness)
         }
+    }
+
+    /**
+     * Get the color that the saturation slider (handle & track) should be, for given light values.
+     * */
+    fun getColorForSaturationSlider(hue: Float, saturation: Float): Int {
+        return ColorUtils.blendARGB(
+                0xffeeeeee.toInt(),
+                ColorHelper.colorFromHsv(hue, 1f, 1f),
+                saturation)
     }
 
     /**

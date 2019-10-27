@@ -4,11 +4,8 @@ import androidx.databinding.Observable
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableField
 import android.graphics.Color
-import androidx.core.graphics.ColorUtils
-import android.view.View
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.helpers.ColorHelper
-import com.thaddeussoftware.tinge.helpers.UiHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
@@ -129,23 +126,17 @@ class LightViewModel(
     }
 
     private fun updateSaturationSliderColor() {
-        val color2 = ColorHelper.colorFromHsv(hueObservable.get()?: 0f, 1f, 1f)
-
-        saturationHandles[0].color.set(ColorUtils.blendARGB(0xffeeeeee.toInt(), color2,
-                saturationObservable.get()?:1f))
+        saturationHandles[0].color.set(LightsUiHelper.getColorForSaturationSlider(
+                hueObservable.get() ?: 0f, saturationObservable.get() ?: 1f))
     }
 
     private fun updateBrightnessSliderColor() {
-        if (brightnessAndIsOnObservable.get() ?: 0f < 0) {
-            brightnessHandles[0].color.set(0xff444444.toInt())
-        } else {
-            brightnessHandles[0].color.set(
-                    LightsUiHelper.getColorForBrightnessSlider(
-                            hueObservable.get() ?: 0f,
-                            saturationObservable.get() ?: 1f,
-                            brightnessAndIsOnObservable.get() ?: 0f,
-                            brightnessAndIsOnObservable.get() ?: -1f >= 0f))
-        }
+        brightnessHandles[0].color.set(
+                LightsUiHelper.getColorForBrightnessSliderHandle(
+                        hueObservable.get() ?: 0f,
+                        saturationObservable.get() ?: 1f,
+                        brightnessAndIsOnObservable.get() ?: 0f,
+                        brightnessAndIsOnObservable.get() ?: -1f >= 0f))
     }
 
     private fun updateExpandedFunctionalityVisibility() {
