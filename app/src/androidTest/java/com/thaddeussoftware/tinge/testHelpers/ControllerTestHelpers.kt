@@ -1,4 +1,4 @@
-package com.thaddeussoftware.tinge
+package com.thaddeussoftware.tinge.testHelpers
 
 import androidx.databinding.ObservableField
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty

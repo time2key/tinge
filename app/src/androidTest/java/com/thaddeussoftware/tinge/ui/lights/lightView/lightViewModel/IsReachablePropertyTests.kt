@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.ui.lights.lightView.lightViewModel
 
 import androidx.databinding.Observable
-import com.thaddeussoftware.tinge.ControllerTestHelpers
+import com.thaddeussoftware.tinge.testHelpers.ControllerTestHelpers
 import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import junit.framework.Assert.*
