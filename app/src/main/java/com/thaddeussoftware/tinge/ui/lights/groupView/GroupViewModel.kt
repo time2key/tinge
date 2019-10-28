@@ -256,8 +256,7 @@ class GroupViewModel(
                         })
                         onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
                     },
-                    { lightViewModel, _ ->
-                        lightViewModel.refreshToMatchController()
+                    { _, _ ->
                     }
             )
         }

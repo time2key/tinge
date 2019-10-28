@@ -199,8 +199,4 @@ class LightViewModel(
         return Color.argb(255, red.toInt(), green.toInt(), blue.toInt())
     }
 
-    fun refreshToMatchController() {
-        displayName.set(lightController.displayName.stagedValueOrLastValueFromHub)
-        isInColorMode.set(lightController.isInColorMode.stagedValueOrLastValueFromHub)
-    }
 }
