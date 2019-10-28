@@ -75,6 +75,7 @@ class GroupViewModel(
             }
         })
 
+        refreshSecondaryText()
         refreshListOfLightsToMatchController()
         setupColorForBackgroundView()
     }
@@ -255,22 +256,21 @@ class GroupViewModel(
                         })
                         onIsReachableOrIsOnChangedForIndividualLight(lightViewModel)
                     },
-                    { lightViewModel, _ ->
-                        lightViewModel.refreshToMatchController()
+                    { _, _ ->
                     }
             )
         }
     }
 
-    override fun onExpandContractButtonClicked(view: View) {
+    override fun onExpandContractButtonClicked() {
         isExpanded.set(! (isExpanded.get() ?: false))
     }
 
-    override fun onColorTabClicked(view: View) {
+    override fun onColorTabClicked() {
         isInColorMode.set(true)
     }
 
-    override fun onWhiteTabClicked(view: View) {
+    override fun onWhiteTabClicked() {
         isInColorMode.set(false)
     }
 

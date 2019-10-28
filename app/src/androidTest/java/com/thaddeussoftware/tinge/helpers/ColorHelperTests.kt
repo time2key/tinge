@@ -38,6 +38,93 @@ class ColorHelperTests {
     //endregion
 
 
+    //region redFromColor
+
+    @Test
+    fun redFromColor_red_1Returned() {
+        // Assert:
+        assertEquals(1f, ColorHelper.redFromColor(0xff_ff0000.toInt()))
+    }
+
+    @Test
+    fun redFromColor_white_1Returned() {
+        // Assert:
+        assertEquals(1f, ColorHelper.redFromColor(0xff_ffffff.toInt()))
+    }
+
+    @Test
+    fun redFromColor_black_0Returned() {
+        // Assert:
+        assertEquals(0f, ColorHelper.redFromColor(0xff_000000.toInt()))
+    }
+
+    @Test
+    fun redFromColor_halfPurple_halfReturned() {
+        // Assert:
+        assertEquals(0.5f, ColorHelper.redFromColor(0xff_7f007f.toInt()), ACCEPTABLE_DEVIANCE)
+    }
+
+    //endregion
+
+
+    //region greenFromColor
+
+    @Test
+    fun greenFromColor_green_1Returned() {
+        // Assert:
+        assertEquals(1f, ColorHelper.greenFromColor(0xff_00ff00.toInt()))
+    }
+
+    @Test
+    fun greenFromColor_white_1Returned() {
+        // Assert:
+        assertEquals(1f, ColorHelper.greenFromColor(0xff_ffffff.toInt()))
+    }
+
+    @Test
+    fun greenFromColor_purple_0Returned() {
+        // Assert:
+        assertEquals(0f, ColorHelper.greenFromColor(0xff_ff00ff.toInt()))
+    }
+
+    @Test
+    fun greenFromColor_halfGrey_halfReturned() {
+        // Assert:
+        assertEquals(0.5f, ColorHelper.greenFromColor(0xff_7f7f7f.toInt()), ACCEPTABLE_DEVIANCE)
+    }
+
+    //endregion
+
+
+    //region blueFromColor
+
+    @Test
+    fun blueFromColor_blue_1Returned() {
+        // Assert:
+        assertEquals(1f, ColorHelper.blueFromColor(0xff_0000ff.toInt()))
+    }
+
+    @Test
+    fun blueFromColor_white_1Returned() {
+        // Assert:
+        assertEquals(1f, ColorHelper.blueFromColor(0xff_ffffff.toInt()))
+    }
+
+    @Test
+    fun blueFromColor_yellow_0Returned() {
+        // Assert:
+        assertEquals(0f, ColorHelper.blueFromColor(0xff_ffff00.toInt()))
+    }
+
+    @Test
+    fun blueFromColor_halfGrey_halfReturned() {
+        // Assert:
+        assertEquals(0.5f, ColorHelper.greenFromColor(0xff_7f7f7f.toInt()), ACCEPTABLE_DEVIANCE)
+    }
+
+    //endregion
+
+
     //region hueFromColor
 
     @Test
@@ -138,6 +225,16 @@ class ColorHelperTests {
     @Test
     fun colorFromHsv_murkyGreen_murkyGreen() {
         assertEquals(0xff_2fa17d.toInt(), ColorHelper.colorFromHsv(161f/360f, 0.71f, 0.63f))
+    }
+
+    //endregion
+
+
+    //region colorFromRgb
+
+    @Test
+    fun colorFromRgb_white_white() {
+        assertEquals(0xff_ffffff.toInt(), ColorHelper.colorFromRgb(1f, 1f, 1f))
     }
 
     //endregion

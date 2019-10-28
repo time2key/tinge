@@ -73,7 +73,7 @@
 
             android:src="@{ safeUnbox(viewModel.isExpanded()) ? @drawable/ic_expand_less_black_24dp : @drawable/ic_expand_more_black_24dp , default = @drawable/ic_expand_less_black_24dp}"
             android:visibility="@{ safeUnbox(viewModel.showTopRightExpandButton) ? View.VISIBLE : View.GONE}"
-            android:onClick="@{ viewModel::onExpandContractButtonClicked }"
+            android:onClick="@{ () -> viewModel.onExpandContractButtonClicked() }"
             android:contentDescription="@{ safeUnbox(viewModel.isExpanded()) ? @string/accessibility_contract : @string/accessibility_expand }"
 
             android:clickable="true"
@@ -209,7 +209,7 @@
 
                 <RadioButton
 
-                    android:onClick="@{ viewModel::onColorTabClicked }"
+                    android:onClick="@{ () -> viewModel.onColorTabClicked() }"
                     android:checked="@{ viewModel.isInColorMode() }"
 
                     style="@style/ToggleButton"
@@ -219,7 +219,7 @@
 
                 <RadioButton
 
-                    android:onClick="@{ viewModel::onWhiteTabClicked }"
+                    android:onClick="@{ () -> viewModel.onWhiteTabClicked() }"
                     android:checked="@{ !viewModel.isInColorMode() }"
 
                     style="@style/ToggleButton"
