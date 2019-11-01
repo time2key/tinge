@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.ui.lights.lightView.lightViewModel
 
 import com.thaddeussoftware.tinge.testHelpers.ControllerTestHelpers
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightController
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Before

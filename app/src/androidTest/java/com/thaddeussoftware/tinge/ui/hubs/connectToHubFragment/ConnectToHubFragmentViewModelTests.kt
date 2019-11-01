@@ -4,10 +4,10 @@ import androidx.databinding.Observable
 import androidx.test.platform.app.InstrumentationRegistry
 import com.thaddeussoftware.tinge.TingeApplication
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.GenericHubFinder
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.HubSearchFoundResult
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.HubSearchMethodUpdate
-import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubCredentialsObtainer
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.GenericHubFinder
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.HubSearchFoundResult
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.HubSearchMethodUpdate
+import com.thaddeussoftware.tinge.tingeapi.philipsHue.finder.HueHubCredentialsObtainer
 import io.reactivex.Single
 import junit.framework.Assert.assertTrue
 import org.junit.Before
@@ -60,7 +60,7 @@ class ConnectToHubFragmentViewModelTests {
      * @return
      * A fake [GenericHubFinder] that immediately finds a hub with id "0" when searching starts.
      * */
-    private fun getFakeHubFinderThatFindsAHub(): GenericHubFinder = object : GenericHubFinder() {
+    private fun getFakeHubFinderThatFindsAHub(): GenericHubFinder = object : com.thaddeussoftware.tinge.tingeapi.generic.finder.GenericHubFinder() {
         override fun startFindingHubs() {
             hubSearchMethodIndividualResultFound(
                     HubSearchFoundResult.HubSearchIndividualResult(

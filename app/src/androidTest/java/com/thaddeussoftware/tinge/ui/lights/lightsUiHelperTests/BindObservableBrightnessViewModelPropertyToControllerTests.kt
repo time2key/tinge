@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.ui.lights.lightsUiHelperTests
 
 import androidx.databinding.ObservableField
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import junit.framework.Assert.assertEquals
 import org.junit.Before

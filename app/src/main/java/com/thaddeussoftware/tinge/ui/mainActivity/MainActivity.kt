@@ -1,26 +1,21 @@
 package com.thaddeussoftware.tinge.ui.mainActivity
 
 import androidx.databinding.DataBindingUtil
-import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.core.graphics.ColorUtils
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.database.DatabaseSingleton
 import com.thaddeussoftware.tinge.databinding.ActivityMainBinding
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.HubSearchFoundResult
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.HubSearchFoundResult
 import com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment.ConnectToHubFragment
 import com.thaddeussoftware.tinge.ui.lights.lightListFragment.LightListFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import android.view.WindowManager
 import android.util.TypedValue
-import com.thaddeussoftware.tinge.helpers.ColorHelper
 
 
 class MainActivity : AppCompatActivity(), LightListFragment.LightListFragmentListener, ConnectToHubFragment.ConnectToHubFragmentListener, MultiColouredToolbarActivity {

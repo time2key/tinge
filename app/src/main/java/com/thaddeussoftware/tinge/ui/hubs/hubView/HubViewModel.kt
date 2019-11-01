@@ -3,7 +3,7 @@ package com.thaddeussoftware.tinge.ui.hubs.hubView
 import androidx.lifecycle.ViewModel
 import androidx.databinding.ObservableField
 import com.thaddeussoftware.tinge.R
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.HubSearchFoundResult
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.HubSearchFoundResult
 
 /**
  * Created by thaddeusreason on 16/02/2018.

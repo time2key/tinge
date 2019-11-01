@@ -1,21 +1,17 @@
 package com.thaddeussoftware.tinge.ui.lights.groupView
 
-import android.annotation.SuppressLint
 import androidx.databinding.Observable
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableField
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import android.view.View
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightGroupController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.helpers.ColorHelper
 import com.thaddeussoftware.tinge.ui.lights.InnerLightViewModel
 import com.thaddeussoftware.tinge.ui.lights.LightsUiHelper
 import com.thaddeussoftware.tinge.ui.lights.lightView.LightViewModel
 import com.thaddeussoftware.tinge.ui.sliderView.SliderViewHandle
-import io.reactivex.android.schedulers.AndroidSchedulers
 
 class GroupViewModel(
         val lightGroupController: LightGroupController

@@ -1,0 +1,95 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 29
+
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core-ktx:1.1.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // ViewModel and LiveData:
+    implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.ext.androidXLifecycleVersion"
+    kapt "androidx.lifecycle:lifecycle-compiler:$rootProject.ext.androidXLifecycleVersion"
+
+
+    //
+    // THIRD PARTY LIBRARIES
+    //
+
+    // RxJava 2:
+    implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: "$rootProject.ext.rxJavaVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxJavaVersion"
+    // Gson elegant json parsing:
+    implementation 'com.google.code.gson:gson:2.8.5'
+    // Retrofit elegant HTTP api networking library:
+    api "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
+    kapt "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
+    // OKHttp networking library:
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okHttpVersion"
+
+    // Allow retrofit to return gson-parsed classes:
+    implementation "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
+    // Allow retrofit to return rxjava streams:
+    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+
+    // Dagger 2 itself:
+    implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
+    // Dagger 2 Android - allows use of DaggerActivity etc:
+    implementation "com.google.dagger:dagger-android:$rootProject.ext.daggerVersion"
+    kapt "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
+    // Dagger 2 Android for support libraries:
+    implementation "com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion"
+
+
+    //
+    // TESTING
+    //
+
+    // JUnit and Espresso (Standard for every android project):
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.annotation:annotation:1.1.0'
+    testImplementation 'androidx.test:rules:1.2.0'
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // Mockito test mocking:
+    testImplementation 'org.mockito:mockito-core:2.19.0'
+    androidTestImplementation 'org.mockito:mockito-android:2.18.3'
+
+    // OKHttp test web server:
+    testImplementation "com.squareup.okhttp3:mockwebserver:$rootProject.ext.okHttpVersion"
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:$rootProject.ext.okHttpVersion"
+}

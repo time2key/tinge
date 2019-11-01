@@ -7,24 +7,17 @@ import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableField
 import android.os.Handler
 import android.os.Looper
-import com.google.gson.GsonBuilder
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.thaddeussoftware.tinge.database.DatabaseSingleton
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
 import com.thaddeussoftware.tinge.database.phillipsHue.lights.HueLightsDao
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
-import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.controller.HueHubController
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.HubController
+import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.HueHubController
 import com.thaddeussoftware.tinge.helpers.CollectionComparisonHelper
 import com.thaddeussoftware.tinge.ui.lights.groupView.GroupViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class LightListFragmentViewModel(
-        val retrofitBuilder: Retrofit.Builder = Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create()),
         val hueHubsDao: HueHubsDao = DatabaseSingleton.database.hueHubsDao(),
         val hueLightsDao: HueLightsDao = DatabaseSingleton.database.hueLightsDao()
 ): ViewModel() {

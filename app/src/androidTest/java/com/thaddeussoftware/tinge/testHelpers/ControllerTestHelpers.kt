@@ -1,10 +1,10 @@
 package com.thaddeussoftware.tinge.testHelpers
 
 import androidx.databinding.ObservableField
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.HubController
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightGroupController
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.ControllerInternalStageableProperty
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.HubController
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightController
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightGroupController
 
 object ControllerTestHelpers {
     /**

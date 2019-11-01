@@ -1,6 +1,5 @@
 package com.thaddeussoftware.tinge.ui.hubs.connectToHubFragment
 
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
@@ -12,7 +11,7 @@ import androidx.databinding.Observable
 import com.thaddeussoftware.tinge.BR
 import com.thaddeussoftware.tinge.R
 import com.thaddeussoftware.tinge.databinding.FragmentConnectToHubBinding
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.HubSearchFoundResult
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.HubSearchFoundResult
 import com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 

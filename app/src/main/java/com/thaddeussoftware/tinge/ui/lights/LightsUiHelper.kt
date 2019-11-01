@@ -4,8 +4,8 @@ import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.core.graphics.ColorUtils
 import android.util.Log
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.ControllerInternalStageableProperty
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.controller.LightController
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.ControllerInternalStageableProperty
+import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightController
 import com.thaddeussoftware.tinge.helpers.ColorHelper
 import kotlin.math.sqrt
 

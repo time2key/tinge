@@ -9,12 +9,12 @@ import com.thaddeussoftware.tinge.TingeApplication
 import com.thaddeussoftware.tinge.database.DatabaseSingleton
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubsDao
 import com.thaddeussoftware.tinge.database.phillipsHue.hubs.HueHubEntity
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.GenericHubFinder
-import com.thaddeussoftware.tinge.deviceControlLibrary.generic.finder.HubSearchFoundResult
-import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubFinder
-import com.thaddeussoftware.tinge.deviceControlLibrary.philipsHue.finder.HueHubCredentialsObtainer
-import com.thaddeussoftware.tinge.deviceControlLibrary.utils.ipScanner.ScannableIpRangeCalculator
-import com.thaddeussoftware.tinge.deviceControlLibrary.utils.ipScanner.WifiDetailsFromContext
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.GenericHubFinder
+import com.thaddeussoftware.tinge.tingeapi.generic.finder.HubSearchFoundResult
+import com.thaddeussoftware.tinge.tingeapi.philipsHue.finder.HueHubFinder
+import com.thaddeussoftware.tinge.tingeapi.philipsHue.finder.HueHubCredentialsObtainer
+import com.thaddeussoftware.tinge.tingeapi.utils.ipScanner.ScannableIpRangeCalculator
+import com.thaddeussoftware.tinge.tingeapi.utils.ipScanner.WifiDetailsFromContext
 import com.thaddeussoftware.tinge.ui.hubs.hubView.HubViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,7 +28,7 @@ class ConnectToHubFragmentViewModel(
         /**
          * [HueHubFinder] instance to enable finding of hubs.
          * */
-        private val hueHubFinder: GenericHubFinder =
+        private val hueHubFinder: com.thaddeussoftware.tinge.tingeapi.generic.finder.GenericHubFinder =
                 HueHubFinder(ScannableIpRangeCalculator(
                         WifiDetailsFromContext(TingeApplication.tingeApplication as Context))),
         /**

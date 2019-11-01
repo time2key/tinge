@@ -11,6 +11,8 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -34,6 +36,8 @@ repositories {
 }
 
 dependencies {
+    implementation project(":tingeApi")
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -42,6 +46,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
 
     // Kotlin standard library:
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.ext.kotlin_version"
@@ -75,18 +80,6 @@ dependencies {
     // RxJava 2:
     implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: "$rootProject.ext.rxJavaVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxJavaVersion"
-    // Gson elegant json parsing:
-    implementation 'com.google.code.gson:gson:2.8.5'
-    // Retrofit elegant HTTP api networking library:
-    implementation "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
-    kapt "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
-    // OKHttp networking library:
-    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okHttpVersion"
-
-    // Allow retrofit to return gson-parsed classes:
-    implementation "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
-    // Allow retrofit to return rxjava streams:
-    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
 
     // Dagger 2 itself:
     implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
@@ -116,10 +109,6 @@ dependencies {
     // Mockito test mocking:
     testImplementation 'org.mockito:mockito-core:2.19.0'
     androidTestImplementation 'org.mockito:mockito-android:2.18.3'
-
-    // OKHttp test web server:
-    testImplementation "com.squareup.okhttp3:mockwebserver:$rootProject.ext.okHttpVersion"
-    androidTestImplementation "com.squareup.okhttp3:mockwebserver:$rootProject.ext.okHttpVersion"
 
 }
 
