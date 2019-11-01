@@ -19,11 +19,12 @@
         <TextView
             android:id="@+id/title_text_view"
 
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-
             android:text='@{ viewModel.name, default = "Connection method name"}'
             android:textSize="@dimen/list_view_title_font_size"
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
