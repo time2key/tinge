@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.thaddeussoftware.tinge">
+    package="com.thaddeussoftware.tinge"
+    android:sharedUserId="com.thaddeussoftware.tinge.uid">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
