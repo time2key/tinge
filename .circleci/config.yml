@@ -56,7 +56,7 @@ jobs:
           name: Install gsutil dependency and copy test results data
           command: |
             sudo pip install -U crcmod
-            sudo gsutil -m cp -r -U `sudo gsutil ls gs://test-lab-ardr1y5tyy1i6-hq8c9rj4w7mh2 | tail -1` /root/workspace/firebase/ | true
+            sudo gsutil -m cp -r -U `sudo gsutil ls gs://test-lab-ardr1y5tyy1i6-hq8c9rj4w7mh2 | tail -1` firebase/ | true
       - store_artifacts:
           path: firebase/
           destination: /firebase/
