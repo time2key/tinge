@@ -28,9 +28,15 @@ jobs:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - persist_to_workspace:
+          root: ~/
+          paths:
+
   lint_and_unitTest:
     <<: *android_config
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Run Lint and Unit Tests
           command: ./gradlew lint test
@@ -90,4 +96,4 @@ workflows:
             - checkout_download_and_cache_gradle_dependencies
       - run_integration_tests_on_firebase_test_lab:
           requires:
-            - checkout_download_and_cache_gradle_dependencies
+            - assembleDebug_and_assembleDebugAndroidTest
