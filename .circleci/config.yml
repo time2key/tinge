@@ -66,12 +66,12 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-              - app/build/outputs/apk/debug
+              - app/build/outputs/apk/debug/*
   firebaseTestLab:
     <<: *android_config
     steps:
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
           name: Store Google Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
