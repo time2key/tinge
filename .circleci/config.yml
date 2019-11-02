@@ -91,7 +91,7 @@ jobs:
               --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
               --device model=NexusLowRes \
               --environment-variables clearPackageData=true,coverage=true,coverageFilePath=/sdcard/coverage.ec,coverageFile=/sdcard/coverage.ec \
-              --directories-to-pull /sdcard/tmp/coverage.ec \
+              --directories-to-pull /sdcard/coverage.ec \
               --timeout 20m
       - run:
           name: Create directory to store test results
