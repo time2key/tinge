@@ -63,10 +63,13 @@ jobs:
           command: |
             ./gradlew :app:assembleDebug
             ./gradlew :app:assembleDebugAndroidTest
+      - run:
+          name: Debug files
+          commande: ls
       - persist_to_workspace:
           root: .
           paths:
-              - app/build/outputs/apk/debug/
+              - app/build/outputs/apk/debug
   firebaseTestLab:
     <<: *android_config
     steps:
