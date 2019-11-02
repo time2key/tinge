@@ -32,30 +32,47 @@ jobs:
           root: ~/
           paths: "*"
 
-  lint_and_unitTest:
+  lint:
     <<: *android_config
     steps:
       - attach_workspace:
           at: ~/
       - run:
-          name: Run Lint and Unit Tests
-          command: ./gradlew lint test
+          name: Run Lint
+          command: ./gradlew lint
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: app/build/reports
           destination: reports
+  unitTest:
+    <<: *android_config
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Run Unit Tests
+          command: ./gradlew test
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: app/build/test-results
   assembleDebug_and_assembleDebugAndroidTest:
     <<: *android_config
     steps:
+      - attach_workspace:
+          at: ~/
       - run:
           name: Build debug APK and release APK
           command: |
             ./gradlew :app:assembleDebug
             ./gradlew :app:assembleDebugAndroidTest
-  run_integration_tests_on_firebase_test_lab:
+      - persist_to_workspace:
+          root: ~/
+          paths:
+              - "app/build/outputs/apk/debug/app-debug.apk"
+              - "app/build/outputs/apk/debug/app-debug-androidTest.apk"
+  firebaseTestLab:
     <<: *android_config
     steps:
+      - attach_workspace:
+          at: ~/
       - run:
           name: Store Google Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
@@ -88,12 +105,17 @@ workflows:
   workflow:
     jobs:
       - checkout_download_and_cache_gradle_dependencies
-      - lint_and_unitTest:
+      - lint:
+          requires:
+            - checkout_download_and_cache_gradle_dependencies
+      - unitTest:
           requires:
             - checkout_download_and_cache_gradle_dependencies
       - assembleDebug_and_assembleDebugAndroidTest:
           requires:
             - checkout_download_and_cache_gradle_dependencies
-      - run_integration_tests_on_firebase_test_lab:
-          requires:
+      - firebaseTestLab:
+          requires: # Require everything so firebase test lab doesn't run unnecesarily:
             - assembleDebug_and_assembleDebugAndroidTest
+            - lint
+            - unitTest
