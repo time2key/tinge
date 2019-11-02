@@ -73,6 +73,9 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Debug output files
+          command: ls
+      - run:
           name: Store Google Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
       - run:
