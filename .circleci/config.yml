@@ -1,13 +1,19 @@
 # Based on https://circleci.com/docs/2.0/language-android/
+# and https://medium.com/@ayltai/all-you-need-to-know-about-circleci-2-0-with-firebase-test-lab-2a66785ff3c2
 version: 2.1
 
-jobs:
-  build:
+references:
+  android_config: &android_config
     working_directory: ~/code
     docker:
       - image: circleci/android:api-29
     environment:
       JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
+
+jobs:
+  checkout_download_and_cache_gradle_dependencies:
+    <<: *android_config
     steps:
       - checkout
       - restore_cache:
@@ -22,19 +28,28 @@ jobs:
           paths:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+  lint_and_unitTest:
+    <<: *android_config
+    steps:
       - run:
-          name: Run Unit Tests
+          name: Run Lint and Unit Tests
           command: ./gradlew lint test
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: app/build/reports
           destination: reports
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: app/build/test-results
+  assembleDebug_and_assembleDebugAndroidTest:
+    <<: *android_config
+    steps:
       - run:
           name: Build debug APK and release APK
           command: |
             ./gradlew :app:assembleDebug
             ./gradlew :app:assembleDebugAndroidTest
+  run_integration_tests_on_firebase_test_lab:
+    <<: *android_config
+    steps:
       - run:
           name: Store Google Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
@@ -44,7 +59,7 @@ jobs:
             sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
             sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
       - run:
-          name: Run Integration Tests With Firebase Test Lab
+          name: Run Integration Tests with Firebase Test Lab
           command: >
             sudo gcloud firebase test android run \
               --app app/build/outputs/apk/debug/app-debug.apk \
@@ -60,3 +75,19 @@ jobs:
       - store_artifacts:
           path: firebase/
           destination: /firebase/
+
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - checkout_download_and_cache_gradle_dependencies
+      - lint_and_unitTest:
+          requires:
+            - checkout_download_and_cache_gradle_dependencies
+      - assembleDebug_and_assembleDebugAndroidTest:
+          requires:
+            - checkout_download_and_cache_gradle_dependencies
+      - run_integration_tests_on_firebase_test_lab:
+          requires:
+            - checkout_download_and_cache_gradle_dependencies
