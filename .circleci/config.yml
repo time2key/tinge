@@ -119,9 +119,8 @@ workflows:
       - firebaseTestLab:
           filters:
             branches:
-              # only from pull requests, develop or master
+              # Only run on develop or master
               only:
-                - /^pull\/.*$/
                 - develop
                 - master
           requires: # Require everything so firebase test lab doesn't run unnecessarily:
