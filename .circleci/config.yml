@@ -36,7 +36,7 @@ jobs:
     <<: *android_config
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/
       - run:
           name: Run Lint and Unit Tests
           command: ./gradlew lint test
