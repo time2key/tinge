@@ -66,8 +66,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-              - "app/build/outputs/apk/debug/app-debug.apk"
-              - "app/build/outputs/apk/debug/app-debug-androidTest.apk"
+              - app/build/outputs/apk/debug/
   firebaseTestLab:
     <<: *android_config
     steps:
