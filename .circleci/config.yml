@@ -90,8 +90,7 @@ jobs:
               --app app/build/outputs/apk/debug/app-debug.apk \
               --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
               --environment-variables coverage=true,\
-              coverageFile=/sdcard/tmp/code-coverage/connected/coverage.ec \
-              --directories-to-pull /sdcard/tmp
+              coverageFile=/sdcard/tmp/code-coverage/connected/coverage.ec
       - run:
           name: Create directory to store test results
           command: mkdir firebase
