@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'jacoco'
 
 android {
     compileSdkVersion 29
@@ -25,6 +26,28 @@ android {
     dataBinding {
         enabled = true
     }
+}
+
+jacoco {
+    toolVersion = '0.8.0'
+}
+
+task jacocoTestReport(type: JacocoReport) {
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def fileFilter = [ '**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*' ]
+    def debugTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
+    def mainSrc = "$project.projectDir/src/main/kotlin"
+
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+    executionData = fileTree(dir: project.buildDir, includes: [
+            '*.exec', '*coverage.ec'
+    ])
 }
 
 repositories {
