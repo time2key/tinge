@@ -50,6 +50,9 @@ jobs:
               --app app/build/outputs/apk/debug/app-debug.apk \
               --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
       - run:
+          name: Create directory to store test results
+          command: mkdir firebase
+      - run:
           name: Install gsutil dependency and copy test results data
           command: |
             sudo pip install -U crcmod
