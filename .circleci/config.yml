@@ -12,7 +12,7 @@ references:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
 
 jobs:
-  checkout_download_and_cache_gradle_dependencies:
+  checkoutAndSetup:
     <<: *android_config
     steps:
       - checkout
@@ -53,7 +53,7 @@ jobs:
           command: ./gradlew test
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: app/build/test-results
-  assembleDebug_and_assembleDebugAndroidTest:
+  buildTestApks:
     <<: *android_config
     steps:
       - attach_workspace:
@@ -106,18 +106,25 @@ workflows:
   version: 2
   workflow:
     jobs:
-      - checkout_download_and_cache_gradle_dependencies
+      - checkoutAndSetup
       - lint:
           requires:
-            - checkout_download_and_cache_gradle_dependencies
+            - checkoutAndSetup
       - unitTest:
           requires:
-            - checkout_download_and_cache_gradle_dependencies
-      - assembleDebug_and_assembleDebugAndroidTest:
+            - checkoutAndSetup
+      - buildTestApks:
           requires:
-            - checkout_download_and_cache_gradle_dependencies
+            - checkoutAndSetup
       - firebaseTestLab:
-          requires: # Require everything so firebase test lab doesn't run unnecesarily:
-            - assembleDebug_and_assembleDebugAndroidTest
+          filters:
+            branches:
+              # only from pull requests, develop or master
+              only:
+                - /^pull\/.*$/
+                - develop
+                - master
+          requires: # Require everything so firebase test lab doesn't run unnecessarily:
+            - buildTestApks
             - lint
             - unitTest
