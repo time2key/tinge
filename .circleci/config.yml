@@ -63,9 +63,6 @@ jobs:
           command: |
             ./gradlew :app:assembleDebug
             ./gradlew :app:assembleDebugAndroidTest
-      - run:
-          name: Debug files
-          command: ls
       - persist_to_workspace:
           root: .
           paths:
