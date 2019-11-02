@@ -89,6 +89,9 @@ jobs:
             sudo gcloud firebase test android run \
               --app app/build/outputs/apk/debug/app-debug.apk \
               --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+              --environment-variables coverage=true,\
+              coverageFile=/sdcard/tmp/code-coverage/connected/coverage.ec \
+              --directories-to-pull=/sdcard/tmp \
       - run:
           name: Create directory to store test results
           command: mkdir firebase
@@ -117,12 +120,6 @@ workflows:
           requires:
             - checkoutAndSetup
       - firebaseTestLab:
-          filters:
-            branches:
-              # Only run on develop or master
-              only:
-                - develop
-                - master
           requires: # Require everything so firebase test lab doesn't run unnecessarily:
             - buildTestApks
             - lint
