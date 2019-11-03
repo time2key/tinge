@@ -55,6 +55,10 @@ jobs:
           path: app/build/test-results
       - store_artifacts:
           path: "app/build/jacoco"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - app/build/jacoco/*
   buildTestApks:
     <<: *android_config
     steps:
@@ -106,6 +110,18 @@ jobs:
       - store_artifacts:
           path: firebase/
           destination: /firebase/
+      - persist_to_workspace:
+          root: .
+          paths:
+            - firebase/*/*/artifacts/coverage.ec
+  coverageReport:
+    <<: *android_config
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Generate coverage report
+          command: ./gradlew jacocoTestReport
 
 
 workflows:
