@@ -16,6 +16,7 @@
         <FrameLayout
             android:background="#00ff0000"
             android:id="@+id/toolbar_holder"
+            app:layout_constraintTop_toTopOf="parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
