@@ -1,13 +1,154 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+# Based on https://circleci.com/docs/2.0/language-android/
+# and https://medium.com/@ayltai/all-you-need-to-know-about-circleci-2-0-with-firebase-test-lab-2a66785ff3c2
 version: 2.1
-# Use a package of configuration called an orb.
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.3.1
-# Orchestrate or schedule a set of jobs
+
+references:
+  android_config: &android_config
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-29
+    environment:
+      JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
+
+jobs:
+  checkoutAndSetup:
+    <<: *android_config
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+#      - run:
+#         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+#         command: sudo chmod +x ./gradlew
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - persist_to_workspace:
+          root: ~/
+          paths: "*"
+
+  lint:
+    <<: *android_config
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Run Lint
+          command: ./gradlew lint
+      - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: app/build/reports
+          destination: reports
+  unitTest:
+    <<: *android_config
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Run Unit Tests
+          command: ./gradlew test
+      - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: app/build/test-results
+      - store_artifacts:
+          path: "app/build/jacoco"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - app/build/jacoco/*
+  buildTestApks:
+    <<: *android_config
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Build debug APK and release APK
+          command: |
+            ./gradlew :app:assembleDebug
+            ./gradlew :app:assembleDebugAndroidTest
+      - persist_to_workspace:
+          root: .
+          paths: "*"
+  firebaseTestLab:
+    <<: *android_config
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Debug output files
+          command: ls app/build/outputs/apk/
+      - run:
+          name: Store Google Service Account
+          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      - run:
+          name: Authorize gcloud and set config defaults
+          command: |
+            sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Run Integration Tests with Firebase Test Lab
+          command: >
+            sudo gcloud firebase test android run \
+              --app app/build/outputs/apk/debug/app-debug.apk \
+              --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+              --device model=NexusLowRes \
+              --environment-variables clearPackageData=true,coverage=true,coverageFilePath=/sdcard/coverage.ec,coverageFile=/sdcard/coverage.ec \
+              --directories-to-pull /sdcard/ \
+              --timeout 20m
+      - run:
+          name: Create directory to store test results
+          command: mkdir firebase
+      - run:
+          name: Install gsutil dependency and copy test results data
+          command: |
+            sudo pip install -U crcmod
+            sudo gsutil -m cp -r -U `sudo gsutil ls gs://test-lab-ardr1y5tyy1i6-hq8c9rj4w7mh2 | tail -1` firebase/ | true
+      - store_artifacts:
+          path: firebase/
+          destination: /firebase/
+      - persist_to_workspace:
+          root: .
+          paths: "*"
+  coverageReport:
+    <<: *android_config
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Generate coverage report
+          command: ./gradlew jacocoTestReport
+      - run:
+          name: Debug output files
+          command: ls
+      - store_artifacts:
+          path: app/build/reports/jacoco/
+          destination: /codeCoverage/
+
+
 workflows:
-  # Name the workflow "welcome"
-  welcome:
-    # Run the welcome/run job in its own container
+  version: 2
+  workflow:
     jobs:
-      - welcome/run
+      - checkoutAndSetup
+      - lint:
+          requires:
+            - checkoutAndSetup
+      - unitTest:
+          requires:
+            - checkoutAndSetup
+      - buildTestApks:
+          requires:
+            - checkoutAndSetup
+      - firebaseTestLab:
+          requires: # Require everything so firebase test lab doesn't run unnecessarily:
+            - buildTestApks
+            - lint
+            - unitTest
+      - coverageReport:
+          requires:
+            - unitTest
+            - firebaseTestLab
+            - checkoutAndSetup

@@ -97,27 +97,33 @@ This is being done by building a new alternative to the Philips hue API.
 
 Tinge follows an MVVM pattern.
 
-Within the Tinge API,
-[RxJava 2](https://github.com/ReactiveX/RxJava/tree/2.x),
-[Gson](https://github.com/google/gson) and
-[Retrofit](https://github.com/square/retrofit) are used to communicate
-with the Hue Bridge.
-[Android Observables](https://developer.android.com/reference/android/databinding/ObservableField)
-are then exposed for consumers of the API.
+ - Within the Tinge API,
+ [RxJava 2](https://github.com/ReactiveX/RxJava/tree/2.x),
+ [Gson](https://github.com/google/gson) and
+ [Retrofit](https://github.com/square/retrofit) are used to communicate
+ with the Hue Bridge.
+ [Android Observables](https://developer.android.com/reference/android/databinding/ObservableField)
+ are then exposed for consumers of the API.
 
-The ViewModel layer of Tinge then subscribes to Observables from the
-API, and transforms these into Observables appropriate for the View
-layer.
+ - The ViewModel layer of Tinge then subscribes to Observables from the
+ API, and transforms these into Observables appropriate for the View
+ layer.
 
-The View layer makes liberal use of
-[ConstraintLayout](https://developer.android.com/training/constraint-layout),
-and subscribes to Observables from the ViewModel layer using
-[Data Binding](https://developer.android.com/topic/libraries/data-binding).
-[BindingCollectionAdapter](https://github.com/evant/binding-collection-adapter)
-is used to data bind RecyclerViews to ObservableLists from the
-ViewModel.
+ - The View layer makes liberal use of
+ [ConstraintLayout](https://developer.android.com/training/constraint-layout),
+ and subscribes to Observables from the ViewModel layer using
+ [Data Binding](https://developer.android.com/topic/libraries/data-binding).
+ [BindingCollectionAdapter](https://github.com/evant/binding-collection-adapter)
+ is used to data bind RecyclerViews to ObservableLists from the
+ ViewModel.
 
-For testing, [Mockito](https://github.com/mockito/mockito) and
-[OkHttp MockWebServer](https://github.com/square/okhttp/tree/master/mockwebserver)
-are used (in addition to the standard stuff like JUnit).
+ For testing, [Mockito](https://github.com/mockito/mockito) and
+ [OkHttp MockWebServer](https://github.com/square/okhttp/tree/master/mockwebserver)
+ are used (in addition to the standard stuff like JUnit).
 
+[CircleCI](https://circleci.com/gh/time2key/tinge) is used for
+continuous integration, which integrates with
+[Firebase Test Lab](https://firebase.google.com/docs/test-lab) for
+running UI and integration tests.
+
+[![CircleCI](https://circleci.com/gh/time2key/tinge.svg?style=svg)](https://circleci.com/gh/time2key/tinge)

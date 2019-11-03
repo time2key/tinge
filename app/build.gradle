@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'jacoco'
 
 android {
     compileSdkVersion 29
@@ -19,12 +20,46 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug{
-            testCoverageEnabled false
+            testCoverageEnabled true
         }
     }
     dataBinding {
         enabled = true
     }
+}
+
+jacoco {
+    toolVersion = '0.8.0'
+}
+
+task jacocoTestReport(type: JacocoReport) {
+    onlyIf = { true }
+    outputs.upToDateWhen { false }
+/*
+    executionData fileTree(project.rootDir.absolutePath)
+            .include("**.exec")
+            .include("**coverage.ec")
+*/
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+/*    subprojects.each {
+        sourceSets it.sourceSets.main
+    }*/
+
+    def fileFilter = [ '**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*' ]
+    def debugTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
+    def mainSrc = "$project.projectDir/src/main/kotlin"
+
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+    executionData = fileTree(dir: project.rootDir, includes: [
+            'app/build/jacoco/testDebugUnitTest.exec',
+            'app/build/outputs/code_coverage/debugAndroidTest/connected/*coverage.ec',
+            'firebase/**/artifacts/coverage.ec'
+    ])
 }
 
 repositories {
