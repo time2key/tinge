@@ -71,8 +71,7 @@ jobs:
             ./gradlew :app:assembleDebugAndroidTest
       - persist_to_workspace:
           root: .
-          paths:
-              - app/build/outputs/apk/*
+          paths: "*"
   firebaseTestLab:
     <<: *android_config
     steps:
