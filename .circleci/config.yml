@@ -112,8 +112,7 @@ jobs:
           destination: /firebase/
       - persist_to_workspace:
           root: .
-          paths:
-            - firebase/*/*/artifacts/coverage.ec
+          paths: "*"
   coverageReport:
     <<: *android_config
     steps:
