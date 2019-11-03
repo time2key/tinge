@@ -58,7 +58,7 @@ task jacocoTestReport(type: JacocoReport) {
     executionData = fileTree(dir: project.buildDir, includes: [
             'jacoco/testDebugUnitTest.exec',
             'outputs/code_coverage/debugAndroidTest/connected/*coverage.ec',
-            '*/artifacts/coverage.ec'
+            'firebase/**/artifacts/coverage.ec'
     ])
 }
 
