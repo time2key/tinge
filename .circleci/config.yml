@@ -147,3 +147,4 @@ workflows:
           requires:
             - unitTest
             - firebaseTestLab
+            - checkoutAndSetup
