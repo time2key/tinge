@@ -120,6 +120,12 @@ jobs:
       - run:
           name: Generate coverage report
           command: ./gradlew jacocoTestReport
+      - run:
+          name: Debug output files
+          command: ls
+      - store_artifacts:
+          path: app/build/reports/jacoco/
+          destination: /codeCoverage/
 
 
 workflows:
