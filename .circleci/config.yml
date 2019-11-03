@@ -143,7 +143,7 @@ workflows:
             - buildTestApks
             - lint
             - unitTest
-      - coverateReport:
+      - coverageReport:
           requires:
             - unitTest
             - firebaseTestLab
