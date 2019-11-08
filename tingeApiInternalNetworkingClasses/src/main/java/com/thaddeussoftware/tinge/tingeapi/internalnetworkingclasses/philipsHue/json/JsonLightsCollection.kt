@@ -1,6 +1,4 @@
-package com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.json
-
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.json.JsonLight
+package com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json
 
 import java.util.ArrayList
 

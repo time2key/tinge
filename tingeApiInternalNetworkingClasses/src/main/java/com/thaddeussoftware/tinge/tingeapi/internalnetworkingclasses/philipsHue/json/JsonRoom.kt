@@ -1,4 +1,4 @@
-package com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.json
+package com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json
 
 import com.google.gson.annotations.SerializedName
 

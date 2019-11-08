@@ -8,10 +8,9 @@ import com.thaddeussoftware.tinge.tingeapi.generic.controller.ControllerInternal
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.HubController
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightController
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightGroupController
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.json.JsonRoom
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.retrofitInterfaces.LightsRetrofitInterface
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.retrofitInterfaces.RoomsRetrofitInterface
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.json.JsonLight
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.retrofitInterfaces.LightsRetrofitInterface
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.retrofitInterfaces.RoomsRetrofitInterface
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json.JsonLight
 import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
@@ -201,7 +200,7 @@ class HueHubController constructor(
         }
     }
 
-    private fun updateRoomListToMatchRooms(rooms: Map<Int, JsonRoom>) {
+    private fun updateRoomListToMatchRooms(rooms: Map<Int, com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json.JsonRoom>) {
         var hasAnythingBeenAddedOrRemoved = false
         rooms.forEach { roomEntry ->
             if (roomsBackingList[roomEntry.key] == null) { // Add new room:

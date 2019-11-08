@@ -1,6 +1,6 @@
-package com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.retrofitInterfaces
+package com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.retrofitInterfaces
 
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.json.JsonRoom
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json.JsonRoom
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path

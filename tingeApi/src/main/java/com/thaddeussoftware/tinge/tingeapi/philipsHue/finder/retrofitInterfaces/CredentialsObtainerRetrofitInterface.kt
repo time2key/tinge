@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.tingeapi.philipsHue.finder.retrofitInterfaces
 
 import com.google.gson.annotations.SerializedName
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.json.JsonUsernameResponse
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json.JsonUsernameResponse
 import io.reactivex.Single
 
 import retrofit2.Response

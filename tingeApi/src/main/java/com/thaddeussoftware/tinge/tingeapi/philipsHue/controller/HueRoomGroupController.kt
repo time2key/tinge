@@ -4,7 +4,7 @@ import com.thaddeussoftware.tinge.tingeapi.generic.controller.ControllerInternal
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.HubController
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightController
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightGroupController
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.json.JsonRoom
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json.JsonRoom
 
 class HueRoomGroupController(
 

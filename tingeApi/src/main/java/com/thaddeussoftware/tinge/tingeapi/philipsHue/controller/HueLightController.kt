@@ -5,8 +5,8 @@ import android.util.Log
 import com.google.gson.Gson
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.ControllerInternalStageableProperty
 import com.thaddeussoftware.tinge.tingeapi.generic.controller.LightController
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.retrofitInterfaces.LightsRetrofitInterface
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.json.JsonLight
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json.JsonLight
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.retrofitInterfaces.LightsRetrofitInterface
 import io.reactivex.schedulers.Schedulers
 
 class HueLightController(

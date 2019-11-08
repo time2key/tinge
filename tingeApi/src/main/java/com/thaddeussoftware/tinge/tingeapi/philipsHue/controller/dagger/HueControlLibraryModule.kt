@@ -1,7 +1,7 @@
 package com.thaddeussoftware.tinge.tingeapi.philipsHue.dagger
 
 import com.thaddeussoftware.tinge.tingeapi.philipsHue.finder.retrofitInterfaces.CredentialsObtainerRetrofitInterface
-import com.thaddeussoftware.tinge.tingeapi.philipsHue.controller.retrofitInterfaces.LightsRetrofitInterface
+import com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.retrofitInterfaces.LightsRetrofitInterface
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit

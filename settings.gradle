@@ -1,1 +1,1 @@
-include ':app', ':tingeApi'
+include ':app', ':tingeApi', ':tingeApiInternalNetworkingClasses'

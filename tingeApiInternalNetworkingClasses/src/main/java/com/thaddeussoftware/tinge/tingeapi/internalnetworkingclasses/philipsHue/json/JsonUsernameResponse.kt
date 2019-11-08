@@ -1,4 +1,6 @@
-package com.thaddeussoftware.tinge.tingeapi.philipsHue.json
+package com.thaddeussoftware.tinge.tingeapi.internalnetworkingclasses.philipsHue.json
+
+import java.util.*
 
 /**
  * Created by thaddeusreason on 13/01/2018.
