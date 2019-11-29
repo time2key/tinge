@@ -3,8 +3,19 @@ apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
 
 dependencies {
+    implementation project(':tingeApiInternalNetworkingClasses')
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    // OKHttp test web server:
+    api "com.squareup.okhttp3:mockwebserver:$rootProject.ext.okHttpVersion"
+
+    // Mockito test mocking:
+    testImplementation 'org.mockito:mockito-core:2.19.0'
+    testImplementation 'org.mockito:mockito-inline:2.19.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
 
 sourceCompatibility = "8"
