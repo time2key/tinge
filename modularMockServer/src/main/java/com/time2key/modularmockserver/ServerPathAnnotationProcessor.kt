@@ -11,9 +11,7 @@ import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.ExecutableType
-import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
-import kotlin.reflect.KClass
 
 @AutoService(Processor::class)
 class ServerPathAnnotationProcessor: AbstractProcessor() {
@@ -31,15 +29,24 @@ class ServerPathAnnotationProcessor: AbstractProcessor() {
         roundEnvironment
                 .getElementsAnnotatedWith(ServerPath::class.java)
                 .forEach {
-                    assertElementIsValidForAnnotation(it)
+                    checkServerPathAnnotatedElementIsValid(it)
                 }
 
         return true
     }
 
-
-
-    private fun assertElementIsValidForAnnotation(element: Element): Boolean {
+    /**
+     * Checks that an element annotated with [ServerPath] is valid.
+     *
+     * If it is valid, true will be returned.
+     *
+     * If it is not, a Compiler error will be output for the element describing why it isn't valid,
+     * and false will be returned.
+     *
+     * @return
+     * Whether the element was valid.
+     * */
+    private fun checkServerPathAnnotatedElementIsValid(element: Element): Boolean {
         val typeMirrorOf_DispatcherModule = processingEnv.elementUtils.getTypeElement(DispatcherModule::class.qualifiedName).asType()
         val typeMirrorOf_MockResponse = processingEnv.elementUtils.getTypeElement(MockResponse::class.qualifiedName).asType()
         val typeMirrorOf_String = processingEnv.elementUtils.getTypeElement(String::class.java.name).asType()
@@ -112,6 +119,8 @@ class ServerPathAnnotationProcessor: AbstractProcessor() {
 
         return true
     }
+
+
 
     companion object {
         const val KAPT_KOTLIN_GENERATED_OPTION_NAME = "kapt.kotlin.generated"
