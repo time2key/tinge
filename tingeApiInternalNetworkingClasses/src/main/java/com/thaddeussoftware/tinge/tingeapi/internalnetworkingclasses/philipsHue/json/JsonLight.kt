@@ -20,7 +20,6 @@ class JsonLight {
 
     /**The current state that the light is in (color, brightness, on/off etc) */
     var state: JsonState? = null
-        private set
 
     /**Fixed name describing the type of light, e.g. "Extended color light" */
     var type: String? = null
@@ -29,7 +28,6 @@ class JsonLight {
     /**Name that the user has given the light, e.g. "Hue lamp 1". Between 0 and 32 characters in
      * length */
     var name: String? = null
-        //private set
 
     /**Model id identifying the type of light, e.g. "LCT001". Always 6 characters long */
     @SerializedName("modelid")
@@ -56,6 +54,9 @@ class JsonLight {
     var softwareVersion: String? = null
         private set
 
+    /**
+     * Represents the current modifiable state of the light (isOn, current colour, etc).
+     * */
     class JsonState {
 
         /**Whether the light is currently switched on or not */
@@ -184,6 +185,23 @@ class JsonLight {
              * */
             @SerializedName("ct")
             COLOR_TEMPERATURE
+        }
+    }
+
+    /**
+     * Represents the capabilities this light has (colour temperature limits, whether it supports
+     * colour mode, etc).
+     * */
+    class JsonCapabilities {
+        /**
+         * Whether this is an official Hue light
+         * */
+        var isCertified: Boolean? = null
+
+        var control: JsonControlCapabilities? = null
+
+        class JsonControlCapabilities {
+
         }
     }
 }
