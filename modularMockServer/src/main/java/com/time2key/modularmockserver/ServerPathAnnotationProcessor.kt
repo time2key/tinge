@@ -1,11 +1,16 @@
 package com.time2key.modularmockserver
 
 import com.google.auto.service.AutoService
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.RecordedRequest
+import java.util.regex.PatternSyntaxException
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.Processor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.ExecutableType
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 import kotlin.reflect.KClass
@@ -26,16 +31,84 @@ class ServerPathAnnotationProcessor: AbstractProcessor() {
         roundEnvironment
                 .getElementsAnnotatedWith(ServerPath::class.java)
                 .forEach {
-
-                    val enclosingClass = it.enclosingElement
-                    if (!processingEnv.typeUtils.isSubtype(
-                                    enclosingClass.asType(),
-                                    processingEnv.elementUtils.getTypeElement(DispatcherModule::class.qualifiedName).asType())) {
-                        processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
-                                "Functions annotated with ServerPath must be inside a DispatcherModule class",
-                                it)
-                    }
+                    assertElementIsValidForAnnotation(it)
                 }
+
+        return true
+    }
+
+
+
+    private fun assertElementIsValidForAnnotation(element: Element): Boolean {
+        val typeMirrorOf_DispatcherModule = processingEnv.elementUtils.getTypeElement(DispatcherModule::class.qualifiedName).asType()
+        val typeMirrorOf_MockResponse = processingEnv.elementUtils.getTypeElement(MockResponse::class.qualifiedName).asType()
+        val typeMirrorOf_String = processingEnv.elementUtils.getTypeElement(String::class.java.name).asType()
+        val typeMirrorOf_RecordedRequest = processingEnv.elementUtils.getTypeElement(RecordedRequest::class.qualifiedName).asType()
+
+        // Check element is a function:
+        if (element.asType() !is ExecutableType) {
+            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
+                    "Only functions can be annotated with ServerPath",
+                    element)
+            return false
+        }
+
+        // Check element is inside a DispatcherModule class:
+        val enclosingElementType = element.enclosingElement.asType()
+        if (!processingEnv.typeUtils.isSubtype(enclosingElementType, typeMirrorOf_DispatcherModule)) {
+            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
+                    "Functions annotated with ServerPath must be inside a DispatcherModule class",
+                    element)
+            return false
+        }
+
+
+
+        val executableType = element.asType() as ExecutableType
+        val serverPathAnnotation = element.getAnnotation(ServerPath::class.java)
+
+        // Check return type of function is MockResponse:
+        if (executableType.returnType != typeMirrorOf_MockResponse) {
+            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
+                    "ServerPath-annotated function must have return type MockResponse",
+                    element)
+            return false
+        }
+
+        // Check regex in annotation is valid:
+        val matchingPathRegex = try {
+            Regex(serverPathAnnotation.matchingPathRegex)
+        } catch (e: PatternSyntaxException) {
+            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
+                    "ServerPath annotation has invalid Regex",
+                    element)
+            return false
+        }
+
+        // Check parameters match:
+        var doParametersMatch = true
+        val totalRegexGroupCount = matchingPathRegex.toPattern().matcher("").groupCount()
+        val numberOfParameters = executableType.parameterTypes.size
+
+        if (numberOfParameters - 1 != totalRegexGroupCount) {
+            doParametersMatch = false
+        } else {
+            executableType.parameterTypes.forEachIndexed { index, parameterTypeMirror ->
+                if (index == 0 && parameterTypeMirror != typeMirrorOf_RecordedRequest) {
+                    doParametersMatch = false
+                }
+                if (index > 1 && parameterTypeMirror != typeMirrorOf_String) {
+                    doParametersMatch = false
+                }
+            }
+        }
+
+        if (!doParametersMatch) {
+            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
+                    "ServerPath-annotated function must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
+                    "Regex pattern ${matchingPathRegex.pattern} has ${totalRegexGroupCount} capturing groups",
+                    element)
+        }
 
         return true
     }
