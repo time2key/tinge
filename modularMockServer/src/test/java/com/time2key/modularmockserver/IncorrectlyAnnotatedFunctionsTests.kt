@@ -54,7 +54,7 @@ class IncorrectlyAnnotatedFunctionsTests {
         } catch (e: Exception) {
             assertTrue(e is RuntimeException)
             assertEquals(
-                    "ServerPath-annotated function functionMissingRecordedRequest should take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
+                    "ServerPath-annotated function functionMissingRecordedRequest must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
                             "Regex pattern .* has 0 capturing groups\n" +
                             "Expected arguments (RecordedRequest) - received arguments ()",
                     e.message)
@@ -79,7 +79,7 @@ class IncorrectlyAnnotatedFunctionsTests {
         } catch (e: Exception) {
             assertTrue(e is RuntimeException)
             assertEquals(
-                    "ServerPath-annotated function functionMissingRecordedRequest should take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
+                    "ServerPath-annotated function functionMissingRecordedRequest must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
                             "Regex pattern .* has 0 capturing groups\n" +
                             "Expected arguments (RecordedRequest) - received arguments (String)",
                     e.message)
@@ -104,7 +104,7 @@ class IncorrectlyAnnotatedFunctionsTests {
         } catch (e: Exception) {
             assertTrue(e is RuntimeException)
             assertEquals(
-                    "ServerPath-annotated function functionMissingRecordedRequest should take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
+                    "ServerPath-annotated function functionMissingRecordedRequest must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
                             "Regex pattern .* has 0 capturing groups\n" +
                             "Expected arguments (RecordedRequest) - received arguments (RecordedRequest, String)",
                     e.message)

@@ -47,7 +47,7 @@ abstract class DispatcherModule {
     private fun assertFunctionIsValidForAnnotation(member: KCallable<*>, annotation: ServerPath) {
         if (member.returnType.classifier != MockResponse::class) {
             val actualReturnTypeString = (member.returnType.classifier as? KClass<*>)?.simpleName ?: "(unknown)"
-            throw RuntimeException("ServerPath-annotated function ${member.name} has return type ${actualReturnTypeString} - should be MockResponse")
+            throw RuntimeException("ServerPath-annotated function ${member.name} has return type ${actualReturnTypeString} - must be MockResponse")
         }
 
         val matchingPathRegex = try {
@@ -57,9 +57,11 @@ abstract class DispatcherModule {
         }
 
         var doParametersMatch = true
-        val totalGroupCount = matchingPathRegex.toPattern().matcher("").groupCount()
+        val totalRegexGroupCount = matchingPathRegex.toPattern().matcher("").groupCount()
+        // Minus one because the first 'parameter' is the instance itself and not a parameter:
+        val numberOfParameters = member.parameters.size - 1
 
-        if (member.parameters.size - 2 != totalGroupCount) {
+        if (numberOfParameters - 1 != totalRegexGroupCount) {
             doParametersMatch = false
         } else {
             member.parameters.forEachIndexed { index, kParameter ->
@@ -80,10 +82,10 @@ abstract class DispatcherModule {
         if (!doParametersMatch) {
             val stringBuilder = StringBuilder()
 
-            stringBuilder.append("ServerPath-annotated function ${member.name} should take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n")
-            stringBuilder.append("Regex pattern ${matchingPathRegex.pattern} has ${totalGroupCount} capturing groups\n")
+            stringBuilder.append("ServerPath-annotated function ${member.name} must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n")
+            stringBuilder.append("Regex pattern ${matchingPathRegex.pattern} has ${totalRegexGroupCount} capturing groups\n")
             stringBuilder.append("Expected arguments (RecordedRequest")
-            for (i in 0 until totalGroupCount - 1) {
+            for (i in 0 until totalRegexGroupCount - 1) {
                 stringBuilder.append(", String")
             }
             stringBuilder.append(") - received arguments (")
