@@ -1,4 +1,4 @@
-package com.thaddeussoftware.tinge.tingeapi.tingeapifakeservers.modularMockServer
+package com.time2key.modularmockserver
 
 import junit.framework.Assert.assertTrue
 import okhttp3.mockwebserver.MockResponse

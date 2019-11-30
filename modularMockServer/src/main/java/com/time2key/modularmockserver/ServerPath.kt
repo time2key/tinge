@@ -1,4 +1,4 @@
-package com.thaddeussoftware.tinge.tingeapi.tingeapifakeservers.modularMockServer
+package com.time2key.modularmockserver
 
 import org.intellij.lang.annotations.RegExp
 

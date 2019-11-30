@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Tinge.iml" filepath="$PROJECT_DIR$/Tinge.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modularMockServer/modularMockServer.iml" filepath="$PROJECT_DIR$/modularMockServer/modularMockServer.iml" />
       <module fileurl="file://$PROJECT_DIR$/tingeApi/tingeApi.iml" filepath="$PROJECT_DIR$/tingeApi/tingeApi.iml" />
       <module fileurl="file://$PROJECT_DIR$/tingeApiFakeServers/tingeApiFakeServers.iml" filepath="$PROJECT_DIR$/tingeApiFakeServers/tingeApiFakeServers.iml" />
       <module fileurl="file://$PROJECT_DIR$/tingeApiInternalNetworkingClasses/tingeApiInternalNetworkingClasses.iml" filepath="$PROJECT_DIR$/tingeApiInternalNetworkingClasses/tingeApiInternalNetworkingClasses.iml" />

@@ -1,4 +1,4 @@
-package com.thaddeussoftware.tinge.tingeapi.tingeapifakeservers.modularMockServer
+package com.time2key.modularmockserver
 
 import junit.framework.Assert.*
 import okhttp3.mockwebserver.MockResponse
@@ -73,7 +73,7 @@ class MultiModuleDispatcherTests {
             assertEquals(
                     "No modules have been added matching call with path asg/sdgs\n" +
                             "There are 1 modules added:\n" +
-                            "com.thaddeussoftware.tinge.tingeapi.tingeapifakeservers.modularMockServer.MultiModuleDispatcherTests.NumbersDispatcherModule\n",
+                            "com.time2key.modularmockserber.MultiModuleDispatcherTests.NumbersDispatcherModule\n",
                     e.message)
         }
     }
