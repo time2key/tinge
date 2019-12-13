@@ -8,17 +8,25 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
-    // OKHttp test web server:
+    // OKHttp mock web server:
     api "com.squareup.okhttp3:mockwebserver:$rootProject.ext.okHttpVersion"
+
+    // Java poet for auto generating java code in annotation processor:
+    implementation 'com.squareup:javapoet:1.11.1'
+
+    // Kotlin Reflection api required to use reflection with Kotlin:
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    // Google auto service makes it easier to create annotation processors:
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+    kapt "com.google.auto.service:auto-service:1.0-rc3"
+
+    // TESTING:
 
     // Mockito test mocking:
     testImplementation 'org.mockito:mockito-core:2.19.0'
+    // Mockito inline makes it possible to mock final classes:
     testImplementation 'org.mockito:mockito-inline:2.19.0'
-
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-
-    compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
-    kapt "com.google.auto.service:auto-service:1.0-rc3"
 }
 
 sourceCompatibility = "8"
