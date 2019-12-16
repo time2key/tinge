@@ -1,4 +1,4 @@
-package com.time2key.modularmockserver
+package com.time2key.modularmockserver.internal
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest

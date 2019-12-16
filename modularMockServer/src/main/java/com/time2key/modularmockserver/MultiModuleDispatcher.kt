@@ -1,5 +1,6 @@
 package com.time2key.modularmockserver
 
+import com.time2key.modularmockserver.internal.ServerPathAnnotatedFunction
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
