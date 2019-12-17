@@ -119,7 +119,7 @@ abstract class DispatcherModule {
             stringBuilder.append("ServerPath-annotated function ${member.name} must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n")
             stringBuilder.append("Regex pattern ${matchingPathRegex.pattern} has ${totalRegexGroupCount} capturing groups\n")
             stringBuilder.append("Expected arguments (RecordedRequest")
-            for (i in 0 until totalRegexGroupCount - 1) {
+            for (i in 0 until totalRegexGroupCount) {
                 stringBuilder.append(", String")
             }
             stringBuilder.append(") - received arguments (")
