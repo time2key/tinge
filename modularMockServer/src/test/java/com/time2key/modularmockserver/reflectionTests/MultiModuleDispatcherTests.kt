@@ -1,5 +1,8 @@
-package com.time2key.modularmockserver
+package com.time2key.modularmockserver.reflectionTests
 
+import com.time2key.modularmockserver.DispatcherModule
+import com.time2key.modularmockserver.MultiModuleDispatcher
+import com.time2key.modularmockserver.ServerPath
 import junit.framework.Assert.*
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -28,6 +31,7 @@ class MultiModuleDispatcherTests {
     @Before
     fun setup() {
         multiModuleDispatcher = MultiModuleDispatcher()
+        multiModuleDispatcher.canUseReflectionFallback = true
         multiModuleDispatcher.addModule(NumbersDispatcherModule())
     }
 
@@ -73,7 +77,7 @@ class MultiModuleDispatcherTests {
             assertEquals(
                     "No modules have been added matching call with path asg/sdgs\n" +
                             "There are 1 modules added:\n" +
-                            "com.time2key.modularmockserber.MultiModuleDispatcherTests.NumbersDispatcherModule\n",
+                            "com.time2key.modularmockserver.reflectionTests.MultiModuleDispatcherTests.NumbersDispatcherModule\n",
                     e.message)
         }
     }

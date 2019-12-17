@@ -1,17 +1,24 @@
-package com.time2key.modularmockserver
+package com.time2key.modularmockserver.reflectionTests
 
-import junit.framework.Assert.assertTrue
+import com.time2key.modularmockserver.DispatcherModule
+import com.time2key.modularmockserver.MultiModuleDispatcher
+import com.time2key.modularmockserver.ServerPath
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
+import org.junit.Before
 import org.junit.Test
-import java.lang.Exception
 import java.lang.RuntimeException
 
 class IncorrectlyAnnotatedFunctionsTests {
 
     var multiModuleDispatcher = MultiModuleDispatcher()
+
+    @Before
+    fun setup() {
+        multiModuleDispatcher.canUseReflectionFallback = true
+    }
 
     @Test
     fun invalidRegex_correctFailure() {
@@ -28,8 +35,7 @@ class IncorrectlyAnnotatedFunctionsTests {
             multiModuleDispatcher.addModule(Module())
 
             fail("Exception should have been thrown")
-        } catch (e: Exception) {
-            assertTrue(e is RuntimeException)
+        } catch (e: RuntimeException) {
             assertEquals(
                     "ServerPath annotation for function functionWithInvalidRegex has invalid Regex",
                     e.message)
@@ -51,8 +57,7 @@ class IncorrectlyAnnotatedFunctionsTests {
             multiModuleDispatcher.addModule(Module())
 
             fail("Exception should have been thrown")
-        } catch (e: Exception) {
-            assertTrue(e is RuntimeException)
+        } catch (e: RuntimeException) {
             assertEquals(
                     "ServerPath-annotated function functionMissingRecordedRequest must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
                             "Regex pattern .* has 0 capturing groups\n" +
@@ -76,8 +81,7 @@ class IncorrectlyAnnotatedFunctionsTests {
             multiModuleDispatcher.addModule(Module())
 
             fail("Exception should have been thrown")
-        } catch (e: Exception) {
-            assertTrue(e is RuntimeException)
+        } catch (e: RuntimeException) {
             assertEquals(
                     "ServerPath-annotated function functionMissingRecordedRequest must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
                             "Regex pattern .* has 0 capturing groups\n" +
@@ -101,8 +105,7 @@ class IncorrectlyAnnotatedFunctionsTests {
             multiModuleDispatcher.addModule(Module())
 
             fail("Exception should have been thrown")
-        } catch (e: Exception) {
-            assertTrue(e is RuntimeException)
+        } catch (e: RuntimeException) {
             assertEquals(
                     "ServerPath-annotated function functionMissingRecordedRequest must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
                             "Regex pattern .* has 0 capturing groups\n" +
