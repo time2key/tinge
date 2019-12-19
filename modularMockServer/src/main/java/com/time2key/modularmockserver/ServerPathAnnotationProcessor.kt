@@ -172,7 +172,7 @@ class ServerPathAnnotationProcessor: AbstractProcessor() {
                 if (index == 0 && parameterTypeMirror != typeMirrorOf_RecordedRequest) {
                     doParametersMatch = false
                 }
-                if (index > 1 && parameterTypeMirror != typeMirrorOf_String) {
+                if (index > 0 && parameterTypeMirror != typeMirrorOf_String) {
                     doParametersMatch = false
                 }
             }
