@@ -23,6 +23,9 @@ dependencies {
 
     // TESTING:
 
+    // Compile testing compiles java code in a test, to test annotation processor:
+    testImplementation 'com.google.testing.compile:compile-testing:0.10'
+
     // Mockito test mocking:
     testImplementation 'org.mockito:mockito-core:2.19.0'
     // Mockito inline makes it possible to mock final classes:

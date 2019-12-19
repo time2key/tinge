@@ -324,7 +324,7 @@ class IncorrectlyAnnotatedFunctionsTests {
     }
 
     @Test
-    fun oneCapturingGroup_wrongSecondParameter_correctFailure() {
+    fun oneCapturingGroup_secondParameterIsSupertype_correctFailure() {
         // Arrange:
         class Module: DispatcherModule() {
             @ServerPath("a*(b*)c*")
@@ -343,6 +343,30 @@ class IncorrectlyAnnotatedFunctionsTests {
                     "ServerPath-annotated function functionWithAnyInsteadOfString must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
                             "Regex pattern a*(b*)c* has 1 capturing groups\n" +
                             "Expected arguments (RecordedRequest, String) - received arguments (RecordedRequest, Any)",
+                    e.message)
+        }
+    }
+
+    @Test
+    fun oneCapturingGroup_wrongSecondParameter_correctFailure() {
+        // Arrange:
+        class Module: DispatcherModule() {
+            @ServerPath("a*(b*)c*")
+            fun functionWithRecordedRequestInsteadOfString(recordedRequest: RecordedRequest, group: RecordedRequest): MockResponse {
+                return MockResponse()
+            }
+        }
+
+        // Act & Assert:
+        try {
+            multiModuleDispatcher.addModule(Module())
+
+            fail("Exception should have been thrown")
+        } catch (e: RuntimeException) {
+            assertEquals(
+                    "ServerPath-annotated function functionWithRecordedRequestInsteadOfString must take RecordedRequest parameter, and one parameter for each capturing group in the ServerPath regex\n" +
+                            "Regex pattern a*(b*)c* has 1 capturing groups\n" +
+                            "Expected arguments (RecordedRequest, String) - received arguments (RecordedRequest, RecordedRequest)",
                     e.message)
         }
     }
